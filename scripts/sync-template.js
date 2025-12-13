@@ -197,6 +197,40 @@ function renameEnvExample(templateDir) {
   }
 }
 
+// Rename dotfiles so npm doesn't strip them during publish
+// They'll be renamed back during scaffolding
+const DOTFILES_TO_RENAME = [
+  '.gitignore',
+  '.gitmodules',
+  '.prettierrc',
+  '.prettierignore',
+  '.npmrc',
+  '.releaserc',
+  '.swcrc',
+  '.env.example',
+];
+
+function renameDotfilesForNpm(dir) {
+  for (const dotfile of DOTFILES_TO_RENAME) {
+    const oldPath = path.join(dir, dotfile);
+    const newName = dotfile.slice(1); // Remove leading dot
+    const newPath = path.join(dir, newName);
+
+    if (fs.existsSync(oldPath)) {
+      fs.renameSync(oldPath, newPath);
+      console.log(`  Renamed: "${dotfile}" -> "${newName}"`);
+    }
+  }
+
+  // Also handle nested directories (like apps/api, apps/web)
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      renameDotfilesForNpm(path.join(dir, entry.name));
+    }
+  }
+}
+
 function createPackagesDir(templateDir) {
   const packagesDir = path.join(templateDir, 'packages');
   if (!fs.existsSync(packagesDir)) {
@@ -238,6 +272,9 @@ async function main() {
   console.log('\nPost-processing...');
   renameEnvExample(TEMPLATE_DEST);
   createPackagesDir(TEMPLATE_DEST);
+
+  console.log('\nRenaming dotfiles for npm compatibility...');
+  renameDotfilesForNpm(TEMPLATE_DEST);
 
   console.log('\n✅ Template synced successfully!');
   console.log('   All "rpg" references have been replaced with {{name}} placeholders.');

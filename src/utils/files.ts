@@ -42,6 +42,18 @@ function isBinaryFile(filePath: string): boolean {
   return BINARY_EXTENSIONS.has(ext);
 }
 
+// Files that need to be renamed from "name" to ".name" (npm strips dotfiles)
+const DOTFILE_RENAMES: Record<string, string> = {
+  gitignore: '.gitignore',
+  gitmodules: '.gitmodules',
+  prettierrc: '.prettierrc',
+  prettierignore: '.prettierignore',
+  npmrc: '.npmrc',
+  releaserc: '.releaserc',
+  swcrc: '.swcrc',
+  'env.example': '.env.example',
+};
+
 export async function copyTemplate(
   srcDir: string,
   destDir: string,
@@ -51,7 +63,9 @@ export async function copyTemplate(
 
   for (const entry of entries) {
     const srcPath = path.join(srcDir, entry.name);
-    const destPath = path.join(destDir, entry.name);
+    // Rename dotfiles back to their proper names
+    const destName = DOTFILE_RENAMES[entry.name] || entry.name;
+    const destPath = path.join(destDir, destName);
 
     if (entry.isDirectory()) {
       await fs.ensureDir(destPath);
