@@ -1,0 +1,38 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2021",
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "importHelpers": true,
+    // Override strict settings for API (keeping existing behavior)
+    "strict": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "paths": {
+      "src/*": ["src/*"],
+      "@langchain/core/*": ["node_modules/@langchain/core/dist/*"],
+      "@langchain/community/*": ["node_modules/@langchain/community/dist/*"],
+      "@langchain/textsplitters": ["node_modules/@langchain/textsplitters/dist/index"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": false,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "include": ["src/**/*", "test/**/*", "templates"],
+  "exclude": ["dist", "node_modules"]
+}

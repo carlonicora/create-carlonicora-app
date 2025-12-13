@@ -1,0 +1,6 @@
+[submodule "packages/nestjs-neo4jsonapi"]
+	path = packages/nestjs-neo4jsonapi
+	url = https://github.com/carlonicora/nestjs-neo4jsonapi
+[submodule "packages/nextjs-jsonapi"]
+	path = packages/nextjs-jsonapi
+	url = https://github.com/carlonicora/nextjs-jsonapi

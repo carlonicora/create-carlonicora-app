@@ -1,0 +1,26 @@
+{
+	"jsc": {
+		"target": "es2022",
+		"parser": {
+			"syntax": "typescript", // or "ecmascript" for JavaScript
+			"tsx": true, // true if using JSX/TSX
+			"dynamicImport": true,
+			"decorators": true
+		},
+		"transform": {
+			"react": {
+				"runtime": "automatic", // for the new JSX transform
+				"pragma": "React.createElement",
+				"pragmaFrag": "React.Fragment",
+				"throwIfNamespace": true,
+				"development": false,
+				"useBuiltins": true
+			}
+		},
+		"keepClassNames": true
+	},
+	"module": {
+		"type": "commonjs" // or "es6" for ES modules
+	},
+	"sourceMaps": true // if you want source maps generated
+}

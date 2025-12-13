@@ -1,0 +1,71 @@
+name: Check Library Updates
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 8 AM UTC
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check for updates
+        id: check
+        run: |
+          # Read current versions
+          CURRENT=$(cat versions.production.json)
+
+          # Check latest versions from npm
+          NESTJS_LATEST=$(npm view @carlonicora/nestjs-neo4jsonapi version 2>/dev/null || echo "")
+          NEXTJS_LATEST=$(npm view @carlonicora/nextjs-jsonapi version 2>/dev/null || echo "")
+
+          NESTJS_CURRENT=$(echo "$CURRENT" | jq -r '.["@carlonicora/nestjs-neo4jsonapi"]')
+          NEXTJS_CURRENT=$(echo "$CURRENT" | jq -r '.["@carlonicora/nextjs-jsonapi"]')
+
+          UPDATES=""
+
+          if [ -n "$NESTJS_LATEST" ] && [ "$NESTJS_LATEST" != "$NESTJS_CURRENT" ]; then
+            UPDATES="$UPDATES nestjs-neo4jsonapi:$NESTJS_CURRENT→$NESTJS_LATEST"
+            jq --arg v "$NESTJS_LATEST" '.["@carlonicora/nestjs-neo4jsonapi"] = $v' versions.production.json > tmp.json && mv tmp.json versions.production.json
+          fi
+
+          if [ -n "$NEXTJS_LATEST" ] && [ "$NEXTJS_LATEST" != "$NEXTJS_CURRENT" ]; then
+            UPDATES="$UPDATES nextjs-jsonapi:$NEXTJS_CURRENT→$NEXTJS_LATEST"
+            jq --arg v "$NEXTJS_LATEST" '.["@carlonicora/nextjs-jsonapi"] = $v' versions.production.json > tmp.json && mv tmp.json versions.production.json
+          fi
+
+          if [ -n "$UPDATES" ]; then
+            echo "updates=true" >> $GITHUB_OUTPUT
+            echo "changes=$UPDATES" >> $GITHUB_OUTPUT
+          else
+            echo "updates=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check.outputs.updates == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(deps): update library versions"
+          title: "chore(deps): update library versions"
+          body: |
+            Updates detected: ${{ steps.check.outputs.changes }}
+
+            This PR updates the production library versions in `versions.production.json`.
+
+            **Review the changelogs before merging:**
+            - [nestjs-neo4jsonapi releases](https://github.com/carlonicora/nestjs-neo4jsonapi/releases)
+            - [nextjs-jsonapi releases](https://github.com/carlonicora/nextjs-jsonapi/releases)
+          branch: deps/library-updates
+          base: dev
+          delete-branch: true
