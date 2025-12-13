@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.1.0...v1.1.1) (2025-12-13)
+
+### 🐛 Bug Fixes
+
+* trigger publish workflow on tag creation instead of master push ([e2d6bdd](https://github.com/carlonicora/create-carlonicora-app/commit/e2d6bdde334caa9ceb9f356000a5b99c73a6c823))
+
 ## [1.1.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.0.0...v1.1.0) (2025-12-13)
 
 ### 🚀 Features
