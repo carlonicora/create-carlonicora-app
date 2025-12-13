@@ -35,4 +35,4 @@ jobs:
       - name: Create Tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --config .releaserc.dev.json
+        run: npx semantic-release
