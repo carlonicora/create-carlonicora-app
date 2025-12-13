@@ -1,5 +1,0 @@
-
-###
-GET http://localhost:3400/users/a6ae499a-e9a9-43e2-9d15-7cf49a443d12/conversations?fields[conversations]=name&fields[users]=name,avatar&fields[documents]=name,tldr&fields[articles]=name,tldr&fields[hyperlinks]=name,tldr&fields[topics]=name&fields[capabilities]=name
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhNmFlNDk5YS1lOWE5LTQzZTItOWQxNS03Y2Y0OWE0NDNkMTIiLCJyb2xlcyI6WyIyZTFlZWUwMC02Y2JhLTQ1MDYtOTA1OS1jY2QyNGU0ZWE1YjAiXSwiY29tcGFueUlkIjoiYmM1ZDY1ZDUtM2MzYy00YTM1LThkODQtMTQ2MmJkNGNkNjEzIiwiZmVhdHVyZXMiOltdLCJ1c2VyTmFtZSI6IkNhcmxvIiwiZXhwaXJhdGlvbiI6IjIwMjUtMTAtMjlUMTU6NTI6NDguODUzWiIsImlhdCI6MTc2MTY2Njc2OCwiZXhwIjoxNzYxNzUzMTY4fQ.K3IzWpRqHks_9G-g-zbwc6i4weep1qUascP_cRP_0hw
-

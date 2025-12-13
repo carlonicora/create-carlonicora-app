@@ -43,6 +43,7 @@ const IGNORE_PATTERNS = [
   'test-results',
   'playwright-report',
   '.tsbuildinfo',
+  'REST.http',
 ];
 
 // Binary file extensions that should not be processed for text replacement
