@@ -1,3 +1,9 @@
+## [1.1.0-dev.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.0.1-dev.1...v1.1.0-dev.1) (2025-12-13)
+
+### 🚀 Features
+
+* add workflow_dispatch to master for manual release trigger ([34ec8e7](https://github.com/carlonicora/create-carlonicora-app/commit/34ec8e7522dc5ef984add5f992f06f9b94be902d))
+
 ## [1.0.1-dev.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.0.0...v1.0.1-dev.1) (2025-12-13)
 
 ### 🐛 Bug Fixes
