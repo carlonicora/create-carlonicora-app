@@ -90,8 +90,8 @@ const PLACEHOLDER_REPLACEMENTS = [
   { search: '/rpg-logo', replace: '/{{name}}-logo' },
   { search: 'rpg-logo', replace: '{{name}}-logo' },
 
-  // Remaining standalone "rpg" (word boundary)
-  { search: /\brpg\b/g, replace: '{{name}}' },
+  // Remaining standalone "rpg" or "RPG" (word boundary, case insensitive)
+  { search: /\brpg\b/gi, replace: '{{name}}' },
 ];
 
 function shouldIgnore(relativePath) {
