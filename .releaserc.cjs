@@ -1,11 +1,5 @@
-const branch = process.env.GITHUB_REF_NAME || 'master';
-const isMain = branch === 'master';
-
 module.exports = {
-  branches: [
-    { name: 'master' },
-    { name: 'dev', prerelease: true }
-  ],
+  branches: ['dev'],
   tagFormat: 'v${version}',
   plugins: [
     [
@@ -50,13 +44,7 @@ module.exports = {
       }
     ],
     '@semantic-release/changelog',
-    [
-      '@semantic-release/npm',
-      {
-        npmPublish: isMain,
-        provenance: isMain
-      }
-    ],
+    ['@semantic-release/npm', { npmPublish: false }],
     [
       '@semantic-release/git',
       {
