@@ -1,7 +1,7 @@
 {
   "author": "",
   "dependencies": {
-    "@carlonicora/nestjs-neo4jsonapi": "1.2.0",
+    "@carlonicora/nestjs-neo4jsonapi": "workspace:*",
     "@aws-sdk/client-s3": "^3.948.0",
     "@aws-sdk/s3-request-presigner": "^3.948.0",
     "@azure/msal-node": "^3.8.4",
