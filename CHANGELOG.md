@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.1.2...v1.2.0) (2025-12-15)
+
+### 🚀 Features
+
+* update to latest version of nextjs-jsonapi ([088a289](https://github.com/carlonicora/create-carlonicora-app/commit/088a289d6f1731e1cc4b99667c5cf8d010cc1fef))
+
 ## [1.1.2](https://github.com/carlonicora/create-carlonicora-app/compare/v1.1.1...v1.1.2) (2025-12-15)
 
 ### 🐛 Bug Fixes
