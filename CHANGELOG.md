@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/carlonicora/create-carlonicora-app/compare/v1.1.1...v1.1.2) (2025-12-15)
+
+### 🐛 Bug Fixes
+
+* correct apply-production-version ([50b3d5f](https://github.com/carlonicora/create-carlonicora-app/commit/50b3d5f438b0f92f6d9b68ae3e5118abf7a79c82))
+
 ## [1.1.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.1.0...v1.1.1) (2025-12-13)
 
 ### 🐛 Bug Fixes
