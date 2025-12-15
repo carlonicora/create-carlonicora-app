@@ -3,9 +3,8 @@ import "react-horizontal-scrolling-menu/dist/styles.css";
 
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
 import { routing } from "@/i18n/routing";
-import { PushNotificationProvider, RefreshUser } from "@carlonicora/nextjs-jsonapi/components";
+import { PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
 import { NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { SidebarProvider } from "@carlonicora/nextjs-jsonapi/shadcnui";
 import { hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { Inter } from "next/font/google";

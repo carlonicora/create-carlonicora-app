@@ -1,6 +1,5 @@
 import { generateSpecificMetadata } from "@/utils/metadata";
-import { AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
-import { AuthComponent } from "@carlonicora/nextjs-jsonapi/features";
+import { AuthComponent, AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {

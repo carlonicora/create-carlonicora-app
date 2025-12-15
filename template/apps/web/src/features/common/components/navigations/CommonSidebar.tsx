@@ -2,12 +2,10 @@
 
 import CreationDropDown from "@/features/common/components/navigations/CreationDropDown";
 import { useRouter } from "@/i18n/routing";
-import { recentPagesAtom } from "@carlonicora/nextjs-jsonapi/atoms";
-import { RecentPagesNavigator } from "@carlonicora/nextjs-jsonapi/components";
-import { useCurrentUserContext, useNotificationContext } from "@carlonicora/nextjs-jsonapi/contexts";
-import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/hooks";
+import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
   Link,
+  RecentPagesNavigator,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -21,7 +19,8 @@ import {
   TooltipContent,
   TooltipTrigger,
   useSidebar,
-} from "@carlonicora/nextjs-jsonapi/shadcnui";
+} from "@carlonicora/nextjs-jsonapi/components";
+import { recentPagesAtom, useCurrentUserContext, useNotificationContext } from "@carlonicora/nextjs-jsonapi/contexts";
 
 import { UserSidebarFooter } from "@/features/common/components/navigations/UserSidebarFooter";
 import { useAtomValue } from "jotai";

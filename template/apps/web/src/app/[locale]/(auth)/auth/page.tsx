@@ -1,5 +1,5 @@
 import { Cookies } from "@carlonicora/nextjs-jsonapi/components";
-import { AuthInterface, AuthService } from "@carlonicora/nextjs-jsonapi/features";
+import { AuthInterface, AuthService } from "@carlonicora/nextjs-jsonapi/core";
 
 export default async function AuthPage(props: { searchParams: Promise<{ code: string }> }) {
   const searchParams = await props.searchParams;

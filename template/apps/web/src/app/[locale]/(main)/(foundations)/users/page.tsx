@@ -1,7 +1,6 @@
 import { PageContainer, UsersListContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { UserProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { Modules } from "@carlonicora/nextjs-jsonapi/core";
-import { Action } from "@carlonicora/nextjs-jsonapi/permissions";
+import { Action, Modules } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 
 export default async function UsersListPage() {

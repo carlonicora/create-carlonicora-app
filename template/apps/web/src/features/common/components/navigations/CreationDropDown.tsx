@@ -1,7 +1,5 @@
 "use client";
 
-import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
-import { UserInterface } from "@carlonicora/nextjs-jsonapi/features";
 import {
   Button,
   DropdownMenu,
@@ -10,7 +8,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   useSidebar,
-} from "@carlonicora/nextjs-jsonapi/shadcnui";
+} from "@carlonicora/nextjs-jsonapi/components";
+import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
+import { UserInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { PlusCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

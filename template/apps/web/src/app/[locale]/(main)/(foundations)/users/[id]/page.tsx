@@ -1,9 +1,7 @@
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { PageContainer, UserContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { CompanyProvider, UserProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { Modules } from "@carlonicora/nextjs-jsonapi/core";
-import { UserInterface, UserService } from "@carlonicora/nextjs-jsonapi/features";
-import { Action } from "@carlonicora/nextjs-jsonapi/permissions";
+import { Action, Modules, UserInterface, UserService } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";

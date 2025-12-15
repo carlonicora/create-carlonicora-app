@@ -1,7 +1,6 @@
 "use client";
 
-import { ErrorDetails, Logout } from "@carlonicora/nextjs-jsonapi/components";
-import { Button } from "@carlonicora/nextjs-jsonapi/shadcnui";
+import { Button, ErrorDetails, Logout } from "@carlonicora/nextjs-jsonapi/components";
 import { useMessages } from "next-intl";
 import { useEffect } from "react";
 

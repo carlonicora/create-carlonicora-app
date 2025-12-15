@@ -1,8 +1,7 @@
 "use server";
 
-import { PageContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { PageContainer, Skeleton } from "@carlonicora/nextjs-jsonapi/components";
 import { UserProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { Skeleton } from "@carlonicora/nextjs-jsonapi/shadcnui";
 
 export default async function Loading() {
   return (

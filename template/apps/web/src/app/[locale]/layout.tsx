@@ -1,13 +1,12 @@
 import { BootstrapProvider } from "@/config/BootstrapProvider";
 import "@/config/env"; // Server-side bootstrap
+import { TooltipProvider } from "@carlonicora/nextjs-jsonapi/components";
 import { CurrentUserProvider } from "@carlonicora/nextjs-jsonapi/contexts";
+import { cn } from "@carlonicora/nextjs-jsonapi/core";
 import { Provider } from "jotai";
 import "react-horizontal-scrolling-menu/dist/styles.css";
 
 import { routing } from "@/i18n/routing";
-// import { cn } from "@/lib/utils";
-import { TooltipProvider } from "@carlonicora/nextjs-jsonapi/shadcnui";
-import { cn } from "@carlonicora/nextjs-jsonapi/utils";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { ThemeProvider } from "next-themes";

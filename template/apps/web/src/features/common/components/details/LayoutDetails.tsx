@@ -1,9 +1,9 @@
 "use client";
 
 import CommonSidebar from "@/features/common/components/navigations/CommonSidebar";
+import { useNotificationSync, usePageTracker } from "@carlonicora/nextjs-jsonapi/client";
 import { useCurrentUserContext, useNotificationContext } from "@carlonicora/nextjs-jsonapi/contexts";
-import { RoleInterface, UserInterface } from "@carlonicora/nextjs-jsonapi/features";
-import { useNotificationSync, usePageTracker } from "@carlonicora/nextjs-jsonapi/hooks";
+import { RoleInterface, UserInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
 import { useEffect } from "react";
 

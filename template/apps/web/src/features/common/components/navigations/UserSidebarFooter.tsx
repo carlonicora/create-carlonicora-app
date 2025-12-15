@@ -2,10 +2,7 @@
 
 import VersionDisplay from "@/features/common/components/navigations/VersionDisplay";
 import { Modules } from "@carlonicora/nextjs-jsonapi";
-import { ModeToggleSwitch, NotificationModal, UserAvatar } from "@carlonicora/nextjs-jsonapi/components";
-import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
-import { UserInterface } from "@carlonicora/nextjs-jsonapi/features";
-import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/hooks";
+import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,11 +12,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Link,
+  ModeToggleSwitch,
+  NotificationModal,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  UserAvatar,
   useSidebar,
-} from "@carlonicora/nextjs-jsonapi/shadcnui";
+} from "@carlonicora/nextjs-jsonapi/components";
+import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
+import { UserInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
 import { ChevronsUpDown, LogOut, SettingsIcon, UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";

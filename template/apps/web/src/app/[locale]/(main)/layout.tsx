@@ -2,10 +2,8 @@ import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import "react-horizontal-scrolling-menu/dist/styles.css";
 
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
-import { AuthContainer, PushNotificationProvider, RefreshUser } from "@carlonicora/nextjs-jsonapi/components";
+import { AuthComponent, AuthContainer, PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
 import { NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { AuthComponent } from "@carlonicora/nextjs-jsonapi/features";
-import { SidebarProvider } from "@carlonicora/nextjs-jsonapi/shadcnui";
 import { cookies } from "next/headers";
 
 export default async function MainLayout(props: { children: React.ReactNode; params: Promise<{ locale: string }> }) {

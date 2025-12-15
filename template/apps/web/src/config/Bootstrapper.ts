@@ -1,22 +1,22 @@
 import { FeatureIds } from "@/enums/feature.ids";
-import { DataClassRegistry, FieldSelector, ModuleRegistry } from "@carlonicora/nextjs-jsonapi/core";
-import { ModuleWithPermissions } from "@carlonicora/nextjs-jsonapi/permissions";
-import { LucideIcon } from "lucide-react";
-
-// Foundation module imports (from app - code stays in app)
 import {
   AuthModule,
   AuthorModule,
   CompanyModule,
   ContentModule,
+  DataClassRegistry,
   FeatureModule,
+  FieldSelector,
   ModuleModule,
+  ModuleRegistry,
+  ModuleWithPermissions,
   NotificationModule,
   PushModule,
   RoleModule,
   S3Module,
   UserModule,
-} from "@carlonicora/nextjs-jsonapi/features";
+} from "@carlonicora/nextjs-jsonapi/core";
+import { LucideIcon } from "lucide-react";
 
 // Feature module imports
 

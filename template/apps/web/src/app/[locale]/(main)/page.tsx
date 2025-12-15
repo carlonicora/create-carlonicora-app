@@ -1,8 +1,8 @@
 import IndexContainer from "@/features/common/components/containers/IndexContainer";
 import { generateSpecificMetadata } from "@/utils/metadata";
-import { AuthContainer, CompaniesList, PageContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { AuthComponent, AuthContainer, CompaniesList, PageContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { CommonProvider, CompanyProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { AuthComponent, ContentInterface, ContentService } from "@carlonicora/nextjs-jsonapi/features";
+import { ContentInterface, ContentService } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import { RoleId } from "@{{name}}/shared";
 import { Metadata } from "next";
