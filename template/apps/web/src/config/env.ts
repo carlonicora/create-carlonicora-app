@@ -3,7 +3,8 @@ import { ENV } from "@/config/middleware-env";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useDateFnsLocale } from "@/i18n/useDateFnsLocale";
 import { removeToken, updateToken } from "@/server-actions/auth-cookies";
-import { configureAuth, configureI18n, configureJsonApi, configureRoles, Modules } from "@carlonicora/nextjs-jsonapi";
+import { configureAuth, configureI18n, configureJsonApi, configureRoles } from "@carlonicora/nextjs-jsonapi";
+import { Modules } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
 import { useLocale, useTranslations } from "next-intl";
 

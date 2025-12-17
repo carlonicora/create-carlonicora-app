@@ -1,7 +1,7 @@
 "use client";
 
 import VersionDisplay from "@/features/common/components/navigations/VersionDisplay";
-import { Modules } from "@carlonicora/nextjs-jsonapi";
+import { Modules } from "@carlonicora/nextjs-jsonapi/core";
 import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
   DropdownMenu,
