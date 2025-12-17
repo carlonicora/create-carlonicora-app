@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.0...v1.3.1) (2025-12-17)
+
+### 🐛 Bug Fixes
+
+* correct imports ([1257662](https://github.com/carlonicora/create-carlonicora-app/commit/1257662fb0443632286a8225b5dd25a0a423f139))
+* correct npm release ([e02a04a](https://github.com/carlonicora/create-carlonicora-app/commit/e02a04a50c81ed0e44db44e7362a848883282166))
+
 ## [1.3.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.2.0...v1.3.0) (2025-12-17)
 
 ### 🚀 Features
