@@ -1,3 +1,9 @@
+## [1.3.3](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.2...v1.3.3) (2025-12-17)
+
+### 🐛 Bug Fixes
+
+* correct imports ([ba23a5d](https://github.com/carlonicora/create-carlonicora-app/commit/ba23a5de84682be31a500243def3643eda2966ee))
+
 ## [1.3.2](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.1...v1.3.2) (2025-12-17)
 
 ### 🐛 Bug Fixes
