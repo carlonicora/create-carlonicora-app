@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.2.0...v1.3.0) (2025-12-17)
+
+### 🚀 Features
+
+* add generation scripts in package ([d65eb9e](https://github.com/carlonicora/create-carlonicora-app/commit/d65eb9ede03ffbb3ddd134d05d1227b9656fc3df))
+
 ## [1.2.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.1.2...v1.2.0) (2025-12-15)
 
 ### 🚀 Features
