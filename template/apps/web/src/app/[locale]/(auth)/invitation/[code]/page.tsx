@@ -1,4 +1,5 @@
-import { AuthComponent, AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
 
 export default async function InvitationPage(props: { params: Promise<{ code: string }> }) {
   const params = await props.params;
