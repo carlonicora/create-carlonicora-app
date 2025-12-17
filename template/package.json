@@ -2,7 +2,7 @@
   "name": "{{name}}",
   "version": "0.1.0",
   "private": true,
-  "description": "Role Playing Game platform powered by AI",
+  "description": "",
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=10.0.0"
@@ -29,7 +29,9 @@
     "structure": "bash scripts/import-structure.sh",
     "prepare": "husky",
     "preinstall": "npx only-allow pnpm",
-    "neo4jsonapi-migrate": "node ./packages/nestjs-neo4jsonapi/dist/tools/migrate-entity/index.js"
+    "neo4jsonapi-migrate": "node ./packages/nestjs-neo4jsonapi/dist/tools/migrate-entity/index.js",
+    "generate-module": "node ./packages/nestjs-neo4jsonapi/dist/scripts/generate-module/index.js",
+    "generate-web-module": "node ./packages/nextjs-jsonapi/dist/scripts/generate-web-module/index.js"
   },
   "dependencies": {
     "dotenv-cli": "^11.0.0",
