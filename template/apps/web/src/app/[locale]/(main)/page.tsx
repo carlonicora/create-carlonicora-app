@@ -2,7 +2,7 @@ import IndexContainer from "@/features/common/components/containers/IndexContain
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { AuthContainer, CompaniesList, PageContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { CommonProvider, CompanyProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { AuthComponent, ContentInterface, ContentService } from "@carlonicora/nextjs-jsonapi/core";
+import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import { RoleId } from "@{{name}}/shared";
 import { Metadata } from "next";
@@ -29,12 +29,10 @@ export default async function IndexPage() {
     );
   }
 
-  const contentList: ContentInterface[] = await ContentService.findMany({});
-
   return (
     <CommonProvider>
       <PageContainer testId="page-homepage-container">
-        <IndexContainer dehydratedContentList={contentList ? contentList.map((content) => content.dehydrate()) : []} />
+        <IndexContainer />
       </PageContainer>
     </CommonProvider>
   );

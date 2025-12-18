@@ -1,11 +1,6 @@
 "use client";
 
-import { JsonApiHydratedDataInterface } from "@carlonicora/nextjs-jsonapi/core";
 
-type IndexContainerProps = {
-  dehydratedContentList: JsonApiHydratedDataInterface[];
-};
-
-export default function IndexContainer({ dehydratedContentList }: IndexContainerProps) {
+export default function IndexContainer() {
   return <div>index</div>;
 }
