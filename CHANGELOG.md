@@ -1,3 +1,9 @@
+## [1.3.8](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.7...v1.3.8) (2025-12-18)
+
+### 🐛 Bug Fixes
+
+* update featureId in migration queries to ensure proper access control ([cf6b386](https://github.com/carlonicora/create-carlonicora-app/commit/cf6b386421f5db854f656997f2ebb93ebf0d79b8))
+
 ## [1.3.7](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.6...v1.3.7) (2025-12-18)
 
 ### 🐛 Bug Fixes
