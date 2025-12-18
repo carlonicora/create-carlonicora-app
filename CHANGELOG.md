@@ -1,3 +1,9 @@
+## [1.3.7](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.6...v1.3.7) (2025-12-18)
+
+### 🐛 Bug Fixes
+
+* update logo path in service worker and CommonSidebar component ([d88c6f7](https://github.com/carlonicora/create-carlonicora-app/commit/d88c6f7646a968939029a649858f3249504d88b7))
+
 ## [1.3.6](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.5...v1.3.6) (2025-12-18)
 
 ### 🐛 Bug Fixes
