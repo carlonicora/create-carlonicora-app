@@ -1,3 +1,9 @@
+## [1.3.9](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.8...v1.3.9) (2025-12-18)
+
+### 🐛 Bug Fixes
+
+* update feature query to use isCore instead of isProduction ([d6a6324](https://github.com/carlonicora/create-carlonicora-app/commit/d6a6324eb216aaa384b22a8c380b03aa81f9dc27))
+
 ## [1.3.8](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.7...v1.3.8) (2025-12-18)
 
 ### 🐛 Bug Fixes
