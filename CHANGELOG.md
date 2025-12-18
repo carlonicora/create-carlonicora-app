@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.5...v1.3.6) (2025-12-18)
+
+### 🐛 Bug Fixes
+
+* add page prop to Cookies component in AuthPage ([8433194](https://github.com/carlonicora/create-carlonicora-app/commit/843319408e6610f4dc8275ac6b48e9059306192c))
+* remove content from default bootstrapper ([ab5b300](https://github.com/carlonicora/create-carlonicora-app/commit/ab5b3006b68f4fe151c7dac0611daf809cc1047e))
+
 ## [1.3.5](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.4...v1.3.5) (2025-12-18)
 
 ### 🐛 Bug Fixes
