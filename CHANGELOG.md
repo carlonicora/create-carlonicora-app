@@ -1,3 +1,9 @@
+## [1.3.5](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.4...v1.3.5) (2025-12-18)
+
+### 🐛 Bug Fixes
+
+* add tslib as a dependency in package.json ([12e3fe5](https://github.com/carlonicora/create-carlonicora-app/commit/12e3fe54f6cd47e72823b081f5445a61170fecd8))
+
 ## [1.3.4](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.3...v1.3.4) (2025-12-17)
 
 ### 🐛 Bug Fixes
