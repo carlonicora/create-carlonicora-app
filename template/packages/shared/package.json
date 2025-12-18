@@ -17,6 +17,9 @@
     "dev": "tsup --watch",
     "clean": "rm -rf dist"
   },
+  "dependencies": {
+    "tslib": "^2.6.0"
+  },
   "devDependencies": {
     "tsup": "^8.5.0"
   }
