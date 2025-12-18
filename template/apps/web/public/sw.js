@@ -3,7 +3,7 @@ self.addEventListener("push", function (event) {
   var title = data.title || "Notification";
   var options = {
     body: data.message || "You have a new notification",
-    icon: "/{{name}}-logo.webp",
+    icon: "/logo.webp",
     data: data.url,
   };
 

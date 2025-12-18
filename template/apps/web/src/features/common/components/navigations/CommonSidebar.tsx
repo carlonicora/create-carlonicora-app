@@ -91,7 +91,7 @@ export default function CommonSidebar() {
         >
           {state === "expanded" ? (
             <Image
-              src={`/{{name}}-logo.webp`}
+              src={`/logo.webp`}
               className="max-h-32 object-contain p-4"
               height={300}
               width={300}
@@ -100,7 +100,7 @@ export default function CommonSidebar() {
             />
           ) : (
             <Image
-              src={`/{{name}}-logo.webp`}
+              src={`/logo.webp`}
               className="max-h-10 object-contain"
               height={300}
               width={300}
