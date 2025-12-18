@@ -7,5 +7,5 @@ export default async function AuthPage(props: { searchParams: Promise<{ code: st
     tokenCode: searchParams.code,
   });
 
-  return <Cookies dehydratedAuth={auth.dehydrate()} />;
+  return <Cookies dehydratedAuth={auth.dehydrate()} page="/" />;
 }
