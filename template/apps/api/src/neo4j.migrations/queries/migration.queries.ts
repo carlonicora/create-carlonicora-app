@@ -2,12 +2,12 @@ export const featureQuery = `
   MERGE (feature:Feature {id: $featureId})
   ON CREATE SET 
     feature.name=$featureName, 
-    feature.isProduction=$isProduction, 
+    feature.isCore=$isCore, 
     feature.createdAt = datetime(), 
     feature.updatedAt = datetime()
   ON MATCH SET 
     feature.name=$featureName, 
-    feature.isProduction=$isProduction, 
+    feature.isCore=$isCore, 
     feature.updatedAt = datetime()
   RETURN feature
 `;

@@ -27,7 +27,7 @@ export const migration: MigrationInterface[] = [
     queryParams: {
       featureId: "17036fb0-060b-4c83-a617-f32259819783",
       featureName: "Common",
-      isProduction: true,
+      isCore: true,
     },
   },
 ];
