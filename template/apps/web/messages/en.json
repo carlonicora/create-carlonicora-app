@@ -220,6 +220,11 @@
         "error": "Author is required",
         "label": "Author",
         "placeholder": "Select Author"
+      },
+      "owner": {
+        "error": "Owner is required",
+        "label": "Owner",
+        "placeholder": "Select Owner"
       }
     },
     "relevance": "Relevance",
