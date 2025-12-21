@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.9...v1.4.0) (2025-12-21)
+
+### 🚀 Features
+
+* add owner field with validation to the form ([2db8bb9](https://github.com/carlonicora/create-carlonicora-app/commit/2db8bb9045ecc845713b0aa279841b9d8f6df7bb))
+
 ## [1.3.9](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.8...v1.3.9) (2025-12-18)
 
 ### 🐛 Bug Fixes
