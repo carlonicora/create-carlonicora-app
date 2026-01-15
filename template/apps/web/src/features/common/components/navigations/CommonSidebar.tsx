@@ -15,9 +15,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
+  SidebarMenuItem,
   useSidebar,
 } from "@carlonicora/nextjs-jsonapi/components";
 import { recentPagesAtom, useCurrentUserContext, useNotificationContext } from "@carlonicora/nextjs-jsonapi/contexts";
@@ -27,7 +25,7 @@ import { useAtomValue } from "jotai";
 import { HistoryIcon, HomeIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { Fragment, ReactNode, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 
 export type NavigationItem = {
   title: string;
@@ -95,7 +93,7 @@ export default function CommonSidebar() {
               className="max-h-32 object-contain p-4"
               height={300}
               width={300}
-              alt={"Phlow"}
+              alt={"Logo"}
               priority
             />
           ) : (
@@ -104,7 +102,7 @@ export default function CommonSidebar() {
               className="max-h-10 object-contain"
               height={300}
               width={300}
-              alt={"Phlow"}
+              alt={"Logo"}
               priority
             />
           )}
@@ -114,47 +112,10 @@ export default function CommonSidebar() {
         <SidebarGroup className={`py-0 ${state === "collapsed" ? "pb-4" : "pb-1"}`}>
           {state === "expanded" ? (
             <SidebarGroupContent className="flex flex-col gap-2">
-              {/* <SidebarMenu>
-                <Button
-                  onClick={() => router.push(generateUrl({ page: Modules.Conversation }))}
-                  variant={"link"}
-                  className="relative h-12 w-full cursor-pointer p-0"
-                  data-testid="sidebar-query-knowledge-button"
-                >
-                  <Input
-                    placeholder={t(`generic.query_knowledge`)}
-                    type="text"
-                    className="border-primary text-muted m-0 w-full cursor-pointer"
-                  />
-                  <div className="text-muted-foreground absolute top-3.5 right-10 flex flex-row gap-x-1">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md border text-xs">⌘</span>
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md border text-xs">K</span>
-                  </div>
-                  <div className="text-muted-foreground absolute top-3 right-2 flex flex-row gap-x-2">
-                    <span className="bg-accent flex h-6 w-6 items-center justify-center rounded-md border text-xs">
-                      <SparklesIcon className="text-muted h-5 w-5" />
-                    </span>
-                  </div>
-                </Button>
-              </SidebarMenu> */}
               <CreationDropDown />
             </SidebarGroupContent>
           ) : (
             <SidebarGroupContent className="flex flex-col gap-2">
-              {/* <SidebarMenu>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      onClick={() => router.push(generateUrl({ page: Modules.Conversation }))}
-                      className="bg-accent relative cursor-pointer"
-                      data-testid="sidebar-query-knowledge-button"
-                    >
-                      <SparklesIcon className="text-muted h-5 w-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">{t(`generic.query_knowledge`)}</TooltipContent>
-                </Tooltip>
-              </SidebarMenu> */}
               <CreationDropDown />
             </SidebarGroupContent>
           )}
@@ -174,47 +135,40 @@ export default function CommonSidebar() {
 
                   const isDropdown = item.url === "#" && item.component;
 
+                  const handleNavClick = () => {
+                    if (item.onClick) {
+                      item.onClick();
+                    }
+                    if (item.url && item.url !== "#") {
+                      router.push(item.url);
+                    }
+                  };
+
                   return (
-                    <Fragment key={item.title}>
-                      {state === "collapsed" ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            {isDropdown ? (
-                              <SidebarMenuButton className="text-muted-foreground" data-testid={item.testId}>
-                                {item.component}
-                              </SidebarMenuButton>
-                            ) : (
-                              <SidebarMenuButton
-                                asChild
-                                className="text-muted-foreground cursor-pointer"
-                                data-testid={item.testId}
-                                onClick={item.onClick}
-                              >
-                                <Link href={item.url ? item.url : "#"}>
-                                  {item.icon}
-                                  {item.component ? item.component : <span>{item.title}</span>}
-                                </Link>
-                              </SidebarMenuButton>
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent side="right">{item.title}</TooltipContent>
-                        </Tooltip>
+                    <SidebarMenuItem key={item.title} className="">
+                      {isDropdown ? (
+                        <SidebarMenuButton
+                          render={undefined}
+                          className="text-muted-foreground"
+                          data-testid={item.testId}
+                          tooltip={item.title}
+                        >
+                          {item.icon}
+                          {item.component}
+                        </SidebarMenuButton>
                       ) : (
-                        <SidebarMenuButton asChild={!isDropdown} data-testid={item.testId} onClick={item.onClick}>
-                          {isDropdown ? (
-                            <div className="text-muted-foreground flex w-full items-center gap-2">
-                              {item.icon}
-                              {item.component}
-                            </div>
-                          ) : (
-                            <Link href={item.url ? item.url : "#"} className="text-muted-foreground cursor-pointer">
-                              {item.icon}
-                              {item.component ? item.component : <span>{item.title}</span>}
-                            </Link>
-                          )}
+                        <SidebarMenuButton
+                          render={undefined}
+                          className="text-muted-foreground cursor-pointer"
+                          data-testid={item.testId}
+                          onClick={handleNavClick}
+                          tooltip={item.title}
+                        >
+                          {item.icon}
+                          {item.component ? item.component : <span>{item.title}</span>}
                         </SidebarMenuButton>
                       )}
-                    </Fragment>
+                    </SidebarMenuItem>
                   );
                 })}
               </SidebarMenu>

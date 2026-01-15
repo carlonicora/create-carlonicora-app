@@ -11,4 +11,8 @@ export const ENV = {
     ? process.env.NEXT_PUBLIC_ADDRESS.trim().replace(/\/+$/, "") // Trim whitespace & remove trailing slashes
     : "",
   VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+  STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  ALLOW_REGISTRATION: process.env.NEXT_PUBLIC_ALLOW_REGISTRATION !== "false",
+  DISCORD_CLIENT_ID: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
+  GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
 } as const;

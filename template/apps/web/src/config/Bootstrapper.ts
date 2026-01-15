@@ -2,6 +2,7 @@ import { FeatureIds } from "@/enums/feature.ids";
 import {
   AuthModule,
   AuthorModule,
+  BillingModule,
   CompanyModule,
   ContentModule,
   DataClassRegistry,
@@ -11,9 +12,18 @@ import {
   ModuleRegistry,
   ModuleWithPermissions,
   NotificationModule,
+  OAuthModule,
   PushModule,
   RoleModule,
   S3Module,
+  setBootstrapper,
+  StripeCustomerModule,
+  StripeInvoiceModule,
+  StripePaymentMethodModule,
+  StripePriceModule,
+  StripeProductModule,
+  StripeSubscriptionModule,
+  StripeUsageModule,
   UserModule,
 } from "@carlonicora/nextjs-jsonapi/core";
 import { LucideIcon } from "lucide-react";
@@ -55,6 +65,17 @@ const allModules = {
   User: UserModule(moduleFactory),
   Author: AuthorModule(moduleFactory),
   Content: ContentModule(moduleFactory),
+  // Billing modules
+  StripeCustomer: StripeCustomerModule(moduleFactory),
+  StripePaymentMethod: StripePaymentMethodModule(moduleFactory),
+  StripeSubscription: StripeSubscriptionModule(moduleFactory),
+  StripeProduct: StripeProductModule(moduleFactory),
+  StripePrice: StripePriceModule(moduleFactory),
+  StripeInvoice: StripeInvoiceModule(moduleFactory),
+  Billing: BillingModule(moduleFactory),
+  StripeUsage: StripeUsageModule(moduleFactory),
+  // OAuth module
+  OAuth: OAuthModule(moduleFactory),
 } satisfies Record<string, ModuleWithPermissions>;
 
 // Export type derived from the object - NO DUPLICATION
@@ -75,3 +96,8 @@ export function bootstrap(): void {
 
   bootstrapped = true;
 }
+
+// Register the bootstrapper immediately when this module loads.
+// This enables self-healing in ModuleRegistry - if a module is accessed
+// before bootstrap() is called, the registry can call bootstrap() automatically.
+setBootstrapper(bootstrap);

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import type { ScaffoldOptions, ReplacementConfig } from './types/index.js';
 import { copyTemplate, ensureEmptyDir } from './utils/files.js';
 import { toKebabCase, toPascalCase } from './utils/validation.js';
-import { initGit, addSubmodules, installDependencies, createInitialCommit } from './git.js';
+import { initGit, addSubmodules, buildSubmodules, installDependencies, createInitialCommit } from './git.js';
 import { printSuccessMessage } from './utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,6 +54,12 @@ export async function scaffold(options: ScaffoldOptions): Promise<void> {
         spinner.start('Adding git submodules (this may take a moment)...');
         await addSubmodules(targetDir);
         spinner.succeed('Added git submodules');
+
+        // Step 5: Build submodules to create dist/ directories
+        spinner.start('Building submodule packages (this may take a moment)...');
+        spinner.stopAndPersist({ symbol: '🔨', text: 'Building submodule packages...' });
+        await buildSubmodules(targetDir);
+        spinner.succeed('Built submodule packages');
 
         // Create initial commit
         spinner.start('Creating initial commit...');

@@ -66,8 +66,8 @@ export default function CreationDropDown() {
   return (
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenuTrigger asChild suppressHydrationWarning>
-          <Button variant="outline" className="bg-accent text-accent-foreground">
+        <DropdownMenuTrigger>
+          <Button render={<div />} nativeButton={false} variant="outline" className="bg-accent text-accent-foreground">
             <PlusCircleIcon />
             {state === "collapsed" ? <></> : <span>{t(`generic.create`)}</span>}
           </Button>

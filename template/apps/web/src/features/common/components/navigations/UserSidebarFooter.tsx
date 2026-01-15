@@ -61,9 +61,12 @@ export function UserSidebarFooter({ notificationModalOpen, setNotificationModalO
       <SidebarMenuItem className="-ml-0.5">
         {currentUser && (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                <UserAvatar user={currentUser} className="h-5 w-5" />
+            <DropdownMenuTrigger>
+              <SidebarMenuButton
+                render={<div />}
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
+                <UserAvatar user={currentUser} className="h-5 w-5" showTooltip={false} />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{currentUser.name}</span>
                   <span className="truncate text-xs">{currentUser.email}</span>
@@ -77,23 +80,29 @@ export function UserSidebarFooter({ notificationModalOpen, setNotificationModalO
               align="end"
               sideOffset={4}
             >
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{currentUser.name}</span>
-                    <span className="truncate text-xs">{currentUser.email}</span>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">{currentUser.name}</span>
+                      <span className="truncate text-xs">{currentUser.email}</span>
+                    </div>
                   </div>
-                </div>
-              </DropdownMenuLabel>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel>
-                <VersionDisplay />
-              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  <VersionDisplay />
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-                <ModeToggleSwitch />
-                {t(`generic.theme`)}
-              </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                  <ModeToggleSwitch />
+                  {t(`generic.theme`)}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <Link href={generateUrl({ page: Modules.User, id: currentUser.id })}>
@@ -104,10 +113,12 @@ export function UserSidebarFooter({ notificationModalOpen, setNotificationModalO
                 </Link>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logOut}>
-                <LogOut />
-                {t(`foundations.auth.buttons.logout`)}
-              </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={logOut}>
+                  <LogOut />
+                  {t(`foundations.auth.buttons.logout`)}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         )}

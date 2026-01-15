@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import zlib from "zlib";
+import pako from "pako";
 
 export async function updateToken(params: {
   token?: string;
@@ -93,7 +93,7 @@ export async function updateToken(params: {
     });
 
   if (params.modules) {
-    const compressedValue = zlib.gzipSync(JSON.stringify(params.modules)).toString("base64");
+    const compressedValue = Buffer.from(pako.gzip(JSON.stringify(params.modules))).toString("base64");
 
     (await cookies()).set({
       name: "modules",

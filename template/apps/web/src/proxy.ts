@@ -1,4 +1,3 @@
-import { ENV } from "@/config/middleware-env";
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
@@ -39,24 +38,6 @@ function isTokenCloseToExpiry(token: string): boolean {
 export default async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
-  if (pathname === "/githubconnects/callback") {
-    const code = searchParams.get("code");
-    const installation_id = searchParams.get("installation_id");
-    const setup_action = searchParams.get("setup_action");
-    const state = searchParams.get("state");
-
-    let path = null;
-    if (state && state.startsWith("{{name}}")) {
-      path = decodeURIComponent(state.substring(5));
-    }
-
-    const nextPublicAddress = ENV.APP_URL;
-    if (state && path && !nextPublicAddress.includes(path)) {
-      const redirectUrl = `${path}?code=${encodeURIComponent(code || "")}&installation_id=${encodeURIComponent(installation_id || "")}&setup_action=${encodeURIComponent(setup_action || "")}`;
-      return NextResponse.redirect(redirectUrl);
-    }
-  }
-
   const normalizedPathname = pathname.replace(/^\/([a-z]{2})(?=\/)/, "");
 
   const exemptPaths = ["/", "/activation", "/auth", "/invitation", "/login", "/logout", "/register", "/reset"];
@@ -66,15 +47,6 @@ export default async function proxy(request: NextRequest) {
 
   if (!isExempt && !refreshToken) {
     return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  const requestsSupport = normalizedPathname.startsWith("/support");
-  if (
-    (!process.env.NEXT_PUBLIC_PRIVATE_INSTALLATION ||
-      process.env.NEXT_PUBLIC_PRIVATE_INSTALLATION.toLowerCase() !== "true") &&
-    requestsSupport
-  ) {
-    return NextResponse.redirect(new URL("/", request.url));
   }
 
   const intlResponse = intlMiddleware(request);

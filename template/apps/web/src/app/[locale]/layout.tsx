@@ -1,7 +1,6 @@
 import { BootstrapProvider } from "@/config/BootstrapProvider";
 import "@/config/env"; // Server-side bootstrap
 import { TooltipProvider } from "@carlonicora/nextjs-jsonapi/components";
-import { CurrentUserProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { cn } from "@carlonicora/nextjs-jsonapi/core";
 import { Provider } from "jotai";
 import "react-horizontal-scrolling-menu/dist/styles.css";
@@ -37,12 +36,10 @@ export default async function RootLayout(props: { children: React.ReactNode; par
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
             <NextIntlClientProvider messages={messages}>
               <BootstrapProvider>
-                <CurrentUserProvider>
-                  <TooltipProvider>
-                    <Toaster closeButton richColors />
-                    {children}
-                  </TooltipProvider>
-                </CurrentUserProvider>
+                <TooltipProvider>
+                  <Toaster closeButton richColors />
+                  {children}
+                </TooltipProvider>
               </BootstrapProvider>
             </NextIntlClientProvider>
           </ThemeProvider>

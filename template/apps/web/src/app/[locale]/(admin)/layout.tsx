@@ -4,7 +4,7 @@ import "react-horizontal-scrolling-menu/dist/styles.css";
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
 import { routing } from "@/i18n/routing";
 import { PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
-import { NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
+import { CurrentUserProvider, NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { Inter } from "next/font/google";
@@ -33,14 +33,16 @@ export default async function AdminLayout(props: { children: React.ReactNode; pa
   if (await ServerSession.isLogged())
     return (
       <SocketProvider token={token}>
-        <PushNotificationProvider>
-          <NotificationContextProvider>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <RefreshUser />
-              <LayoutDetails>{children}</LayoutDetails>
-            </SidebarProvider>
-          </NotificationContextProvider>
-        </PushNotificationProvider>
+        <CurrentUserProvider>
+          <PushNotificationProvider>
+            <NotificationContextProvider>
+              <SidebarProvider defaultOpen={defaultOpen}>
+                <RefreshUser />
+                <LayoutDetails>{children}</LayoutDetails>
+              </SidebarProvider>
+            </NotificationContextProvider>
+          </PushNotificationProvider>
+        </CurrentUserProvider>
       </SocketProvider>
     );
 

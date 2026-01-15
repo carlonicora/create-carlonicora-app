@@ -3,7 +3,13 @@ import { ENV } from "@/config/middleware-env";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useDateFnsLocale } from "@/i18n/useDateFnsLocale";
 import { removeToken, updateToken } from "@/server-actions/auth-cookies";
-import { configureAuth, configureI18n, configureJsonApi, configureRoles } from "@carlonicora/nextjs-jsonapi";
+import {
+  configureAuth,
+  configureI18n,
+  configureJsonApi,
+  configureLogin,
+  configureRoles,
+} from "@carlonicora/nextjs-jsonapi";
 import { Modules } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
 import { useLocale, useTranslations } from "next-intl";
@@ -30,6 +36,7 @@ configureJsonApi({
   appUrl: ENV.APP_URL,
   trackablePages: [Modules.Notification, Modules.Company, Modules.User],
   bootstrapper: bootstrap,
+  stripePublishableKey: ENV.STRIPE_PUBLISHABLE_KEY,
 });
 
 // Configure auth token handling (Server Actions for cookie management)
@@ -50,3 +57,11 @@ configureI18n({
 
 // Configure role IDs for role-based access control
 configureRoles(RoleId);
+
+// Configure login providers (auto-detected from client IDs)
+configureLogin({
+  discordClientId: ENV.DISCORD_CLIENT_ID,
+  googleClientId: ENV.GOOGLE_CLIENT_ID,
+  useInternalAuth: true,
+  allowRegistration: ENV.ALLOW_REGISTRATION,
+});

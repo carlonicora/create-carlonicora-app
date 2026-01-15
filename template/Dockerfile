@@ -183,16 +183,65 @@ FROM shared-builder-prod AS web-builder
 
 WORKDIR /app
 
-# Accept build arguments for Next.js public env vars
+# -----------------------------------------------------------------------------
+# Build-time Arguments
+# -----------------------------------------------------------------------------
+# IMPORTANT: These ARGs must be provided during docker build to be available
+# during the Next.js build process. Coolify automatically injects these as ARGs
+# when variables are marked with is_buildtime: true.
+#
+# Client-side variables (NEXT_PUBLIC_*):
+#   - Embedded into the JavaScript bundle at build time
+#   - Accessible in browser via process.env.NEXT_PUBLIC_*
+#
+# Server-side variables:
+#   - API_URL: Used by server-side code (SSR, API routes) to call backend API
+#   - API_INTERNAL_URL: Used when API and Web run on same machine (docker-compose)
+#   - Available only to server-side code via process.env.*
+# -----------------------------------------------------------------------------
+
+# Server-side API URL (used during SSR/server components)
+ARG API_URL
+
+# Internal API URL for same-machine deployments (docker-compose)
+ARG API_INTERNAL_URL
+
+# Client-side public variables (embedded in browser bundle)
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_ADDRESS
 ARG NEXT_PUBLIC_VAPID_PUBLIC_KEY
+ARG NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
-# Set them as environment variables for the build
+# Image sources for CSP headers (needed at build time for next.config.js headers())
+ARG IMAGE_SOURCES
+
+# Optional: Node.js memory settings for build process
+ARG WEB_NODE_OPTIONS
+
+# Optional: Port configuration
+ARG PORT
+
+# -----------------------------------------------------------------------------
+# Set Environment Variables for Build Process
+# -----------------------------------------------------------------------------
+# These ENV declarations make the ARGs available to the Next.js build process
+# via process.env.* when running `pnpm build`
+
+# Server-side variables
+ENV API_URL=${API_URL}
+ENV API_INTERNAL_URL=${API_INTERNAL_URL}
+
+# Client-side variables (will be embedded in bundle)
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_ADDRESS=${NEXT_PUBLIC_ADDRESS}
 ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
 ENV NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+
+# Image sources for CSP headers
+ENV IMAGE_SOURCES=${IMAGE_SOURCES}
+
+# Optional: Set Node options if provided (useful for memory-intensive builds)
+ENV NODE_OPTIONS=${WEB_NODE_OPTIONS}
 
 RUN pnpm --filter {{name}}-web build
 

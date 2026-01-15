@@ -8,6 +8,7 @@ import { bootstrap } from "@carlonicora/nestjs-neo4jsonapi";
 
 import config from "src/config/config";
 import { FeaturesModules } from "./features/features.modules";
+import { getOpenApiConfig } from "./openapi/openapi.config";
 
 // Queue configuration is now via baseConfig.chunkQueues in config/config.ts
 bootstrap({
@@ -20,4 +21,5 @@ bootstrap({
   contentExtension: {
     additionalRelationships: [],
   },
+  openApi: getOpenApiConfig(),
 });

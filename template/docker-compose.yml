@@ -54,6 +54,9 @@ x-api-worker-shared-env: &api_worker_shared_env
   LOKI_PASSWORD: ${LOKI_PASSWORD}
   LOKI_APP_LABEL: ${LOKI_APP_LABEL}
 
+  # Logging - Console
+  CONSOLE_ENABLED: ${CONSOLE_ENABLED:-false}
+
   # Tracing - Tempo
   TEMPO_ENABLED: ${TEMPO_ENABLED}
   TEMPO_ENDPOINT: ${TEMPO_ENDPOINT}
@@ -79,7 +82,8 @@ x-api-worker-shared-env: &api_worker_shared_env
   AI_API_VERSION: ${AI_API_VERSION}
   AI_INPUT_COST_PER_1M_TOKENS: ${AI_INPUT_COST_PER_1M_TOKENS}
   AI_OUTPUT_COST_PER_1M_TOKENS: ${AI_OUTPUT_COST_PER_1M_TOKENS}
-  
+  AI_GOOGLE_CREDENTIALS_BASE64: ${AI_GOOGLE_CREDENTIALS_BASE64}
+
   #transcriber
   TRANSCRIBER_PROVIDER: ${TRANSCRIBER_PROVIDER}
   TRANSCRIBER_API_KEY: ${TRANSCRIBER_API_KEY}
@@ -90,9 +94,12 @@ x-api-worker-shared-env: &api_worker_shared_env
   # embedder
   EMBEDDER_PROVIDER: ${EMBEDDER_PROVIDER}
   EMBEDDER_API_KEY: ${EMBEDDER_API_KEY}
+  EMBEDDER_URL: ${EMBEDDER_URL}
   EMBEDDER_MODEL: ${EMBEDDER_MODEL}
   EMBEDDER_INSTANCE: ${EMBEDDER_INSTANCE}
   EMBEDDER_API_VERSION: ${EMBEDDER_API_VERSION}
+  EMBEDDER_REGION: ${EMBEDDER_REGION}
+  EMBEDDER_GOOGLE_CREDENTIALS_BASE64: ${EMBEDDER_GOOGLE_CREDENTIALS_BASE64}
   EMBEDDER_DIMENSIONS: ${EMBEDDER_DIMENSIONS}
 
 # =============================================================================
@@ -140,7 +147,7 @@ services:
       CORS_OPTIONS_SUCCESS_STATUS: ${CORS_OPTIONS_SUCCESS_STATUS}
       CORS_LOG_VIOLATIONS: ${CORS_LOG_VIOLATIONS}
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.API_PORT||3400,path:'/version'},(r)=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))"]
+      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.API_PORT||3400,path:'/health/ready'},(r)=>process.exit(r.statusCode===200?0:1))"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -177,32 +184,48 @@ services:
       dockerfile: Dockerfile
       target: web-production
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-        - NEXT_PUBLIC_ADDRESS=${NEXT_PUBLIC_ADDRESS}
-        - NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
-        - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
-        - PORT=${PORT:-3401}
+        # Server-side API URLs (used during build for SSR/server components)
+        # API_URL: External production API URL (used by server-side code)
+        # API_INTERNAL_URL: Internal API URL for docker-compose networking
+        API_URL: ${API_URL}
+        API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:3400/}
+
+        # Client-side variables (embedded into browser bundle at build time)
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_ADDRESS: ${NEXT_PUBLIC_ADDRESS}
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+
+        # Image sources for CSP headers
+        IMAGE_SOURCES: ${IMAGE_SOURCES}
+
+        # Build configuration
+        WEB_NODE_OPTIONS: ${WEB_NODE_OPTIONS:-"--max-old-space-size=4096"}
+        PORT: ${PORT:-3401}
     ports:
       - "${PORT:-3401}:${PORT:-3401}"
     environment:
-      # Build & Application Configuration
+      # Runtime Configuration
+      # NOTE: NEXT_PUBLIC_* variables below are included for consistency but are
+      # NOT used by Next.js at runtime (they're only read during build time).
+      # They're kept here to avoid confusion when comparing with build args.
+
+      # Application Configuration
       - PORT=${PORT:-3401}
       - APP_URL=${APP_URL}
       - NODE_OPTIONS=${WEB_NODE_OPTIONS:-"--max-old-space-size=4096"}
 
-      # API Connection
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-      - NEXT_PUBLIC_ADDRESS=${NEXT_PUBLIC_ADDRESS}
+      # API Connection (server-side only)
       - API_INTERNAL_URL=${API_INTERNAL_URL:-http://api:3400/}
 
-      # Web Push - VAPID
+      # Client-side variables (already embedded in bundle, included for reference)
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_ADDRESS=${NEXT_PUBLIC_ADDRESS}
       - NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
 
       # Image Sources
       - IMAGE_SOURCES=${IMAGE_SOURCES}
-
-      # Google Maps API Key
-      - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.PORT||3401,path:'/'},(r)=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))"]
       interval: 10s

@@ -3,7 +3,7 @@ import "react-horizontal-scrolling-menu/dist/styles.css";
 
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
 import { AuthContainer, PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
-import { NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
+import { CurrentUserProvider, NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
 import { cookies } from "next/headers";
 
@@ -24,14 +24,16 @@ export default async function MainLayout(props: { children: React.ReactNode; par
   // if (await ServerSession.isLicenseActive())
   return (
     <SocketProvider token={token}>
-      <PushNotificationProvider>
-        <NotificationContextProvider>
-          <SidebarProvider defaultOpen={defaultOpen}>
-            <RefreshUser />
-            <LayoutDetails>{children}</LayoutDetails>
-          </SidebarProvider>
-        </NotificationContextProvider>
-      </PushNotificationProvider>
+      <CurrentUserProvider>
+        <PushNotificationProvider>
+          <NotificationContextProvider>
+            <SidebarProvider defaultOpen={defaultOpen}>
+              <RefreshUser />
+              <LayoutDetails>{children}</LayoutDetails>
+            </SidebarProvider>
+          </NotificationContextProvider>
+        </PushNotificationProvider>
+      </CurrentUserProvider>
     </SocketProvider>
   );
 

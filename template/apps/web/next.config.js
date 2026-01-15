@@ -45,6 +45,94 @@ const nextConfig = {
     config.resolve.alias["yjs"] = path.resolve(__dirname, "node_modules/yjs");
     return config;
   },
+  async headers() {
+    // Build CSP directives
+    // Note: 'unsafe-inline' and 'unsafe-eval' needed for Next.js dev mode and some runtime features
+    // In production, consider using nonces for stricter CSP
+    const cspDirectives = [
+      "default-src 'self'",
+      // Scripts: self, Stripe, Google Maps, and unsafe-inline/eval for Next.js
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com",
+      // Styles: self and unsafe-inline for styled-components/emotion
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      // Images: self, data URIs, blobs, Discord avatars, and configured image sources
+      "img-src 'self' data: blob: https://*.stripe.com https://maps.googleapis.com https://maps.gstatic.com https://cdn.discordapp.com " +
+        (process.env.IMAGE_SOURCES
+          ? process.env.IMAGE_SOURCES.split(",")
+              .map((s) => s.trim())
+              .join(" ")
+          : ""),
+      // Fonts: self and Google Fonts
+      "font-src 'self' https://fonts.gstatic.com",
+      // Connect: self, API (http + ws for socket.io), Stripe, Google, and storage (for uploads)
+      "connect-src 'self' https://api.stripe.com https://maps.googleapis.com " +
+        (process.env.NEXT_PUBLIC_API_URL || "") +
+        " " +
+        // Add WebSocket URL for socket.io (convert http->ws, https->wss)
+        (process.env.NEXT_PUBLIC_API_URL
+          ? process.env.NEXT_PUBLIC_API_URL.replace(/^http/, "ws")
+          : "") +
+        " " +
+        (process.env.IMAGE_SOURCES
+          ? process.env.IMAGE_SOURCES.split(",")
+              .map((s) => s.trim())
+              .join(" ")
+          : ""),
+      // Frames: only Stripe for payment elements
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+      // Frame ancestors: deny embedding (equivalent to X-Frame-Options: DENY)
+      "frame-ancestors 'none'",
+      // Form actions: only self
+      "form-action 'self'",
+      // Base URI: only self
+      "base-uri 'self'",
+      // Object sources: none (no plugins)
+      "object-src 'none'",
+      // Upgrade insecure requests in production
+      process.env.NODE_ENV === "production" ? "upgrade-insecure-requests" : "",
+    ]
+      .filter(Boolean)
+      .join("; ");
+
+    return [
+      {
+        // Apply to all routes
+        source: "/:path*",
+        headers: [
+          // Content Security Policy - prevents XSS attacks
+          {
+            key: "Content-Security-Policy",
+            value: cspDirectives,
+          },
+          // X-Frame-Options - prevents clickjacking (backup for older browsers)
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          // X-Content-Type-Options - prevents MIME sniffing
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          // Strict-Transport-Security - enforces HTTPS (1 year, include subdomains)
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
+          },
+          // Referrer-Policy - controls referrer information
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          // Permissions-Policy - restricts browser features
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = withNextIntl(nextConfig);

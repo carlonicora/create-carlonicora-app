@@ -49,6 +49,29 @@ export async function addSubmodules(targetDir: string): Promise<void> {
   });
 }
 
+export async function buildSubmodules(targetDir: string): Promise<void> {
+  const submodulePaths = [
+    'packages/nestjs-neo4jsonapi',
+    'packages/nextjs-jsonapi',
+  ];
+
+  for (const submodulePath of submodulePaths) {
+    const fullPath = path.join(targetDir, submodulePath);
+
+    // Install submodule's own dependencies first
+    execSync('pnpm install --ignore-scripts', {
+      cwd: fullPath,
+      stdio: 'inherit',
+    });
+
+    // Build the submodule to create dist/
+    execSync('pnpm build', {
+      cwd: fullPath,
+      stdio: 'inherit',
+    });
+  }
+}
+
 export async function installDependencies(targetDir: string): Promise<void> {
   // Use inherit for stdio so user can see the install progress
   execSync('pnpm install', { cwd: targetDir, stdio: 'inherit' });
