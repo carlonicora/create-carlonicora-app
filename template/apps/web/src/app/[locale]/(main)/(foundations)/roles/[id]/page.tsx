@@ -9,7 +9,7 @@ export default async function RolePage(props: { params: Promise<{ id: string }> 
     roleId: params.id,
   });
 
-  ServerSession.checkPermission({ module: Modules.Role, action: Action.Read, data: role });
+  await ServerSession.checkPermission({ module: Modules.Role, action: Action.Read, data: role });
 
   return (
     <RoleProvider dehydratedRole={role.dehydrate()}>

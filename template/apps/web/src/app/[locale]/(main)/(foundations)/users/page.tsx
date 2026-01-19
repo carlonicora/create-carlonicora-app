@@ -4,7 +4,7 @@ import { Action, Modules } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 
 export default async function UsersListPage() {
-  ServerSession.checkPermission({ module: Modules.User, action: Action.Read });
+  await ServerSession.checkPermission({ module: Modules.User, action: Action.Read });
 
   return (
     <UserProvider>

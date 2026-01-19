@@ -32,7 +32,7 @@ export default async function CompanyPage(props: { params: Promise<{ id: string 
   const company: CompanyInterface = await getCachedCompany(params.id);
 
   if (!(await ServerSession.hasRole(RoleId.Administrator)))
-    ServerSession.checkPermission({ module: Modules.Company, action: Action.Read, data: company });
+    await ServerSession.checkPermission({ module: Modules.Company, action: Action.Read, data: company });
 
   return (
     <CompanyProvider dehydratedCompany={company.dehydrate()}>
