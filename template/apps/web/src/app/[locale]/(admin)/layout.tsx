@@ -2,6 +2,7 @@ import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import "react-horizontal-scrolling-menu/dist/styles.css";
 
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
+import { OnboardingProviderWrapper } from "@/features/onboarding";
 import { routing } from "@/i18n/routing";
 import { PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
 import { CurrentUserProvider, NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
@@ -33,16 +34,18 @@ export default async function AdminLayout(props: { children: React.ReactNode; pa
   if (await ServerSession.isLogged())
     return (
       <SocketProvider token={token}>
-        <CurrentUserProvider>
-          <PushNotificationProvider>
-            <NotificationContextProvider>
-              <SidebarProvider defaultOpen={defaultOpen}>
-                <RefreshUser />
-                <LayoutDetails>{children}</LayoutDetails>
-              </SidebarProvider>
-            </NotificationContextProvider>
-          </PushNotificationProvider>
-        </CurrentUserProvider>
+        <OnboardingProviderWrapper>
+          <CurrentUserProvider>
+            <PushNotificationProvider>
+              <NotificationContextProvider>
+                <SidebarProvider defaultOpen={defaultOpen}>
+                  <RefreshUser />
+                  <LayoutDetails>{children}</LayoutDetails>
+                </SidebarProvider>
+              </NotificationContextProvider>
+            </PushNotificationProvider>
+          </CurrentUserProvider>
+        </OnboardingProviderWrapper>
       </SocketProvider>
     );
 

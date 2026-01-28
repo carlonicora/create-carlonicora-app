@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 /* Include package source files for Tailwind to scan */
 /* Development: workspace package */
@@ -139,7 +140,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
     overscroll-behavior-y: none;
   }
   body {
@@ -191,6 +192,10 @@
 @layer utilities {
   .animate-spin-slow {
     animation: spin 3s linear infinite !important;
+  }
+
+  .grid-cols-subgrid {
+    grid-template-columns: subgrid;
   }
 }
 
@@ -253,4 +258,62 @@
   /* background-color: #444 !important; */
   /* background-color: var(--color-border); */
   border-radius: 4px !important;
+}
+
+/* =============================================================================
+   PWA Safe Area Support for Notched Devices
+   ============================================================================= */
+
+/* Ensure viewport fit cover is respected */
+@supports (padding: env(safe-area-inset-top)) {
+  /* Safe area padding for notched devices */
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+
+  /* Standalone mode (PWA installed) adjustments */
+  @media all and (display-mode: standalone) {
+    body {
+      /* Add top padding for status bar in standalone mode */
+      padding-top: env(safe-area-inset-top);
+    }
+
+    /* Ensure fixed elements respect safe areas */
+    .fixed-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .fixed-top {
+      padding-top: env(safe-area-inset-top);
+    }
+  }
+
+  /* iOS standalone mode specific */
+  @media all and (display-mode: standalone) and (-webkit-min-device-pixel-ratio: 2) {
+    /* Additional iOS-specific adjustments if needed */
+    html {
+      /* Prevent overscroll bounce in standalone */
+      overscroll-behavior: none;
+    }
+  }
+}
+
+/* Utility class for components that need safe area awareness */
+.safe-area-top {
+  padding-top: max(1rem, env(safe-area-inset-top, 1rem));
+}
+
+.safe-area-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+}
+
+.safe-area-left {
+  padding-left: max(1rem, env(safe-area-inset-left, 1rem));
+}
+
+.safe-area-right {
+  padding-right: max(1rem, env(safe-area-inset-right, 1rem));
 }

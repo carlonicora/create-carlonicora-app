@@ -14,20 +14,20 @@ export async function generateSpecificMetadata(params: {
 
   const url = (await headers()).get("x-full-url") ?? ENV.APP_URL ?? "{{name}}.com";
 
-  const title: string = params.title ? `${params.title} | ${t(`generic.title`)}` : t(`generic.title`);
-  const description = params.description ? params.description : t(`generic.description`);
+  const title: string = params.title ? `${params.title} | ${t(`common.title`)}` : t(`common.title`);
+  const description = params.description ? params.description : t(`common.description`);
 
   const response: Metadata = {
     title: title,
     description: description,
     keywords: [],
-    publisher: "Phlow",
+    publisher: "{{name}}",
     openGraph: {
       type: "website",
       title: title,
       description: description,
       url: url,
-      siteName: "Phlow",
+      siteName: "{{name}}",
     },
     twitter: {
       card: "summary_large_image",

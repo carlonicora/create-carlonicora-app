@@ -13,6 +13,7 @@ import {
   Input,
   Label,
 } from "@carlonicora/nextjs-jsonapi/components";
+import { useTranslations } from "next-intl";
 
 /**
  * OAuth Success Page
@@ -25,13 +26,27 @@ import {
  * - code: The authorization code to be copied
  */
 export default function OAuthSuccessPage() {
+  const t = useTranslations();
   const searchParams = useSearchParams();
   const code = searchParams.get("code") || "";
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(code);
+      // Try modern clipboard API first (requires secure context)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(code);
+      } else {
+        // Fallback for non-secure contexts (http://*.test, etc.)
+        const textArea = document.createElement("textarea");
+        textArea.value = code;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -46,14 +61,14 @@ export default function OAuthSuccessPage() {
           <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
             <CheckCircle className="h-6 w-6 text-green-600" />
           </div>
-          <CardTitle className="text-2xl">Authorization Successful</CardTitle>
+          <CardTitle className="text-2xl">{t("oauth.success.title")}</CardTitle>
           <CardDescription>
-            Copy the authorization code below and paste it into your application.
+            {t("oauth.success.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="code">Authorization Code</Label>
+            <Label htmlFor="code">{t("oauth.success.code_label")}</Label>
             <div className="flex gap-2">
               <Input
                 id="code"
@@ -77,16 +92,16 @@ export default function OAuthSuccessPage() {
           </div>
 
           <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-            <p className="font-medium mb-2">Instructions:</p>
+            <p className="font-medium mb-2">{t("oauth.success.instructions")}</p>
             <ol className="list-decimal list-inside space-y-1">
-              <li>Copy the authorization code above</li>
-              <li>Return to your application</li>
-              <li>Paste the code when prompted</li>
+              <li>{t("oauth.success.step_copy")}</li>
+              <li>{t("oauth.success.step_return")}</li>
+              <li>{t("oauth.success.step_paste")}</li>
             </ol>
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            This code expires in 10 minutes and can only be used once.
+            {t("oauth.success.expiry_note")}
           </p>
         </CardContent>
       </Card>

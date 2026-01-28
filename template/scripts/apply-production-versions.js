@@ -25,7 +25,6 @@ for (const file of packageFiles) {
     if (pkg.dependencies?.[dep] === 'workspace:*') {
       pkg.dependencies[dep] = version;
       modified = true;
-      console.log(`${file}: ${dep} → ${version}`);
     }
   }
 
@@ -33,5 +32,3 @@ for (const file of packageFiles) {
     fs.writeFileSync(filePath, JSON.stringify(pkg, null, 2) + '\n');
   }
 }
-
-console.log('Production versions applied.');

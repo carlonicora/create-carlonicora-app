@@ -11,7 +11,7 @@ import { getTranslations } from "next-intl/server";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
 
-  return await generateSpecificMetadata({ title: t(`generic.home`) });
+  return await generateSpecificMetadata({ title: t(`common.home`) });
 }
 
 export default async function IndexPage() {

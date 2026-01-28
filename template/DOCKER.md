@@ -578,6 +578,119 @@ docker compose up --scale worker=5 -d
 
 ---
 
+### Standalone Service Deployment (Coolify, PaaS, etc.)
+
+**Setup:** Each service deployed as an independent resource on separate servers or platforms.
+
+This approach uses dedicated compose files for each service, ideal for:
+- **Coolify** deployments where each service is a separate resource
+- **PaaS platforms** that deploy single-service configurations
+- **Multi-server setups** where each server runs one service type
+- **Independent scaling** of individual services
+
+**Compose Files:**
+- `docker-compose.api.yml` - API service only
+- `docker-compose.worker.yml` - Worker service only
+- `docker-compose.web.yml` - Web service only
+
+**Architecture:**
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        Standalone Service Deployment                         │
+│                                                                              │
+│   Server A (API)          Server B (Worker)        Server C (Web)           │
+│   ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐       │
+│   │ docker-compose  │     │ docker-compose  │     │ docker-compose  │       │
+│   │ .api.yml        │     │ .worker.yml     │     │ .web.yml        │       │
+│   │                 │     │                 │     │                 │       │
+│   │  ┌───────────┐  │     │  ┌───────────┐  │     │  ┌───────────┐  │       │
+│   │  │   API     │  │     │  │  Worker   │  │     │  │   Web     │  │       │
+│   │  │  :3400    │◄─┼─────┼──┤           │  │     │  │  :3401    │  │       │
+│   │  └───────────┘  │     │  └───────────┘  │     │  └─────┬─────┘  │       │
+│   └─────────────────┘     └─────────────────┘     └────────┼────────┘       │
+│           │                       │                        │                │
+│           │                       │                        │                │
+│           └───────────────────────┴────────────────────────┘                │
+│                                   │                                          │
+│                    ┌──────────────┴──────────────┐                           │
+│                    │  Shared Infrastructure      │                           │
+│                    │  (Neo4j, Redis, S3/MinIO)   │                           │
+│                    │  Accessible via public URLs │                           │
+│                    └─────────────────────────────┘                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Difference:** Services communicate via **public URLs** instead of Docker's internal networking.
+
+#### Deploy API Standalone
+
+```bash
+# On API server
+# Ensure .env has: NEO4J_*, REDIS_*, S3_*, JWT_SECRET, API_PORT, API_URL
+
+docker compose -f docker-compose.api.yml up -d
+```
+
+#### Deploy Worker Standalone
+
+```bash
+# On Worker server
+# Ensure .env has: NEO4J_*, REDIS_*, S3_*, JWT_SECRET
+
+docker compose -f docker-compose.worker.yml up -d
+
+# Scale multiple workers
+docker compose -f docker-compose.worker.yml up -d --scale worker=3
+```
+
+#### Deploy Web Standalone
+
+```bash
+# On Web server
+# Ensure .env has: API_URL, NEXT_PUBLIC_*, PORT
+
+# IMPORTANT: Set API_INTERNAL_URL to the public API URL (no internal networking)
+# API_INTERNAL_URL=https://api.example.com/
+
+docker compose -f docker-compose.web.yml up -d
+```
+
+**Coolify Configuration:**
+
+For each server in Coolify:
+
+1. **API Server:**
+   - Create new resource → Docker Compose
+   - Point to `docker-compose.api.yml`
+   - Set environment variables (shared + API-specific)
+   - Configure domain/SSL for API endpoint
+
+2. **Worker Server:**
+   - Create new resource → Docker Compose
+   - Point to `docker-compose.worker.yml`
+   - Set environment variables (shared only)
+   - No domain needed (background processing)
+
+3. **Web Server:**
+   - Create new resource → Docker Compose
+   - Point to `docker-compose.web.yml`
+   - Set environment variables (web-specific)
+   - **Important:** Set `API_INTERNAL_URL` to the public API URL
+   - Configure domain/SSL for web endpoint
+
+**Pros:**
+- Each service independently deployable and scalable
+- Clean separation for PaaS platforms
+- No Docker network dependencies between services
+- Works with any deployment platform
+
+**Cons:**
+- All traffic goes through public internet (add API authentication if needed)
+- Requires proper SSL/TLS configuration
+- Each server needs its own `.env` configuration
+
+---
+
 ### Deployment Decision Matrix
 
 | Users      | Requests/sec | Jobs/day | Recommended Setup           | Estimated Cost  |

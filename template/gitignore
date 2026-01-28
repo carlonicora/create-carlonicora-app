@@ -89,3 +89,6 @@ temp/
 
 # REST test files
 REST.http
+
+# Git worktrees
+.worktrees/

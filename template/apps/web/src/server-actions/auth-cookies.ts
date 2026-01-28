@@ -8,7 +8,6 @@ export async function updateToken(params: {
   refreshToken?: string;
   userId?: string;
   companyId?: string;
-  licenseExpirationDate?: Date;
   roles?: string[];
   features?: string[];
   modules?: {
@@ -62,16 +61,6 @@ export async function updateToken(params: {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
     });
 
-  if (params.licenseExpirationDate)
-    (await cookies()).set({
-      name: "licenseExpirationDate",
-      value: params.licenseExpirationDate.toISOString(),
-      httpOnly: true,
-      path: "/",
-      secure: isProduction,
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-    });
-
   if (params.roles)
     (await cookies()).set({
       name: "roles",
@@ -118,9 +107,6 @@ export async function removeToken(): Promise<void> {
   });
   (await cookies()).delete({
     name: "companyId",
-  });
-  (await cookies()).delete({
-    name: "licenseExpirationDate",
   });
   (await cookies()).delete({
     name: "roles",

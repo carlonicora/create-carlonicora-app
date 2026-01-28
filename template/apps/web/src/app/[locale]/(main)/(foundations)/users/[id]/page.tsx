@@ -13,12 +13,12 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
   const params = await props.params;
   const t = await getTranslations();
 
-  let title = `${t(`types.users`, { count: 1 })}`;
+  let title = `${t(`entities.users`, { count: 1 })}`;
 
   const user: UserInterface = (await getCachedUser(params.id)) as UserInterface;
 
   if (await ServerSession.hasPermissionToModule({ module: Modules.User, action: Action.Read, data: user }))
-    title = `[${t(`types.users`, { count: 1 })}] ${user.name}`;
+    title = `[${t(`entities.users`, { count: 1 })}] ${user.name}`;
 
   return await generateSpecificMetadata({ title: title });
 }

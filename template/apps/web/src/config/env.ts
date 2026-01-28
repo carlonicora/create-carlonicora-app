@@ -13,6 +13,7 @@ import {
 import { Modules } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
 import { useLocale, useTranslations } from "next-intl";
+import "./waitlist.config";
 
 // Re-export ENV for use by non-middleware code
 export { ENV };
@@ -64,4 +65,5 @@ configureLogin({
   googleClientId: ENV.GOOGLE_CLIENT_ID,
   useInternalAuth: true,
   allowRegistration: ENV.ALLOW_REGISTRATION,
+  registrationMode: ENV.REGISTRATION_MODE,
 });

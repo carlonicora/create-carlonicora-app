@@ -1,0 +1,38 @@
+# =============================================================================
+# WORKER SERVICE - STANDALONE DOCKER COMPOSE
+# =============================================================================
+# Deploy Worker service independently on a dedicated server.
+# Workers process background jobs from Redis queue (BullMQ).
+# All configuration is loaded from .env file (managed by Coolify or manually).
+#
+# Usage:
+#   docker compose -f docker-compose.worker.yml up -d
+#   docker compose -f docker-compose.worker.yml logs -f
+#   docker compose -f docker-compose.worker.yml down
+#
+# Scale workers:
+#   docker compose -f docker-compose.worker.yml up -d --scale worker=3
+#
+# Required environment variables: See .env.example for full list
+# Key variables: NEO4J_*, REDIS_*, S3_*, JWT_SECRET
+# =============================================================================
+
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-production
+    env_file:
+      - .env
+    command:
+      - node
+      - dist/main
+      - --mode=worker
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "node.*dist/main.*worker"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped

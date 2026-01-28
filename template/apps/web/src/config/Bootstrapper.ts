@@ -2,6 +2,7 @@ import { FeatureIds } from "@/enums/feature.ids";
 import {
   AuthModule,
   AuthorModule,
+  BackupCodeVerifyModule,
   BillingModule,
   CompanyModule,
   ContentModule,
@@ -13,6 +14,12 @@ import {
   ModuleWithPermissions,
   NotificationModule,
   OAuthModule,
+  PasskeyModule,
+  PasskeyRegistrationOptionsModule,
+  PasskeyRegistrationVerifyModule,
+  PasskeyRenameModule,
+  PasskeyVerifyLoginModule,
+  PasskeyAuthenticationOptionsModule,
   PushModule,
   RoleModule,
   S3Module,
@@ -22,9 +29,19 @@ import {
   StripePaymentMethodModule,
   StripePriceModule,
   StripeProductModule,
+  StripePromotionCodeModule,
   StripeSubscriptionModule,
   StripeUsageModule,
+  TotpAuthenticatorModule,
+  TotpSetupModule,
+  TotpVerifyLoginModule,
+  TotpVerifyModule,
+  TwoFactorChallengeModule,
+  TwoFactorEnableModule,
+  TwoFactorStatusModule,
   UserModule,
+  WaitlistModule,
+  WaitlistStatsModule,
 } from "@carlonicora/nextjs-jsonapi/core";
 import { LucideIcon } from "lucide-react";
 
@@ -74,8 +91,27 @@ const allModules = {
   StripeInvoice: StripeInvoiceModule(moduleFactory),
   Billing: BillingModule(moduleFactory),
   StripeUsage: StripeUsageModule(moduleFactory),
+  StripePromotionCode: StripePromotionCodeModule(moduleFactory),
   // OAuth module
   OAuth: OAuthModule(moduleFactory),
+  // Waitlist modules
+  Waitlist: WaitlistModule(moduleFactory),
+  WaitlistStats: WaitlistStatsModule(moduleFactory),
+  // Two-factor authentication modules
+  TotpAuthenticator: TotpAuthenticatorModule(moduleFactory),
+  TotpSetup: TotpSetupModule(moduleFactory),
+  TotpVerify: TotpVerifyModule(moduleFactory),
+  TotpVerifyLogin: TotpVerifyLoginModule(moduleFactory),
+  Passkey: PasskeyModule(moduleFactory),
+  PasskeyRegistrationOptions: PasskeyRegistrationOptionsModule(moduleFactory),
+  PasskeyRegistrationVerify: PasskeyRegistrationVerifyModule(moduleFactory),
+  PasskeyRename: PasskeyRenameModule(moduleFactory),
+  PasskeyVerifyLogin: PasskeyVerifyLoginModule(moduleFactory),
+  PasskeyAuthenticationOptions: PasskeyAuthenticationOptionsModule(moduleFactory),
+  TwoFactorEnable: TwoFactorEnableModule(moduleFactory),
+  TwoFactorChallenge: TwoFactorChallengeModule(moduleFactory),
+  TwoFactorStatus: TwoFactorStatusModule(moduleFactory),
+  BackupCodeVerify: BackupCodeVerifyModule(moduleFactory),
 } satisfies Record<string, ModuleWithPermissions>;
 
 // Export type derived from the object - NO DUPLICATION

@@ -1,6 +1,8 @@
 "use client";
 
 import CreationDropDown from "@/features/common/components/navigations/CreationDropDown";
+import { NavigationItem, sidebarItems } from "@/features/common/components/navigations/sidebar.items";
+import { UserSidebarFooter } from "@/features/common/components/navigations/UserSidebarFooter";
 import { useRouter } from "@/i18n/routing";
 import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
@@ -19,22 +21,13 @@ import {
   useSidebar,
 } from "@carlonicora/nextjs-jsonapi/components";
 import { recentPagesAtom, useCurrentUserContext, useNotificationContext } from "@carlonicora/nextjs-jsonapi/contexts";
-
-import { UserSidebarFooter } from "@/features/common/components/navigations/UserSidebarFooter";
+import { Action } from "@carlonicora/nextjs-jsonapi/core";
+import { RoleId } from "@{{name}}/shared";
 import { useAtomValue } from "jotai";
-import { HistoryIcon, HomeIcon } from "lucide-react";
+import { CrownIcon, HistoryIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { ReactNode, useMemo, useState } from "react";
-
-export type NavigationItem = {
-  title: string;
-  component?: React.ReactNode;
-  url: string;
-  onClick?: () => void;
-  icon: ReactNode;
-  testId?: string;
-};
+import { useMemo, useState } from "react";
 
 export default function CommonSidebar() {
   const { state } = useSidebar();
@@ -52,23 +45,14 @@ export default function CommonSidebar() {
   }, [notifications]);
 
   const navigationMap = useMemo(() => {
-    const navMap = new Map<string, { hasTitle: boolean; items: NavigationItem[] }>([
-      ["/", { hasTitle: false, items: [] }],
-      ["expertise", { hasTitle: true, items: [] }],
-      // ["knowledge", { hasTitle: true, items: [] }],
-    ]);
+    const navMap = sidebarItems(t, generateUrl, hasRole(RoleId.Administrator));
 
-    navMap.get("/")?.items.push({
-      title: t(`generic.home`),
-      url: generateUrl({ page: `/` }),
-      icon: <HomeIcon />,
-      testId: "sidebar-home-link",
-    });
-
-    if (company) {
-      if (recentPages.length > 0) {
-        navMap.get("/")?.items.push({
-          title: t(`generic.recent_pages`),
+    // Add recent pages to the home section if user has a company and recent pages
+    if (company && recentPages.length > 0) {
+      const homeSection = navMap.get("/");
+      if (homeSection) {
+        homeSection.items.push({
+          title: t(`common.recent_pages`),
           component: <RecentPagesNavigator />,
           url: "#",
           icon: <HistoryIcon />,
@@ -126,12 +110,13 @@ export default function CommonSidebar() {
             <SidebarGroup key={groupLabel} className={`py-0 ${state === "collapsed" ? "pb-4" : "pb-1"}`}>
               {groupLabel !== "/" && state !== "collapsed" && items.hasTitle && (
                 <SidebarGroupLabel className="min-h-10 font-semibold">
-                  {t(`generic.sidebar`, { type: groupLabel })}
+                  {t(`common.sidebar`, { type: groupLabel })}
                 </SidebarGroupLabel>
               )}
               <SidebarMenu className="gap-0">
-                {items.items.map((item) => {
+                {items.items.map((item: NavigationItem) => {
                   if (item.url && !hasPermissionToPath(item.url)) return null;
+                  if (item.module && !hasPermissionToModule({ module: item.module, action: Action.Read })) return null;
 
                   const isDropdown = item.url === "#" && item.component;
 
@@ -174,6 +159,23 @@ export default function CommonSidebar() {
               </SidebarMenu>
             </SidebarGroup>
           ))}
+        {company && !company.isActiveSubscription && (
+          <SidebarGroup className="mt-auto px-2 pb-2">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  render={undefined}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                  tooltip={t("common.upgrade")}
+                  onClick={() => router.push("/settings/billing?action=subscribe")}
+                >
+                  <CrownIcon className="h-4 w-4" />
+                  {state === "expanded" && <span>{t("common.upgrade")}</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="border-t">
         <UserSidebarFooter

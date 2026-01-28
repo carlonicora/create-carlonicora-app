@@ -96,7 +96,6 @@ program
       if (options.output) {
         console.log();
         console.log(chalk.bold('Summary:'));
-        console.log(`  Identical:           ${chalk.green(report.summary.identical)}`);
         console.log(`  Config Drift:        ${chalk.yellow(report.summary.configDrift)}`);
         console.log(`  Version Drift:       ${chalk.blue(report.summary.versionDrift)}`);
         console.log(`  Additions:           ${chalk.cyan(report.summary.additions)}`);

@@ -1,10 +1,15 @@
 const path = require("path");
 
 const createNextIntlPlugin = require("next-intl/plugin");
+const createMDX = require("@next/mdx");
 
 // Try pointing to package's request config (requires next-intl to resolve module specifiers)
 // Note: If this doesn't work, we'll need a minimal ./src/i18n/request.ts file
 const withNextIntl = createNextIntlPlugin();
+
+const withMDX = createMDX({
+  extension: /\.mdx?$/,
+});
 
 const imageSources = process.env.IMAGE_SOURCES
   ? process.env.IMAGE_SOURCES.split(",").map((url) => {
@@ -25,7 +30,7 @@ const nextConfig = {
       bodySizeLimit: "5mb",
     },
   },
-  pageExtensions: ["ts", "tsx"],
+  pageExtensions: ["ts", "tsx", "mdx"],
   images: {
     minimumCacheTTL: 60,
     remotePatterns: imageSources,
@@ -51,8 +56,8 @@ const nextConfig = {
     // In production, consider using nonces for stricter CSP
     const cspDirectives = [
       "default-src 'self'",
-      // Scripts: self, Stripe, Google Maps, and unsafe-inline/eval for Next.js
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com",
+      // Scripts: self, Stripe, Google Maps, Turnstile, and unsafe-inline/eval for Next.js
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com https://challenges.cloudflare.com",
       // Styles: self and unsafe-inline for styled-components/emotion
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       // Images: self, data URIs, blobs, Discord avatars, and configured image sources
@@ -64,22 +69,22 @@ const nextConfig = {
           : ""),
       // Fonts: self and Google Fonts
       "font-src 'self' https://fonts.gstatic.com",
-      // Connect: self, API (http + ws for socket.io), Stripe, Google, and storage (for uploads)
-      "connect-src 'self' https://api.stripe.com https://maps.googleapis.com " +
+      // Connect: self, API (http + ws for socket.io), Stripe, Google, Turnstile, and storage (for uploads)
+      "connect-src 'self' https://api.stripe.com https://maps.googleapis.com https://challenges.cloudflare.com " +
         (process.env.NEXT_PUBLIC_API_URL || "") +
         " " +
         // Add WebSocket URL for socket.io (convert http->ws, https->wss)
-        (process.env.NEXT_PUBLIC_API_URL
-          ? process.env.NEXT_PUBLIC_API_URL.replace(/^http/, "ws")
-          : "") +
+        (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/^http/, "ws") : "") +
+        " " +
+        (process.env.NEXT_PUBLIC_ADDRESS || "") +
         " " +
         (process.env.IMAGE_SOURCES
           ? process.env.IMAGE_SOURCES.split(",")
               .map((s) => s.trim())
               .join(" ")
           : ""),
-      // Frames: only Stripe for payment elements
-      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+      // Frames: Stripe for payment elements, Turnstile for CAPTCHA
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
       // Frame ancestors: deny embedding (equivalent to X-Frame-Options: DENY)
       "frame-ancestors 'none'",
       // Form actions: only self
@@ -88,6 +93,8 @@ const nextConfig = {
       "base-uri 'self'",
       // Object sources: none (no plugins)
       "object-src 'none'",
+      // Worker sources: self and blob (for Web Workers with dynamic imports)
+      "worker-src 'self' blob:",
       // Upgrade insecure requests in production
       process.env.NODE_ENV === "production" ? "upgrade-insecure-requests" : "",
     ]
@@ -135,4 +142,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withNextIntl(nextConfig);
+module.exports = withNextIntl(withMDX(nextConfig));

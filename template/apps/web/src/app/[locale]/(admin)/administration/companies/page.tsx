@@ -8,14 +8,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
 
   return await generateSpecificMetadata({
-    title: t(`types.companies`, { count: 2 }),
+    title: t(`entities.companies`, { count: 2 }),
   });
 }
 
 export default async function CompaniesListPage() {
   return (
     <CompanyProvider>
-      <PageContainer>
+      <PageContainer className="pr-4">
         <CompaniesList />
       </PageContainer>
     </CompanyProvider>

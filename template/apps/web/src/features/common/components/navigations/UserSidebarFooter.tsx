@@ -1,6 +1,7 @@
 "use client";
 
 import VersionDisplay from "@/features/common/components/navigations/VersionDisplay";
+import { OnboardingTrigger } from "@/features/onboarding";
 import { Modules } from "@carlonicora/nextjs-jsonapi/core";
 import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
@@ -23,7 +24,7 @@ import {
 import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
 import { UserInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
-import { ChevronsUpDown, LogOut, SettingsIcon, UserIcon } from "lucide-react";
+import { ChevronsUpDown, LogOut, SettingsIcon, Shield, UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type UserSidebarFooterProps = {
@@ -43,17 +44,18 @@ export function UserSidebarFooter({ notificationModalOpen, setNotificationModalO
 
   return (
     <SidebarMenu>
+      <OnboardingTrigger />
       {currentUser && !hasRole(RoleId.Administrator) && (
         <SidebarMenuItem>
           <NotificationModal isOpen={notificationModalOpen} setIsOpen={setNotificationModalOpen} />
         </SidebarMenuItem>
       )}
-      {hasRole(RoleId.CompanyAdministrator) && (
+      {(hasRole(RoleId.CompanyAdministrator) || hasRole(RoleId.Administrator)) && (
         <Link href={generateUrl({ page: `/settings` })}>
           <SidebarMenuItem>
             <SidebarMenuButton className="text-muted-foreground">
               <SettingsIcon />
-              {t(`generic.settings`)}
+              {t(`common.settings`)}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </Link>
@@ -100,7 +102,7 @@ export function UserSidebarFooter({ notificationModalOpen, setNotificationModalO
               <DropdownMenuGroup>
                 <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
                   <ModeToggleSwitch />
-                  {t(`generic.theme`)}
+                  {t(`common.theme`)}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
@@ -108,7 +110,13 @@ export function UserSidebarFooter({ notificationModalOpen, setNotificationModalO
                 <Link href={generateUrl({ page: Modules.User, id: currentUser.id })}>
                   <DropdownMenuItem>
                     <UserIcon />
-                    {t(`generic.my_profile`)}
+                    {t(`common.my_profile`)}
+                  </DropdownMenuItem>
+                </Link>
+                <Link href={generateUrl({ page: "/account" })}>
+                  <DropdownMenuItem>
+                    <Shield />
+                    {t("common.account_settings")}
                   </DropdownMenuItem>
                 </Link>
               </DropdownMenuGroup>
@@ -116,7 +124,7 @@ export function UserSidebarFooter({ notificationModalOpen, setNotificationModalO
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={logOut}>
                   <LogOut />
-                  {t(`foundations.auth.buttons.logout`)}
+                  {t(`auth.buttons.logout`)}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

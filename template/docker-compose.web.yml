@@ -1,0 +1,54 @@
+# =============================================================================
+# WEB SERVICE - STANDALONE DOCKER COMPOSE
+# =============================================================================
+# Deploy Web service (Next.js) independently on a dedicated server.
+# All configuration is loaded from .env file (managed by Coolify or manually).
+#
+# IMPORTANT: Next.js requires build-time variables (NEXT_PUBLIC_*).
+# These must be set in .env BEFORE building the image.
+# If you change NEXT_PUBLIC_* values, you must rebuild:
+#   docker compose -f docker-compose.web.yml build --no-cache
+#
+# Usage:
+#   docker compose -f docker-compose.web.yml up -d
+#   docker compose -f docker-compose.web.yml logs -f
+#   docker compose -f docker-compose.web.yml down
+#
+# Required environment variables: See .env.example for full list
+# Key variables: PORT, API_URL, API_INTERNAL_URL, NEXT_PUBLIC_*
+# =============================================================================
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-production
+      args:
+        # Server-side API URLs (used during build for SSR/server components)
+        - API_URL=${API_URL}
+        - API_INTERNAL_URL=${API_INTERNAL_URL:-${API_URL}}
+
+        # Client-side variables (embedded into browser bundle at build time)
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_ADDRESS=${NEXT_PUBLIC_ADDRESS}
+        - NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+        - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+
+        # Image sources for CSP headers
+        - IMAGE_SOURCES=${IMAGE_SOURCES}
+
+        # Build configuration
+        - WEB_NODE_OPTIONS=${WEB_NODE_OPTIONS:-"--max-old-space-size=4096"}
+        - PORT=${PORT:-3401}
+    ports:
+      - "${PORT:-3401}:${PORT:-3401}"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.PORT||3401,path:'/'},(r)=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped

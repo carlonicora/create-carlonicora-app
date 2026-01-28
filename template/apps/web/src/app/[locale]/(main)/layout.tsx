@@ -1,7 +1,10 @@
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import "react-horizontal-scrolling-menu/dist/styles.css";
+import "@carlonicora/nextjs-jsonapi/contexts/styles.css";
 
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
+import { TrialBlockingWrapper } from "@/features/common/components/wrappers/TrialBlockingWrapper";
+import { OnboardingProviderWrapper } from "@/features/onboarding";
 import { AuthContainer, PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
 import { CurrentUserProvider, NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
@@ -24,16 +27,20 @@ export default async function MainLayout(props: { children: React.ReactNode; par
   // if (await ServerSession.isLicenseActive())
   return (
     <SocketProvider token={token}>
-      <CurrentUserProvider>
-        <PushNotificationProvider>
-          <NotificationContextProvider>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <RefreshUser />
-              <LayoutDetails>{children}</LayoutDetails>
-            </SidebarProvider>
-          </NotificationContextProvider>
-        </PushNotificationProvider>
-      </CurrentUserProvider>
+      <OnboardingProviderWrapper>
+        <CurrentUserProvider>
+          <TrialBlockingWrapper>
+            <PushNotificationProvider>
+              <NotificationContextProvider>
+                <SidebarProvider defaultOpen={defaultOpen}>
+                  <RefreshUser />
+                  <LayoutDetails>{children}</LayoutDetails>
+                </SidebarProvider>
+              </NotificationContextProvider>
+            </PushNotificationProvider>
+          </TrialBlockingWrapper>
+        </CurrentUserProvider>
+      </OnboardingProviderWrapper>
     </SocketProvider>
   );
 

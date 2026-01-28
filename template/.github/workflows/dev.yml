@@ -33,6 +33,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sed -i '/nestjs-neo4jsonapi/d; /nextjs-jsonapi/d' pnpm-workspace.yaml
+          node scripts/apply-production-versions.js
           pnpm install --no-frozen-lockfile
 
       - name: Create .env file
@@ -55,6 +56,9 @@ jobs:
         run: pnpm --filter {{name}}-web build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Run Tests
+        run: pnpm test
 
       - name: Create Tag
         env:

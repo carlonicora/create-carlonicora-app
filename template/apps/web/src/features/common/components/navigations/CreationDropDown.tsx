@@ -69,31 +69,31 @@ export default function CreationDropDown() {
         <DropdownMenuTrigger>
           <Button render={<div />} nativeButton={false} variant="outline" className="bg-accent text-accent-foreground">
             <PlusCircleIcon />
-            {state === "collapsed" ? <></> : <span>{t(`generic.create`)}</span>}
+            {state === "collapsed" ? <></> : <span>{t(`common.create`)}</span>}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-96">
-          <DropdownMenuLabel>{t(`generic.create_new`)}</DropdownMenuLabel>
+          <DropdownMenuLabel>{t(`common.create_new`)}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {/* <DropdownMenuItem onClick={handleArticleClick} className="flex items-center gap-2 font-normal">
             {getIconByModule({ module: Modules.Article })}
-            {t(`types.articles`, { count: 1 })}
+            {t(`entities.articles`, { count: 1 })}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleHyperlinkClick} className="flex items-center gap-2 font-normal">
             {getIconByModule({ module: Modules.Hyperlink })}
-            {t(`types.hyperlinks`, { count: 1 })}
+            {t(`entities.hyperlinks`, { count: 1 })}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDocumentClick} className="flex items-center gap-2 font-normal">
             {getIconByModule({ module: Modules.Document })}
-            {t(`types.documents`, { count: 1 })}
+            {t(`entities.documents`, { count: 1 })}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleGlossaryClick} className="flex items-center gap-2 font-normal">
             {getIconByModule({ module: Modules.Glossary })}
-            {t(`types.glossaries`, { count: 1 })}
+            {t(`entities.glossaries`, { count: 1 })}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDiscussionClick} className="flex items-center gap-2 font-normal">
             {getIconByModule({ module: Modules.Discussion })}
-            {t(`types.discussions`, { count: 1 })}
+            {t(`entities.discussions`, { count: 1 })}
           </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>

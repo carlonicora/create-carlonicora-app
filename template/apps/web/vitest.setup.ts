@@ -1,15 +1,14 @@
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
-// Re-export testing utilities from nextjs-jsonapi for convenience
-// These are available in tests via direct import from @carlonicora/nextjs-jsonapi/testing
-export {
-  MockJsonApiProvider,
-  renderWithProviders,
-  createMockApiData,
-  createMockResponse,
-  createMockService,
-} from "@carlonicora/nextjs-jsonapi/testing";
+// Mock shepherd.js CSS import to avoid PostCSS processing issues
+// This is needed because @carlonicora/nextjs-jsonapi/components re-exports
+// OnboardingContext which imports shepherd.js/dist/css/shepherd.css
+vi.mock("shepherd.js/dist/css/shepherd.css", () => ({}));
+
+// Note: Testing utilities from @carlonicora/nextjs-jsonapi/testing should be
+// imported directly in test files, not re-exported here to avoid loading
+// the package before mocks are applied.
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
@@ -38,6 +37,23 @@ vi.mock("next-intl", () => ({
     dateTime: vi.fn(),
     number: vi.fn(),
     relativeTime: vi.fn(),
+  }),
+}));
+
+// Mock next-intl/navigation (required for components using i18n routing)
+vi.mock("next-intl/navigation", () => ({
+  createNavigation: () => ({
+    Link: vi.fn(),
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+    }),
+    usePathname: () => "/",
+    redirect: vi.fn(),
   }),
 }));
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, Home } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Home, UserPlus } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,45 +11,23 @@ import {
   Button,
 } from "@carlonicora/nextjs-jsonapi/components";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 /**
- * Error code to user-friendly message mapping
+ * OAuth error codes that have specific translations
  */
-const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
-  access_denied: {
-    title: "Access Denied",
-    description: "You denied the authorization request.",
-  },
-  invalid_request: {
-    title: "Invalid Request",
-    description: "The authorization request is missing required parameters or is otherwise malformed.",
-  },
-  unauthorized_client: {
-    title: "Unauthorized Client",
-    description: "The client is not authorized to request an authorization code.",
-  },
-  unsupported_response_type: {
-    title: "Unsupported Response Type",
-    description: "The authorization server does not support the requested response type.",
-  },
-  invalid_scope: {
-    title: "Invalid Scope",
-    description: "The requested scope is invalid, unknown, or exceeds the authorized scope.",
-  },
-  server_error: {
-    title: "Server Error",
-    description: "An unexpected error occurred on the authorization server.",
-  },
-  temporarily_unavailable: {
-    title: "Temporarily Unavailable",
-    description: "The authorization server is currently unavailable. Please try again later.",
-  },
-};
-
-const DEFAULT_ERROR = {
-  title: "Authorization Error",
-  description: "An error occurred during the authorization process.",
-};
+const KNOWN_ERROR_CODES = [
+  "access_denied",
+  "invalid_request",
+  "unauthorized_client",
+  "unsupported_response_type",
+  "invalid_scope",
+  "server_error",
+  "temporarily_unavailable",
+  "waitlist_required",
+  "registration_closed",
+  "registration_disabled",
+] as const;
 
 /**
  * OAuth Error Page
@@ -62,11 +40,16 @@ const DEFAULT_ERROR = {
  * - state: State parameter from the original request (optional)
  */
 export default function OAuthErrorPage() {
+  const t = useTranslations();
   const searchParams = useSearchParams();
   const errorCode = searchParams.get("error") || "unknown";
   const errorDescription = searchParams.get("error_description");
 
-  const errorInfo = ERROR_MESSAGES[errorCode] || DEFAULT_ERROR;
+  const isKnownError = KNOWN_ERROR_CODES.includes(errorCode as typeof KNOWN_ERROR_CODES[number]);
+  const errorKey = isKnownError ? errorCode : "default";
+
+  const title = t(`oauth.errors.${errorKey}.title`);
+  const description = errorDescription || t(`oauth.errors.${errorKey}.description`);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-muted/30">
@@ -75,33 +58,37 @@ export default function OAuthErrorPage() {
           <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
             <AlertTriangle className="h-6 w-6 text-destructive" />
           </div>
-          <CardTitle className="text-2xl">{errorInfo.title}</CardTitle>
-          <CardDescription>
-            {errorDescription || errorInfo.description}
-          </CardDescription>
+          <CardTitle className="text-2xl">{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {errorCode !== "access_denied" && (
             <div className="rounded-lg bg-muted/50 p-4 text-sm">
               <p className="font-mono text-xs text-muted-foreground">
-                Error code: {errorCode}
+                {t("oauth.errors.error_code", { code: errorCode })}
               </p>
             </div>
           )}
 
           <div className="flex flex-col gap-2">
-            <Button variant="outline" render={<Link href="/" />}>
+            {errorCode === "waitlist_required" && (
+              <Button nativeButton={false} render={<Link href="/waitlist" />}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                {t("waitlist.buttons.join")}
+              </Button>
+            )}
+            <Button variant="outline" nativeButton={false} render={<Link href="/" />}>
               <Home className="h-4 w-4 mr-2" />
-              Return to Home
+              {t("ui.buttons.return_to_home")}
             </Button>
             <Button variant="ghost" onClick={() => window.history.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Go Back
+              {t("ui.buttons.go_back")}
             </Button>
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            If you continue to experience issues, please contact support.
+            {t("oauth.errors.contact_support")}
           </p>
         </CardContent>
       </Card>

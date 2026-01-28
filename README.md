@@ -85,18 +85,36 @@ pnpm build
 pnpm sync-template
 ```
 
-### Testing locally
+### Running from local folder
 
 ```bash
-# Build first
+# Clone and build
+git clone https://github.com/carlonicora/create-carlonicora-app.git
+cd create-carlonicora-app
+pnpm install
 pnpm build
 
-# Test with node directly
-node bin/cli.js test-project
+# Go to the parent directory and run the CLI from there
+cd ..
+node create-carlonicora-app/bin/cli.js my-project
 
-# Or link globally
+# Or link globally for convenience
+cd create-carlonicora-app
 npm link
-create-carlonicora-app test-project
+cd ..
+create-carlonicora-app my-project
+```
+
+> **Note:** The project is created in your current working directory. Run the CLI from the directory where you want the project to be created.
+
+#### Options
+
+```bash
+node create-carlonicora-app/bin/cli.js [project-name] [options]
+
+Options:
+  --skip-git       Skip git initialization and submodules
+  --skip-install   Skip dependency installation
 ```
 
 ## License
