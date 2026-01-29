@@ -1,3 +1,16 @@
+## [1.5.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.4.0...v1.5.0) (2026-01-29)
+
+### 🚀 Features
+
+* add compare template script ([67d67b5](https://github.com/carlonicora/create-carlonicora-app/commit/67d67b59b7ddb1271d131b63242997cbbdb159a9))
+* update structure to latest version ([08b0f2d](https://github.com/carlonicora/create-carlonicora-app/commit/08b0f2d8c71f92f3ad309cd4f6cb2d8d5b0e3652))
+* update to latest nextjs-jsonapi and nestjs-neo4jsonapi versions ([063c33c](https://github.com/carlonicora/create-carlonicora-app/commit/063c33ce79e9734b5c7b3fda8239fb0b1956614a))
+
+### 🐛 Bug Fixes
+
+* ensure permissions checks are awaited in company, role, and user pages ([d0fff26](https://github.com/carlonicora/create-carlonicora-app/commit/d0fff2675df96f023e1e0e4aee031e480d64dabd))
+* sync package-lock.json with package.json ([ad5462c](https://github.com/carlonicora/create-carlonicora-app/commit/ad5462cacdcc6a3d24afc7466710b68ce9d8a1b8))
+
 ## [1.4.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.3.9...v1.4.0) (2025-12-21)
 
 ### 🚀 Features
