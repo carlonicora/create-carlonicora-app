@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.5.0...v1.6.0) (2026-01-29)
+
+### 🚀 Features
+
+* add template checklist command and reporting functionality ([06e5f60](https://github.com/carlonicora/create-carlonicora-app/commit/06e5f6067e6d1be866028412ce99b0b766e25c94))
+
 ## [1.5.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.4.0...v1.5.0) (2026-01-29)
 
 ### 🚀 Features
