@@ -46,6 +46,7 @@ function isBinaryFile(filePath: string): boolean {
 const DOTFILE_RENAMES: Record<string, string> = {
   gitignore: '.gitignore',
   gitmodules: '.gitmodules',
+  gitattributes: '.gitattributes',
   prettierrc: '.prettierrc',
   prettierignore: '.prettierignore',
   npmrc: '.npmrc',

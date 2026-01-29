@@ -162,3 +162,129 @@ export function generateMarkdownReport(report: ComparisonReport): string {
 export function generateJsonReport(report: ComparisonReport): string {
   return JSON.stringify(report, null, 2);
 }
+
+/**
+ * Generate checklist report with checkboxes for selective review
+ */
+export function generateChecklistReport(report: ComparisonReport): string {
+  const lines: string[] = [];
+  const grouped = groupByCategory(report.diffs);
+
+  // Header
+  lines.push('# Template Comparison Checklist');
+  lines.push('');
+  lines.push(`**Generated:** ${report.generatedAt}`);
+  lines.push(`**Template:** ${report.templatePath}`);
+  lines.push(`**Target:** ${report.targetPath}`);
+  lines.push(`**Project Name:** ${report.projectName}`);
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // Instructions
+  lines.push('## Instructions');
+  lines.push('');
+  lines.push('Mark the files you want to analyze with `[x]`:');
+  lines.push('- `[ ]` = Skip this file');
+  lines.push('- `[x]` = Analyze this file');
+  lines.push('');
+  lines.push('When done, return to Claude and confirm you\'re ready to continue.');
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // Config Drift Section
+  const configDrifts = grouped.get('config-drift') || [];
+  lines.push(`## Config Drift (${configDrifts.length} files)`);
+  lines.push('');
+  lines.push('Configuration files modified from template baseline.');
+  lines.push('');
+  if (configDrifts.length > 0) {
+    for (const diff of configDrifts.sort((a, b) =>
+      a.relativePath.localeCompare(b.relativePath)
+    )) {
+      lines.push(`- [ ] \`${diff.relativePath}\``);
+    }
+  } else {
+    lines.push('(none)');
+  }
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // Version Drift Section
+  const versionDrifts = grouped.get('version-drift') || [];
+  lines.push(`## Version Drift (${versionDrifts.length} files)`);
+  lines.push('');
+  lines.push('Package.json files with only dependency version changes.');
+  lines.push('');
+  if (versionDrifts.length > 0) {
+    for (const diff of versionDrifts.sort((a, b) =>
+      a.relativePath.localeCompare(b.relativePath)
+    )) {
+      lines.push(`- [ ] \`${diff.relativePath}\``);
+    }
+  } else {
+    lines.push('(none)');
+  }
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // Custom Code Section
+  const customCode = grouped.get('custom-code') || [];
+  lines.push(`## Custom Code (${customCode.length} files)`);
+  lines.push('');
+  lines.push('Application source code that differs from template.');
+  lines.push('');
+  if (customCode.length > 0) {
+    for (const diff of customCode.sort((a, b) =>
+      a.relativePath.localeCompare(b.relativePath)
+    )) {
+      lines.push(`- [ ] \`${diff.relativePath}\``);
+    }
+  } else {
+    lines.push('(none)');
+  }
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // Additions Section
+  const additions = grouped.get('addition') || [];
+  lines.push(`## Additions (${additions.length} files)`);
+  lines.push('');
+  lines.push('Files in target that don\'t exist in template.');
+  lines.push('');
+  if (additions.length > 0) {
+    for (const diff of additions.sort((a, b) =>
+      a.relativePath.localeCompare(b.relativePath)
+    )) {
+      lines.push(`- [ ] \`${diff.relativePath}\``);
+    }
+  } else {
+    lines.push('(none)');
+  }
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+
+  // Missing from Target Section
+  const missing = grouped.get('missing-from-target') || [];
+  lines.push(`## Missing from Target (${missing.length} files)`);
+  lines.push('');
+  lines.push('Files in template that don\'t exist in target.');
+  lines.push('');
+  if (missing.length > 0) {
+    for (const diff of missing.sort((a, b) =>
+      a.relativePath.localeCompare(b.relativePath)
+    )) {
+      lines.push(`- [ ] \`${diff.relativePath}\``);
+    }
+  } else {
+    lines.push('(none)');
+  }
+  lines.push('');
+
+  return lines.join('\n');
+}

@@ -21,7 +21,21 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-It is important you read `@AI-ARCHITECTURE-GUIDE.md` to understand the way this platform uses {json:api}. THIS MUST BE YOUR BIBLE.
+## Monorepo Structure
+
+This is a monorepo with component-specific instructions. Read the relevant CLAUDE.md for your task:
+
+| Component | Path | Description |
+|-----------|------|-------------|
+| **API** | [apps/api/CLAUDE.md](apps/api/CLAUDE.md) | NestJS backend with Neo4j |
+| **Web** | [apps/web/CLAUDE.md](apps/web/CLAUDE.md) | Next.js frontend |
+| **Shared** | [packages/shared/CLAUDE.md](packages/shared/CLAUDE.md) | Shared types & constants |
+| **NestJS Library** | [packages/nestjs-neo4jsonapi/CLAUDE.md](packages/nestjs-neo4jsonapi/CLAUDE.md) | NestJS JSON:API framework |
+| **Next.js Library** | [packages/nextjs-jsonapi/CLAUDE.md](packages/nextjs-jsonapi/CLAUDE.md) | Next.js JSON:API client |
+
+## Architecture Reference
+
+See [docs/architecture/INDEX.md](docs/architecture/INDEX.md) for detailed patterns. This is your bible for understanding JSON:API implementation.
 
 ## Working Style & Approach
 
@@ -104,34 +118,6 @@ pnpm --filter {{name}}-web test:coverage
 
 # Run tests in watch mode
 pnpm --filter {{name}}-web test:watch
-```
-
-### Testing Utilities
-
-The `@carlonicora/nextjs-jsonapi/testing` module exports utilities for testing:
-
-```typescript
-import {
-  MockJsonApiProvider,
-  renderWithProviders,
-  createMockApiData,
-  createMockResponse,
-  createMockService,
-  screen,
-} from "@carlonicora/nextjs-jsonapi/testing";
-
-// Create mock JSON:API data
-const mockData = createMockApiData({
-  type: "photographs",
-  id: "123",
-  attributes: { title: "Test Photo" },
-});
-
-// Render components with providers
-renderWithProviders(<MyComponent />);
-
-// Use screen for queries
-expect(screen.getByText("Hello")).toBeInTheDocument();
 ```
 
 ### Test File Conventions

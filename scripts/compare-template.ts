@@ -22,11 +22,13 @@ import { compareTemplate } from '../src/compare/index.js';
 import {
   generateMarkdownReport,
   generateJsonReport,
+  generateChecklistReport,
 } from '../src/compare/report-generator.js';
 
 interface CLIOptions {
   output?: string;
   json?: boolean;
+  checklist?: boolean;
   verbose?: boolean;
 }
 
@@ -41,6 +43,7 @@ program
   .argument('<target-path>', 'Path to the implemented project to compare against')
   .option('-o, --output <path>', 'Write report to file instead of stdout')
   .option('--json', 'Output as JSON instead of markdown')
+  .option('--checklist', 'Output as checklist with checkboxes for selective review')
   .option('-v, --verbose', 'Include more detailed diffs')
   .action(async (targetPath: string, options: CLIOptions) => {
     console.log();
@@ -78,9 +81,14 @@ program
       console.log();
 
       // Generate report
-      const output = options.json
-        ? generateJsonReport(report)
-        : generateMarkdownReport(report);
+      let output: string;
+      if (options.json) {
+        output = generateJsonReport(report);
+      } else if (options.checklist) {
+        output = generateChecklistReport(report);
+      } else {
+        output = generateMarkdownReport(report);
+      }
 
       // Output report
       if (options.output) {
