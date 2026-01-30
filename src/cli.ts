@@ -11,6 +11,7 @@ import {
   promptContinueWithoutPnpm,
 } from './prompts.js';
 import { scaffold } from './scaffold.js';
+import { createProposeCommand, createSyncCommand, createPatchCommand } from './commands/index.js';
 
 interface CLIOptions {
   skipGit?: boolean;
@@ -22,8 +23,12 @@ const program = new Command();
 program
   .name('create-carlonicora-app')
   .description('Create a new NestJS + Next.js monorepo project with Neo4j and JSON:API')
-  .version('1.0.0')
-  .argument('[project-name]', 'Name of the project')
+  .version('1.0.0');
+
+// Default create command
+program
+  .command('create [project-name]', { isDefault: true })
+  .description('Create a new project')
   .option('--skip-git', 'Skip git initialization and submodules')
   .option('--skip-install', 'Skip dependency installation')
   .action(async (projectName: string | undefined, options: CLIOptions) => {
@@ -102,5 +107,10 @@ program
       process.exit(1);
     }
   });
+
+// Add core update commands
+program.addCommand(createProposeCommand());
+program.addCommand(createSyncCommand());
+program.addCommand(createPatchCommand());
 
 program.parse();

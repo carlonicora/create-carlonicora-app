@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "id": "2026-01-30-update-pnpm-to-10-28-2",
+    "createdAt": "2026-01-30T13:02:49.442Z",
+    "sourceApp": "only35",
+    "description": "Update pnpm to 10.28.2",
+    "categories": [
+      "config"
+    ],
+    "fileCount": 1
+  },
+  "files": [
+    {
+      "path": "package.json",
+      "operation": "modify",
+      "description": "Update pnpm from 10.28.1 to 10.28.2",
+      "category": "config",
+      "content": "{\n  \"name\": \"{{name}}\",\n  \"version\": \"1.39.0\",\n  \"private\": true,\n  \"description\": \"\",\n  \"engines\": {\n    \"node\": \">=22.0.0\",\n    \"pnpm\": \">=10.0.0\"\n  },\n  \"packageManager\": \"pnpm@10.28.2\",\n  \"scripts\": {\n    \"dev\": \"turbo run dev dev:worker\",\n    \"dev:api\": \"turbo run dev --filter={{name}}-api\",\n    \"dev:web\": \"turbo run dev --filter={{name}}-web\",\n    \"dev:worker\": \"turbo run start:worker:dev --filter={{name}}-api\",\n    \"build\": \"turbo run build\",\n    \"build:api\": \"turbo run build --filter={{name}}-api\",\n    \"build:web\": \"turbo run build --filter={{name}}-web\",\n    \"start\": \"turbo run start\",\n    \"start:prod\": \"turbo run start:prod\",\n    \"test\": \"turbo run test\",\n    \"test:verbose\": \"turbo run test\",\n    \"test:watch\": \"turbo run test:watch\",\n    \"test:e2e\": \"turbo run test:e2e\",\n    \"test:cov\": \"turbo run test:cov\",\n    \"lint\": \"turbo run lint\",\n    \"format\": \"turbo run format\",\n    \"clean\": \"turbo run clean && rm -rf node_modules .turbo\",\n    \"clean:all\": \"pnpm clean && pnpm -r exec rm -rf node_modules dist .next .turbo\",\n    \"structure\": \"bash scripts/import-structure.sh\",\n    \"prepare\": \"husky\",\n    \"preinstall\": \"npx only-allow pnpm\",\n    \"neo4jsonapi-migrate\": \"node ./packages/nestjs-neo4jsonapi/dist/tools/migrate-entity/index.js\",\n    \"generate-module\": \"node ./packages/nestjs-neo4jsonapi/dist/scripts/generate-module/index.js\",\n    \"generate-web-module\": \"node ./packages/nextjs-jsonapi/dist/scripts/generate-web-module/index.js\"\n  },\n  \"dependencies\": {\n    \"dotenv-cli\": \"^11.0.0\",\n    \"zod\": \"^4.3.6\"\n  },\n  \"devDependencies\": {\n    \"@eslint/eslintrc\": \"^3.3.3\",\n    \"@semantic-release/changelog\": \"^6.0.3\",\n    \"@semantic-release/commit-analyzer\": \"^13.0.1\",\n    \"@semantic-release/git\": \"^10.0.1\",\n    \"@semantic-release/npm\": \"^13.1.3\",\n    \"@semantic-release/release-notes-generator\": \"^14.1.0\",\n    \"@types/node\": \"^25.0.10\",\n    \"@typescript-eslint/eslint-plugin\": \"^8.53.1\",\n    \"@typescript-eslint/parser\": \"^8.53.1\",\n    \"conventional-changelog-conventionalcommits\": \"^9.1.0\",\n    \"eslint\": \"^9.39.2\",\n    \"eslint-config-prettier\": \"^10.1.8\",\n    \"eslint-plugin-prettier\": \"^5.5.5\",\n    \"husky\": \"^9.1.7\",\n    \"prettier\": \"^3.8.1\",\n    \"semantic-release\": \"^25.0.2\",\n    \"ts-node\": \"^10.9.2\",\n    \"turbo\": \"^2.7.6\",\n    \"typescript\": \"^5.9.3\"\n  },\n  \"workspaces\": [\n    \"api\",\n    \"web\",\n    \"packages/*\"\n  ],\n  \"pnpm\": {\n    \"overrides\": {\n      \"yjs\": \"^13.6.27\",\n      \"validator\": \">=13.15.20\",\n      \"@types/react\": \"19.2.7\",\n      \"@types/react-dom\": \"19.2.3\",\n      \"sharp\": \"^0.33.5\",\n      \"onnxruntime-node\": \"1.21.0\",\n      \"onnxruntime-web\": \"1.21.0\",\n      \"onnxruntime-common\": \"1.21.0\",\n      \"@nestjs/common\": \"^11.1.12\",\n      \"@nestjs/core\": \"^11.1.12\",\n      \"@nestjs/platform-fastify\": \"^11.1.12\",\n      \"@nestjs/platform-socket.io\": \"^11.1.12\",\n      \"@nestjs/websockets\": \"^11.1.12\"\n    },\n    \"ignoredBuiltDependencies\": [\n      \"@tensorflow/tfjs-node\",\n      \"canvas\",\n      \"core-js\"\n    ]\n  }\n}\n",
+      "contentHash": "sha256:64a3c683fe6392ea"
+    }
+  ],
+  "replacements": [
+    {
+      "pattern": "only35-api",
+      "replacement": "{{name}}-api"
+    },
+    {
+      "pattern": "only35-web",
+      "replacement": "{{name}}-web"
+    },
+    {
+      "pattern": "@only35/shared",
+      "replacement": "@{{name}}/shared"
+    },
+    {
+      "pattern": "api.only35.test",
+      "replacement": "api.{{name}}.test"
+    },
+    {
+      "pattern": "minio.only35.test",
+      "replacement": "minio.{{name}}.test"
+    },
+    {
+      "pattern": "only35.test",
+      "replacement": "{{name}}.test"
+    },
+    {
+      "pattern": "admin@only35.com",
+      "replacement": "admin@{{name}}.com"
+    },
+    {
+      "pattern": "info@only35.com",
+      "replacement": "info@{{name}}.com"
+    },
+    {
+      "pattern": "only35<info@only35.com>",
+      "replacement": "{{name}}<info@{{name}}.com>"
+    },
+    {
+      "pattern": "only35_SECRET",
+      "replacement": "{{name}}_SECRET"
+    },
+    {
+      "pattern": "NEO4J_DATABASE=only35",
+      "replacement": "NEO4J_DATABASE={{name}}"
+    },
+    {
+      "pattern": "REDIS_QUEUE=only35",
+      "replacement": "REDIS_QUEUE={{name}}"
+    },
+    {
+      "pattern": "S3_BUCKET=\"only35\"",
+      "replacement": "S3_BUCKET=\"{{name}}\""
+    },
+    {
+      "pattern": "only35-web#build",
+      "replacement": "{{name}}-web#build"
+    },
+    {
+      "pattern": "\"only35\"",
+      "replacement": "\"{{name}}\""
+    },
+    {
+      "pattern": "'only35'",
+      "replacement": "'{{name}}'"
+    },
+    {
+      "pattern": "/only35-logo",
+      "replacement": "/{{name}}-logo"
+    },
+    {
+      "pattern": "only35-logo",
+      "replacement": "{{name}}-logo"
+    }
+  ]
+}

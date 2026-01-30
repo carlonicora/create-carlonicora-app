@@ -1,13 +1,13 @@
 {
   "name": "{{name}}",
-  "version": "0.1.0",
+  "version": "1.39.0",
   "private": true,
   "description": "",
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=10.0.0"
   },
-  "packageManager": "pnpm@10.28.1",
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
     "dev": "turbo run dev dev:worker",
     "dev:api": "turbo run dev --filter={{name}}-api",
@@ -18,7 +18,7 @@
     "build:web": "turbo run build --filter={{name}}-web",
     "start": "turbo run start",
     "start:prod": "turbo run start:prod",
-    "test": "turbo run test --concurrency=1",
+    "test": "turbo run test",
     "test:verbose": "turbo run test",
     "test:watch": "turbo run test:watch",
     "test:e2e": "turbo run test:e2e",

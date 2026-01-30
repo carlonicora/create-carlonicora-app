@@ -17,6 +17,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { generalize } from '../dist/core-update/generalizer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,46 +56,6 @@ const BINARY_EXTENSIONS = new Set([
   '.exe', '.dll', '.so', '.dylib',
 ]);
 
-// Replacements to convert "rpg" to placeholders (order matters - specific first)
-const PLACEHOLDER_REPLACEMENTS = [
-  // Package names
-  { search: 'rpg-api', replace: '{{name}}-api' },
-  { search: 'rpg-web', replace: '{{name}}-web' },
-  { search: '@rpg/shared', replace: '@{{name}}/shared' },
-
-  // Hostnames and URLs
-  { search: 'api.rpg.test', replace: 'api.{{name}}.test' },
-  { search: 'minio.rpg.test', replace: 'minio.{{name}}.test' },
-  { search: 'rpg.test', replace: '{{name}}.test' },
-
-  // Email addresses
-  { search: 'admin@rpg.com', replace: 'admin@{{name}}.com' },
-  { search: 'info@rpg.com', replace: 'info@{{name}}.com' },
-  { search: 'rpg<info@rpg.com>', replace: '{{name}}<info@{{name}}.com>' },
-
-  // Secrets and service names
-  { search: 'rpg_SECRET', replace: '{{name}}_SECRET' },
-
-  // Database and Redis
-  { search: 'NEO4J_DATABASE=rpg', replace: 'NEO4J_DATABASE={{name}}' },
-  { search: 'REDIS_QUEUE=rpg', replace: 'REDIS_QUEUE={{name}}' },
-  { search: 'S3_BUCKET="rpg"', replace: 'S3_BUCKET="{{name}}"' },
-
-  // Turbo task names
-  { search: 'rpg-web#build', replace: '{{name}}-web#build' },
-
-  // Config values with quotes
-  { search: '"rpg"', replace: '"{{name}}"' },
-  { search: "'rpg'", replace: "'{{name}}'" },
-
-  // Logo references
-  { search: '/rpg-logo', replace: '/{{name}}-logo' },
-  { search: 'rpg-logo', replace: '{{name}}-logo' },
-
-  // Remaining standalone "rpg" or "RPG" (word boundary, case insensitive)
-  { search: /\brpg\b/gi, replace: '{{name}}' },
-];
-
 function shouldIgnore(relativePath) {
   const normalizedPath = relativePath.replace(/\\/g, '/');
   const pathParts = normalizedPath.split('/');
@@ -125,17 +86,7 @@ function isBinaryFile(filePath) {
 }
 
 function applyPlaceholders(content) {
-  let result = content;
-
-  for (const { search, replace } of PLACEHOLDER_REPLACEMENTS) {
-    if (search instanceof RegExp) {
-      result = result.replace(search, replace);
-    } else {
-      result = result.split(search).join(replace);
-    }
-  }
-
-  return result;
+  return generalize(content, 'rpg');
 }
 
 function copyRecursive(src, dest, baseSrc) {

@@ -92,3 +92,6 @@ REST.http
 
 # Git worktrees
 .worktrees/
+
+# Core update workflow
+.core-update-manifest.json
