@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.6.0...v1.7.0) (2026-01-30)
+
+### 🚀 Features
+
+* add VSCode settings template with i18n-ally and formatter config ([9547ea3](https://github.com/carlonicora/create-carlonicora-app/commit/9547ea34440573a8ad9eac3a8568e89444571a93))
+
 ## [1.6.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.5.0...v1.6.0) (2026-01-29)
 
 ### 🚀 Features
