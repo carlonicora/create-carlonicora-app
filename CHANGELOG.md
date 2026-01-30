@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.7.0...v1.8.0) (2026-01-30)
+
+### 🚀 Features
+
+* implement core update workflow with manifest management, patch generation, and application ([61d5f4e](https://github.com/carlonicora/create-carlonicora-app/commit/61d5f4e0b825bc29bcd36abf3e152b37a3fd5853))
+
 ## [1.7.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.6.0...v1.7.0) (2026-01-30)
 
 ### 🚀 Features
