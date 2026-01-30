@@ -1,0 +1,66 @@
+{
+    "i18n-ally.localesPaths": [
+        "apps/web/messages",
+        "packages/nextjs-jsonapi/src/i18n",
+        "apps/api/src/i18n",
+        "apps/web/src/i18n"
+    ],
+    "i18n-ally.keystyle": "nested",
+    "i18n-ally.sourceLanguage": "en",
+    "i18n-ally.displayLanguage": "en",
+    "i18n-ally.enabledFrameworks": ["next-intl"],
+    "i18n-ally.annotations": true,
+    "i18n-ally.annotationInPlace": true,
+    "i18n-ally.extract.autoDetect": true,
+    "i18n-ally.extract.keygenStrategy": "slug",
+    "i18n-ally.extract.targetPickingStrategy": "most-similar",
+    "i18n-ally.extract.parsers.html": {
+        "attributes": ["text", "title", "alt", "placeholder", "label", "aria-label", "description"],
+        "ignoredTags": ["script", "style"],
+        "inlineText": true
+    },
+    "i18n-ally.refactor.templates": [
+        {
+            "source": "jsx-text",
+            "templates": [
+                "{t(\"{key}\")}"
+            ]
+        },
+        {
+            "source": "js-string",
+            "templates": [
+                "t(\"{key}\")"
+            ]
+        },
+        {
+            "source": "html-attribute",
+            "templates": [
+                "{t(\"{key}\")}"
+            ]
+        }
+    ],
+    "i18n-ally.indent": 2,
+    "i18n-ally.sortKeys": true,
+
+    // Formatter settings - use Prettier only, not ESLint
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    // ESLint settings - completely disable ESLint on save
+    "eslint.format.enable": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "never"
+    }
+}
