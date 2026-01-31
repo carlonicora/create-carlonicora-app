@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome to {{name}}</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, sans-serif;">
+    <div style="width:100%; padding:20px; background-color:#f4f4f4;">
+      <div style="max-width:600px; margin:0 auto; background-color:#ffffff; padding:40px; border-radius:8px; text-align:center; border:1px solid #4A5568;">
+        {{> header}}
+        <div style="text-align:left;">
+          <div style="font-size:24px; color:#4A5568; margin-bottom:20px;">Activate your account</div>
+          <div style="font-size:16px; color:#555555; margin-bottom:30px; line-height:1.5; text-align:left;">
+            <p style="margin:0;">Hello!</p>
+            <p style="margin:0;">Your account is ready to be activated</p>
+            <p style="margin:0; margin-top: 10px;">The activation link is valid until {{expirationDate}} at {{expirationTime}}.</p>
+            <p style="margin:0;">Thanks</p>
+          </div>
+          <div style="text-align:center; margin-bottom:20px;margin-top:75px;">
+            <a href="{{activationLink}}" style="display:inline-block; padding:12px 24px; font-size:16px; color:#ffffff; background-color:#4A5568; text-decoration:none; border-radius:4px;">Activate Account</a>
+          </div>
+        </div>
+        {{> footer}}
+      </div>
+    </div>
+  </body>
+</html>

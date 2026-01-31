@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>New User Registration</title>
+  </head>
+  <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9;">
+    {{> header}}
+    <div style="padding: 30px; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+      <h2 style="color: #333; margin-top: 0;">New User Registration</h2>
+      <p style="color: #555; line-height: 1.6;">
+        Hi <strong>{{adminName}}</strong>,
+      </p>
+      <p style="color: #555; line-height: 1.6;">
+        A new user has completed their registration and activated their account.
+      </p>
+
+      <div style="background-color: #f5f5f5; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="color: #888; padding: 8px 0; width: 120px; vertical-align: top;">Name:</td>
+            <td style="color: #333; padding: 8px 0;"><strong>{{userName}}</strong></td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 8px 0; vertical-align: top;">Email:</td>
+            <td style="color: #333; padding: 8px 0;">
+              <a href="mailto:{{userEmail}}" style="color: #0066cc;">{{userEmail}}</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 8px 0; vertical-align: top;">Company:</td>
+            <td style="color: #333; padding: 8px 0;">{{companyName}}</td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 8px 0; vertical-align: top;">Activated at:</td>
+            <td style="color: #333; padding: 8px 0;">{{activatedAt}}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="margin-top: 30px; text-align: center;">
+        <a href="{{dashboardLink}}" style="background: #1a1a1a; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+          View Admin Dashboard
+        </a>
+      </div>
+    </div>
+    {{> footer}}
+  </body>
+</html>
