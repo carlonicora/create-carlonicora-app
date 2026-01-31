@@ -1,3 +1,9 @@
+## [1.9.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.8.1...v1.9.0) (2026-01-31)
+
+### 🚀 Features
+
+* add email templates for account activation, registration notifications, waitlist confirmations, and invitations ([1caed40](https://github.com/carlonicora/create-carlonicora-app/commit/1caed40b9153c8409f116422366dcf7baf0abf90))
+
 ## [1.8.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.8.0...v1.8.1) (2026-01-31)
 
 ### 🐛 Bug Fixes
