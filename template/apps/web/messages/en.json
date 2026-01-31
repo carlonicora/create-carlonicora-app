@@ -506,6 +506,19 @@
       }
     }
   },
+  "subscription": {
+    "trial_expired_title": "Your Trial Has Expired",
+    "trial_expired_description": "Your 14-day free trial has ended. Subscribe to continue using {{name}}.",
+    "trial_expiring_title": "Trial Expiring Soon",
+    "trial_expiring_tooltip": "Your trial expires in {days} days. Subscribe now to keep your data.",
+    "subscribe_now": "Subscribe Now",
+    "delete_account": "Delete Account",
+    "delete_confirmation_title": "Delete Your Account?",
+    "delete_confirmation_description": "This action cannot be undone. All your data, photos, and settings will be permanently deleted.",
+    "delete_confirmation_prompt": "Type \"{companyName}\" to confirm",
+    "delete_button": "Delete Account Permanently",
+    "cancel": "Cancel"
+  },
   "content": {
     "news": "Recent Relevant Contents",
     "fields": {

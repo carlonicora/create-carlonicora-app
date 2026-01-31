@@ -9,8 +9,6 @@ import {
   DropdownMenuTrigger,
   useSidebar,
 } from "@carlonicora/nextjs-jsonapi/components";
-import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
-import { UserInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { PlusCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -18,50 +16,8 @@ import { useState } from "react";
 export default function CreationDropDown() {
   const { state } = useSidebar();
   const t = useTranslations();
-  const { hasPermissionToModule } = useCurrentUserContext<UserInterface>();
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
-
-  // const [newArticleOpen, setNewArticleOpen] = useState<boolean>(false);
-  // const [newHyperlinkOpen, setNewHyperlinkOpen] = useState<boolean>(false);
-  // const [newDocumentOpen, setNewDocumentOpen] = useState<boolean>(false);
-  // const [newGlossaryOpen, setNewGlossaryOpen] = useState<boolean>(false);
-  // const [newDiscussionOpen, setNewDiscussionOpen] = useState<boolean>(false);
-
-  // const handleArticleClick = () => {
-  //   setMenuOpen(false);
-  //   requestAnimationFrame(() => {
-  //     setNewArticleOpen(true);
-  //   });
-  // };
-
-  // const handleHyperlinkClick = () => {
-  //   setMenuOpen(false);
-  //   requestAnimationFrame(() => {
-  //     setNewHyperlinkOpen(true);
-  //   });
-  // };
-
-  // const handleDocumentClick = () => {
-  //   setMenuOpen(false);
-  //   requestAnimationFrame(() => {
-  //     setNewDocumentOpen(true);
-  //   });
-  // };
-
-  // const handleGlossaryClick = () => {
-  //   setMenuOpen(false);
-  //   requestAnimationFrame(() => {
-  //     setNewGlossaryOpen(true);
-  //   });
-  // };
-
-  // const handleDiscussionClick = () => {
-  //   setMenuOpen(false);
-  //   requestAnimationFrame(() => {
-  //     setNewDiscussionOpen(true);
-  //   });
-  // };
 
   return (
     <>
@@ -75,43 +31,9 @@ export default function CreationDropDown() {
         <DropdownMenuContent align="start" className="w-96">
           <DropdownMenuLabel>{t(`common.create_new`)}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {/* <DropdownMenuItem onClick={handleArticleClick} className="flex items-center gap-2 font-normal">
-            {getIconByModule({ module: Modules.Article })}
-            {t(`entities.articles`, { count: 1 })}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleHyperlinkClick} className="flex items-center gap-2 font-normal">
-            {getIconByModule({ module: Modules.Hyperlink })}
-            {t(`entities.hyperlinks`, { count: 1 })}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDocumentClick} className="flex items-center gap-2 font-normal">
-            {getIconByModule({ module: Modules.Document })}
-            {t(`entities.documents`, { count: 1 })}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleGlossaryClick} className="flex items-center gap-2 font-normal">
-            {getIconByModule({ module: Modules.Glossary })}
-            {t(`entities.glossaries`, { count: 1 })}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDiscussionClick} className="flex items-center gap-2 font-normal">
-            {getIconByModule({ module: Modules.Discussion })}
-            {t(`entities.discussions`, { count: 1 })}
-          </DropdownMenuItem> */}
+          {/* Add your entity creation menu items here */}
         </DropdownMenuContent>
       </DropdownMenu>
-      {/* {hasPermissionToModule({ module: Modules.Article, action: Action.Create }) && (
-        <ArticleEditor dialogOpen={newArticleOpen} onDialogOpenChange={setNewArticleOpen} />
-      )}
-      {hasPermissionToModule({ module: Modules.Hyperlink, action: Action.Create }) && (
-        <HyperlinkEditor dialogOpen={newHyperlinkOpen} onDialogOpenChange={setNewHyperlinkOpen} />
-      )}
-      {hasPermissionToModule({ module: Modules.Document, action: Action.Create }) && (
-        <DocumentEditor dialogOpen={newDocumentOpen} onDialogOpenChange={setNewDocumentOpen} />
-      )}
-      {hasPermissionToModule({ module: Modules.Glossary, action: Action.Create }) && (
-        <GlossaryEditor dialogOpen={newGlossaryOpen} onDialogOpenChange={setNewGlossaryOpen} />
-      )}
-      {hasPermissionToModule({ module: Modules.Discussion, action: Action.Create }) && (
-        <DiscussionEditor dialogOpen={newDiscussionOpen} onDialogOpenChange={setNewDiscussionOpen} />
-      )} */}
     </>
   );
 }
