@@ -17,12 +17,10 @@ export const moduleQuery = `
     ON CREATE SET 
         module.name=$moduleName, 
         module.permissions = $permissions,
-        module.isCore = $isCore,
         module.createdAt = datetime(), 
         module.updatedAt = datetime()
     ON MATCH SET 
         module.name = $moduleName,
-        module.isCore = $isCore,
         module.updatedAt = CASE WHEN module.permissions <> $permissions THEN datetime() ELSE module.updatedAt END,
         module.permissions = CASE WHEN module.permissions <> $permissions THEN $permissions ELSE module.permissions END
     WITH module
