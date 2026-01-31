@@ -5,7 +5,8 @@
   "scripts": {
     "build": "dotenv -e ../../.env -- next build",
     "dev": "dotenv -e ../../.env -- next dev",
-    "lint": "eslint .",
+    "lint": "eslint . && pnpm validate-translations",
+    "validate-translations": "node scripts/validate-translations.mjs",
     "start": "dotenv -e ../../.env -- next start -H 0.0.0.0",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
