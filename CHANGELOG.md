@@ -1,3 +1,13 @@
+## [1.10.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.9.0...v1.10.0) (2026-01-31)
+
+### 🚀 Features
+
+* add translation validation to web lint script ([2602997](https://github.com/carlonicora/create-carlonicora-app/commit/2602997522237751adbbc944fa49f41a9d12310c))
+
+### 🐛 Bug Fixes
+
+* correct internationalisation ([6ecd829](https://github.com/carlonicora/create-carlonicora-app/commit/6ecd82920c4addcffc4f0b18a515b3fa92479191))
+
 ## [1.9.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.8.1...v1.9.0) (2026-01-31)
 
 ### 🚀 Features
