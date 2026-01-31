@@ -1,3 +1,9 @@
+## [1.8.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.8.0...v1.8.1) (2026-01-31)
+
+### 🐛 Bug Fixes
+
+* remove isCore from modules ([db3e415](https://github.com/carlonicora/create-carlonicora-app/commit/db3e4157abbf5a8229d6e3614c469daf45279e7f))
+
 ## [1.8.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.7.0...v1.8.0) (2026-01-30)
 
 ### 🚀 Features
