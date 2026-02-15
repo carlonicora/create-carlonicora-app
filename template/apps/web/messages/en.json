@@ -76,7 +76,8 @@
       "continue": "Continue",
       "next": "Next",
       "cancel": "Cancel",
-      "remove": "Remove"
+      "remove": "Remove",
+      "delete": "Delete"
     },
     "floating_action_bar": {
       "selected_count": "{count} {itemName}{count, plural, =1 {} other {s}} selected",
@@ -283,6 +284,8 @@
       "status": "AI",
       "monthly": "Monthly Usage",
       "available": "Available",
+      "available_extra": "Extra tokens available",
+      "purchase_extra": "Purchase Extra Tokens",
       "upgrade_plan": "Upgrade plan"
     }
   },
@@ -518,6 +521,11 @@
     "delete_confirmation_prompt": "Type \"{companyName}\" to confirm",
     "delete_button": "Delete Account Permanently",
     "cancel": "Cancel"
+  },
+  "referral": {
+    "title": "Refer & Earn",
+    "description": "Invite friends and earn rewards",
+    "yourLink": "Your referral link"
   },
   "content": {
     "news": "Recent Relevant Contents",
