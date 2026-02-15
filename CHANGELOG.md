@@ -1,3 +1,9 @@
+## [1.11.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.11.0...v1.11.1) (2026-02-15)
+
+### 🐛 Bug Fixes
+
+* correct initial internationalisation ([0a2ea8b](https://github.com/carlonicora/create-carlonicora-app/commit/0a2ea8bcb31e86f0c004cdeedabd53c121f5e741))
+
 ## [1.11.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.10.0...v1.11.0) (2026-02-15)
 
 ### 🚀 Features
