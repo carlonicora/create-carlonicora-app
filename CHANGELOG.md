@@ -1,3 +1,10 @@
+## [1.11.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.10.0...v1.11.0) (2026-02-15)
+
+### 🚀 Features
+
+* implement OAuth settings and client management pages ([72da887](https://github.com/carlonicora/create-carlonicora-app/commit/72da887a630f1354c32cf999bfe3912b7fc332e4))
+* update packages versions ([438ad98](https://github.com/carlonicora/create-carlonicora-app/commit/438ad980194c5972657d08ca459c49052bd2e03c))
+
 ## [1.10.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.9.0...v1.10.0) (2026-01-31)
 
 ### 🚀 Features
