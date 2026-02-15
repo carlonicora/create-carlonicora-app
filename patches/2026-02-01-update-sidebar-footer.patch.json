@@ -1,0 +1,145 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "id": "2026-02-01-update-sidebar-footer",
+    "createdAt": "2026-02-01T16:21:40.488Z",
+    "sourceApp": "only35",
+    "description": "Update sidebar footer",
+    "categories": [
+      "other"
+    ],
+    "fileCount": 7
+  },
+  "files": [
+    {
+      "path": "apps/web/src/app/[locale]/(main)/(features)/account/[section]/page.tsx",
+      "operation": "add",
+      "description": "update account section",
+      "category": "other",
+      "content": "import AccountContainer from \"@/features/common/components/containers/AccountContainer\";\nimport { AccountProvider } from \"@/features/common/contexts/AccountContext\";\nimport { generateSpecificMetadata } from \"@/utils/metadata\";\nimport { PageContainer } from \"@carlonicora/nextjs-jsonapi/components\";\nimport { Metadata } from \"next\";\nimport { getTranslations } from \"next-intl/server\";\n\nexport async function generateMetadata(): Promise<Metadata> {\n  const t = await getTranslations();\n\n  const title = t(\"common.settings\", { item: \"account\" });\n\n  return await generateSpecificMetadata({ title: title });\n}\n\nexport default async function AccountSectionPage(props: { params: Promise<{ section: string }> }) {\n  const { section } = await props.params;\n\n  return (\n    <AccountProvider initialSection={section as \"security\" | \"profile\" | \"setting\"}>\n      <PageContainer className=\"pb-0\">\n        <AccountContainer />\n      </PageContainer>\n    </AccountProvider>\n  );\n}\n",
+      "contentHash": "sha256:b66136c876555932"
+    },
+    {
+      "path": "apps/web/src/app/[locale]/(main)/(features)/account/page.tsx",
+      "operation": "add",
+      "description": "update account section",
+      "category": "other",
+      "content": "import AccountContainer from \"@/features/common/components/containers/AccountContainer\";\nimport { AccountProvider } from \"@/features/common/contexts/AccountContext\";\nimport { generateSpecificMetadata } from \"@/utils/metadata\";\nimport { PageContainer } from \"@carlonicora/nextjs-jsonapi/components\";\nimport { Metadata } from \"next\";\nimport { getTranslations } from \"next-intl/server\";\n\nexport async function generateMetadata(): Promise<Metadata> {\n  const t = await getTranslations();\n\n  const title = t(\"common.settings\", { item: \"account\" });\n\n  return await generateSpecificMetadata({ title: title });\n}\n\nexport default async function AccountPage() {\n  return (\n    <AccountProvider>\n      <PageContainer className=\"pb-0\">\n        <AccountContainer />\n      </PageContainer>\n    </AccountProvider>\n  );\n}\n",
+      "contentHash": "sha256:3ed0f73cb3d8e92d"
+    },
+    {
+      "path": "apps/web/src/app/[locale]/(main)/(features)/settings/page.tsx",
+      "operation": "modify",
+      "description": "update account section",
+      "category": "other",
+      "content": "import SettingsContainer from \"@/features/common/components/containers/SettingsContainer\";\nimport { SettingsProvider } from \"@/features/common/contexts/SettingsContext\";\nimport { generateSpecificMetadata } from \"@/utils/metadata\";\nimport { PageContainer } from \"@carlonicora/nextjs-jsonapi/components\";\nimport { Metadata } from \"next\";\nimport { getTranslations } from \"next-intl/server\";\n\nexport async function generateMetadata(): Promise<Metadata> {\n  const t = await getTranslations();\n\n  const title = t(`common.settings`, { item: \"settings\" });\n\n  return await generateSpecificMetadata({ title: title });\n}\n\nexport default async function SettingsPage() {\n  return (\n    <SettingsProvider>\n      <PageContainer>\n        <SettingsContainer />\n      </PageContainer>\n    </SettingsProvider>\n  );\n}\n",
+      "contentHash": "sha256:25f21c90b0a924b3"
+    },
+    {
+      "path": "apps/web/src/app/[locale]/(main)/(features)/settings/[module]/page.tsx",
+      "operation": "modify",
+      "description": "update account section",
+      "category": "other",
+      "content": "import SettingsContainer from \"@/features/common/components/containers/SettingsContainer\";\nimport { SettingsProvider } from \"@/features/common/contexts/SettingsContext\";\nimport { generateSpecificMetadata } from \"@/utils/metadata\";\nimport { PageContainer } from \"@carlonicora/nextjs-jsonapi/components\";\nimport { Metadata } from \"next\";\nimport { getTranslations } from \"next-intl/server\";\n\nexport async function generateMetadata(): Promise<Metadata> {\n  const t = await getTranslations();\n\n  const title = t(`common.settings`, { item: \"settings\" });\n\n  return await generateSpecificMetadata({ title: title });\n}\n\nexport default async function SettingsPage(props: { params: Promise<{ module: string }> }) {\n  const { module } = await props.params;\n\n  return (\n    <SettingsProvider moduleName={module}>\n      <PageContainer>\n        <SettingsContainer />\n      </PageContainer>\n    </SettingsProvider>\n  );\n}\n",
+      "contentHash": "sha256:90056d3bffa72efc"
+    },
+    {
+      "path": "apps/web/src/features/common/components/containers/AccountContainer.tsx",
+      "operation": "modify",
+      "description": "update account section",
+      "category": "other",
+      "content": "\"use client\";\n\nimport { useAccountContext } from \"@/features/common/contexts/AccountContext\";\nimport { SettingContainer } from \"@/features/standard/setting/components/containers/SettingContainer\";\nimport { cn } from \"@/utils/cn\";\nimport { Modules } from \"@carlonicora/nextjs-jsonapi\";\nimport { usePageUrlGenerator } from \"@carlonicora/nextjs-jsonapi/client\";\nimport {\n  ContentTitle,\n  PageContentContainer,\n  SecurityContainer,\n  UserStanadaloneDetails,\n} from \"@carlonicora/nextjs-jsonapi/components\";\nimport { useCurrentUserContext } from \"@carlonicora/nextjs-jsonapi/contexts\";\nimport { LucideIcon, Shield, UserIcon } from \"lucide-react\";\nimport { useLocale, useTranslations } from \"next-intl\";\nimport { ReactNode } from \"react\";\n\ntype SidebarItem = {\n  id: string;\n  icon: LucideIcon;\n  label: string;\n  container: ReactNode;\n};\n\nexport default function AccountContainer() {\n  const { section, setSection } = useAccountContext();\n  const t = useTranslations();\n  const locale = useLocale();\n  const generateUrl = usePageUrlGenerator();\n  const { currentUser } = useCurrentUserContext();\n\n  const sidebarItems: SidebarItem[] = [\n    {\n      id: \"profile\",\n      icon: UserIcon,\n      label: t(`common.settings`, { item: \"profile\" }),\n      container: <UserStanadaloneDetails user={currentUser} />,\n    },\n    {\n      id: \"security\",\n      icon: Shield,\n      label: t(\"common.settings\", { item: \"security\" }),\n      container: <SecurityContainer />,\n    },\n    {\n      id: \"setting\",\n      icon: Modules.Setting.icon,\n      label: t(\"common.settings\", { item: \"setting\" }),\n      container: <SettingContainer />,\n    },\n  ];\n\n  const selectedItem = sidebarItems.find((item) => item.id === section) || sidebarItems[0];\n\n  return (\n    <PageContentContainer\n      header={<ContentTitle element={t(\"common.settings\", { item: \"account\" })} />}\n      details={\n        <nav className=\"space-y-4\">\n          <div>\n            {sidebarItems.map((item) => {\n              const Icon = item.icon;\n              return (\n                <button\n                  key={item.id}\n                  onClick={() => {\n                    setSection(item.id as \"profile\" | \"security\" | \"setting\");\n                    window.history.replaceState(\n                      null,\n                      \"\",\n                      generateUrl({ page: \"/account\", id: item.id, language: locale }),\n                    );\n                  }}\n                  className={cn(\n                    \"flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors\",\n                    selectedItem?.id === item.id\n                      ? \"bg-secondary text-secondary-foreground\"\n                      : \"text-muted-foreground hover:text-foreground hover:bg-secondary/50\",\n                  )}\n                >\n                  <Icon className=\"h-4 w-4\" />\n                  {item.label}\n                </button>\n              );\n            })}\n          </div>\n        </nav>\n      }\n      content={selectedItem ? selectedItem.container : null}\n    />\n  );\n}\n",
+      "contentHash": "sha256:c2aed804b04f1cbe"
+    },
+    {
+      "path": "apps/web/src/features/common/components/navigations/UserSidebarFooter.tsx",
+      "operation": "modify",
+      "description": "update account section",
+      "category": "other",
+      "content": "\"use client\";\n\nimport VersionDisplay from \"@/features/common/components/navigations/VersionDisplay\";\nimport { OnboardingTrigger } from \"@/features/onboarding\";\nimport { usePageUrlGenerator } from \"@carlonicora/nextjs-jsonapi/client\";\nimport {\n  DropdownMenu,\n  DropdownMenuContent,\n  DropdownMenuGroup,\n  DropdownMenuItem,\n  DropdownMenuLabel,\n  DropdownMenuSeparator,\n  DropdownMenuTrigger,\n  Link,\n  ModeToggleSwitch,\n  NotificationModal,\n  SidebarMenu,\n  SidebarMenuButton,\n  SidebarMenuItem,\n  UserAvatar,\n  useSidebar,\n} from \"@carlonicora/nextjs-jsonapi/components\";\nimport { useCurrentUserContext } from \"@carlonicora/nextjs-jsonapi/contexts\";\nimport { UserInterface } from \"@carlonicora/nextjs-jsonapi/core\";\nimport { RoleId } from \"@{{name}}/shared\";\nimport { ChevronsUpDown, LogOut, SettingsIcon, Shield } from \"lucide-react\";\nimport { useTranslations } from \"next-intl\";\n\ntype UserSidebarFooterProps = {\n  notificationModalOpen: boolean;\n  setNotificationModalOpen: (open: boolean) => void;\n};\n\nexport function UserSidebarFooter({ notificationModalOpen, setNotificationModalOpen }: UserSidebarFooterProps) {\n  const { currentUser, hasRole } = useCurrentUserContext<UserInterface>();\n  const { isMobile } = useSidebar();\n  const generateUrl = usePageUrlGenerator();\n  const t = useTranslations();\n\n  const logOut = async () => {\n    window.location.href = generateUrl({ page: `/logout` });\n  };\n\n  return (\n    <SidebarMenu>\n      <OnboardingTrigger />\n\n      {currentUser && !hasRole(RoleId.Administrator) && (\n        <SidebarMenuItem>\n          <NotificationModal isOpen={notificationModalOpen} setIsOpen={setNotificationModalOpen} />\n        </SidebarMenuItem>\n      )}\n\n      <SidebarMenuItem className=\"-ml-0.5 w-full\">\n        {currentUser && (\n          <DropdownMenu>\n            <DropdownMenuTrigger className={`w-full`}>\n              <SidebarMenuButton\n                render={<div />}\n                className=\"data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground flex w-full items-center justify-between\"\n              >\n                <UserAvatar user={currentUser} className=\"h-5 w-5\" showTooltip={false} />\n                <div className=\"grid w-full flex-1 text-left text-sm leading-tight\">\n                  <span className=\"truncate font-semibold\">{currentUser.name}</span>\n                  <span className=\"truncate text-xs\">{currentUser.email}</span>\n                </div>\n                <ChevronsUpDown className=\"ml-auto size-4\" />\n              </SidebarMenuButton>\n            </DropdownMenuTrigger>\n            <DropdownMenuContent\n              className=\"w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg\"\n              side={isMobile ? \"bottom\" : \"right\"}\n              align=\"end\"\n              sideOffset={4}\n            >\n              <DropdownMenuGroup>\n                <DropdownMenuLabel className=\"p-0 font-normal\">\n                  <div className=\"flex items-center gap-2 px-1 py-1.5 text-left text-sm\">\n                    <div className=\"grid flex-1 text-left text-sm leading-tight\">\n                      <span className=\"truncate font-semibold\">{currentUser.name}</span>\n                      <span className=\"truncate text-xs\">{currentUser.email}</span>\n                    </div>\n                  </div>\n                </DropdownMenuLabel>\n              </DropdownMenuGroup>\n              <DropdownMenuSeparator />\n              <DropdownMenuGroup>\n                <DropdownMenuLabel>\n                  <VersionDisplay />\n                </DropdownMenuLabel>\n              </DropdownMenuGroup>\n              <DropdownMenuSeparator />\n              <DropdownMenuGroup>\n                <DropdownMenuItem onSelect={(event) => event.preventDefault()}>\n                  <ModeToggleSwitch />\n                  {t(`common.theme`)}\n                </DropdownMenuItem>\n              </DropdownMenuGroup>\n              <DropdownMenuSeparator />\n              <DropdownMenuGroup>\n                {(hasRole(RoleId.CompanyAdministrator) || hasRole(RoleId.Administrator)) && (\n                  <Link href={generateUrl({ page: `/settings` })} prefetch={false}>\n                    <DropdownMenuItem>\n                      <SettingsIcon />\n                      {t(`common.settings`, { item: \"company\" })}\n                    </DropdownMenuItem>\n                  </Link>\n                )}\n\n                {/* <Link href={generateUrl({ page: Modules.User, id: currentUser.id })}>\n                  <DropdownMenuItem>\n                    <UserIcon />\n                    {t(`common.settings`, { item: \"profile\" })}\n                  </DropdownMenuItem>\n                </Link> */}\n                <Link href={generateUrl({ page: \"/account\" })}>\n                  <DropdownMenuItem>\n                    <Shield />\n                    {t(\"common.settings\", { item: \"account\" })}\n                  </DropdownMenuItem>\n                </Link>\n              </DropdownMenuGroup>\n              <DropdownMenuSeparator />\n              <DropdownMenuGroup>\n                <DropdownMenuItem onClick={logOut}>\n                  <LogOut />\n                  {t(`auth.buttons.logout`)}\n                </DropdownMenuItem>\n              </DropdownMenuGroup>\n            </DropdownMenuContent>\n          </DropdownMenu>\n        )}\n      </SidebarMenuItem>\n    </SidebarMenu>\n  );\n}\n",
+      "contentHash": "sha256:012bba62d329bb36"
+    },
+    {
+      "path": "apps/web/src/features/common/contexts/AccountContext.tsx",
+      "operation": "modify",
+      "description": "update account section",
+      "category": "other",
+      "content": "\"use client\";\n\nimport { BreadcrumbItemData } from \"@carlonicora/nextjs-jsonapi\";\nimport { usePageUrlGenerator } from \"@carlonicora/nextjs-jsonapi/client\";\nimport { SharedProvider } from \"@carlonicora/nextjs-jsonapi/contexts\";\nimport { useTranslations } from \"next-intl\";\nimport { createContext, ReactNode, useContext, useState } from \"react\";\n\ntype AccountSection = \"security\" | \"setting\" | \"profile\";\n\ninterface AccountContextType {\n  section: AccountSection;\n  setSection: (section: AccountSection) => void;\n}\n\nconst AccountContext = createContext<AccountContextType | undefined>(undefined);\n\ntype AccountProviderProps = {\n  children: ReactNode;\n  initialSection?: AccountSection;\n};\n\nexport const AccountProvider = ({ children, initialSection = \"profile\" }: AccountProviderProps) => {\n  const [section, setSection] = useState<AccountSection>(initialSection);\n  const generateUrl = usePageUrlGenerator();\n  const t = useTranslations();\n\n  const breadcrumb = (): BreadcrumbItemData[] => {\n    const response: BreadcrumbItemData[] = [];\n\n    response.push({\n      name: t(\"common.settings\", { item: \"account\" }),\n      href: generateUrl({ page: \"/account\" }),\n    });\n\n    if (section) {\n      response.push({\n        name: t(\"common.settings\", { item: section }),\n        href: generateUrl({ page: `/account/${section}` }),\n      });\n    }\n\n    return response;\n  };\n\n  const title = () => ({\n    type: t(\"common.settings\", { item: section ?? \"account\" }),\n  });\n\n  return (\n    <SharedProvider value={{ breadcrumbs: breadcrumb(), title: title() }}>\n      <AccountContext.Provider\n        value={{\n          section,\n          setSection,\n        }}\n      >\n        {children}\n      </AccountContext.Provider>\n    </SharedProvider>\n  );\n};\n\nexport const useAccountContext = (): AccountContextType => {\n  const context = useContext(AccountContext);\n  if (context === undefined) {\n    throw new Error(\"useAccountContext must be used within an AccountProvider\");\n  }\n  return context;\n};\n",
+      "contentHash": "sha256:47468587ce5f5227"
+    }
+  ],
+  "replacements": [
+    {
+      "pattern": "only35-api",
+      "replacement": "{{name}}-api"
+    },
+    {
+      "pattern": "only35-web",
+      "replacement": "{{name}}-web"
+    },
+    {
+      "pattern": "@only35/shared",
+      "replacement": "@{{name}}/shared"
+    },
+    {
+      "pattern": "api.only35.test",
+      "replacement": "api.{{name}}.test"
+    },
+    {
+      "pattern": "minio.only35.test",
+      "replacement": "minio.{{name}}.test"
+    },
+    {
+      "pattern": "only35.test",
+      "replacement": "{{name}}.test"
+    },
+    {
+      "pattern": "admin@only35.com",
+      "replacement": "admin@{{name}}.com"
+    },
+    {
+      "pattern": "info@only35.com",
+      "replacement": "info@{{name}}.com"
+    },
+    {
+      "pattern": "only35<info@only35.com>",
+      "replacement": "{{name}}<info@{{name}}.com>"
+    },
+    {
+      "pattern": "only35_SECRET",
+      "replacement": "{{name}}_SECRET"
+    },
+    {
+      "pattern": "NEO4J_DATABASE=only35",
+      "replacement": "NEO4J_DATABASE={{name}}"
+    },
+    {
+      "pattern": "REDIS_QUEUE=only35",
+      "replacement": "REDIS_QUEUE={{name}}"
+    },
+    {
+      "pattern": "S3_BUCKET=\"only35\"",
+      "replacement": "S3_BUCKET=\"{{name}}\""
+    },
+    {
+      "pattern": "only35-web#build",
+      "replacement": "{{name}}-web#build"
+    },
+    {
+      "pattern": "\"only35\"",
+      "replacement": "\"{{name}}\""
+    },
+    {
+      "pattern": "'only35'",
+      "replacement": "'{{name}}'"
+    },
+    {
+      "pattern": "/only35-logo",
+      "replacement": "/{{name}}-logo"
+    },
+    {
+      "pattern": "only35-logo",
+      "replacement": "{{name}}-logo"
+    }
+  ]
+}
