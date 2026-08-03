@@ -1,3 +1,25 @@
+## [1.12.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.11.1...v1.12.0) (2026-08-03)
+
+### 🚀 Features
+
+* **template:** add generic framework-only ModuleId to shared package ([e738391](https://github.com/carlonicora/create-carlonicora-app/commit/e738391c417b063262642eebd12364f6ba178f84))
+* **template:** add generic framework-only RBAC matrix, id-map, and user-paths ([012cafe](https://github.com/carlonicora/create-carlonicora-app/commit/012cafef08597b41438b75ac7b068f16cb47cadd))
+* **template:** register RbacModule in the feature registry ([1f1558c](https://github.com/carlonicora/create-carlonicora-app/commit/1f1558c67aac03c980a10152d338952206272e06))
+* update environment configuration and add public hostname for Next.js image optimizer ([92f12cf](https://github.com/carlonicora/create-carlonicora-app/commit/92f12cf81fe2efb658abbb4805c7f454ae09afa6))
+
+### 🐛 Bug Fixes
+
+* remove old files ([b016966](https://github.com/carlonicora/create-carlonicora-app/commit/b016966871a2f04a0a2268cd896f3944731e3ce2))
+
+### 📚 Documentation
+
+* add RBAC template baseline design spec ([ef5483c](https://github.com/carlonicora/create-carlonicora-app/commit/ef5483cedd05e9329bd542f0f20d9667afdf2636))
+* add RBAC template baseline implementation plan ([2543da6](https://github.com/carlonicora/create-carlonicora-app/commit/2543da60eadf9a64548b52ab8b8502e386fdc1a9))
+
+### 🛠 Build System
+
+* **sync:** protect generic RBAC baseline, sync admin RBAC UI + validate script ([78f3962](https://github.com/carlonicora/create-carlonicora-app/commit/78f3962533e15e3a41c546f67689725829d3440b))
+
 ## [1.11.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.11.0...v1.11.1) (2026-02-15)
 
 ### 🐛 Bug Fixes
