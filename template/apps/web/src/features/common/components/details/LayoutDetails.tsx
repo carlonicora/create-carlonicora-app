@@ -2,8 +2,9 @@
 
 import { TrialExpiringBanner } from "@/features/common/components/banners/TrialExpiringBanner";
 import CommonSidebar from "@/features/common/components/navigations/CommonSidebar";
+import QuickCreateMenu from "@/features/common/components/navigations/QuickCreateMenu";
 import { useNotificationSync, usePageTracker } from "@carlonicora/nextjs-jsonapi/client";
-import { useCurrentUserContext, useNotificationContext } from "@carlonicora/nextjs-jsonapi/contexts";
+import { HeaderLeftContentProvider, useCurrentUserContext, useNotificationContext } from "@carlonicora/nextjs-jsonapi/contexts";
 import { RoleInterface, UserInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
 import { useEffect } from "react";
@@ -26,12 +27,14 @@ export default function LayoutDetails({ children }: LayoutDetailsProps) {
   }, [currentUser, loadNotifications]);
 
   return (
-    <div data-wrapper className="flex h-full w-full">
+    <div data-wrapper className="bg-sidebar flex h-full w-full">
       <CommonSidebar />
-      <div className="flex flex-1 flex-col">
-        <TrialExpiringBanner />
-        {children}
-      </div>
+      <HeaderLeftContentProvider content={<QuickCreateMenu />}>
+        <div className="flex flex-1 flex-col">
+          <TrialExpiringBanner />
+          {children}
+        </div>
+      </HeaderLeftContentProvider>
     </div>
   );
 }

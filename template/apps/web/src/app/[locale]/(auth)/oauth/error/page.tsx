@@ -1,17 +1,17 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, Home, UserPlus } from "lucide-react";
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Button,
 } from "@carlonicora/nextjs-jsonapi/components";
-import Link from "next/link";
+import { AlertTriangle, ArrowLeft, Home, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 /**
  * OAuth error codes that have specific translations
@@ -45,26 +45,26 @@ export default function OAuthErrorPage() {
   const errorCode = searchParams.get("error") || "unknown";
   const errorDescription = searchParams.get("error_description");
 
-  const isKnownError = KNOWN_ERROR_CODES.includes(errorCode as typeof KNOWN_ERROR_CODES[number]);
+  const isKnownError = KNOWN_ERROR_CODES.includes(errorCode as (typeof KNOWN_ERROR_CODES)[number]);
   const errorKey = isKnownError ? errorCode : "default";
 
   const title = t(`oauth.errors.${errorKey}.title`);
   const description = errorDescription || t(`oauth.errors.${errorKey}.description`);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-muted/30">
+    <div className="bg-muted/30 flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
-            <AlertTriangle className="h-6 w-6 text-destructive" />
+          <div className="bg-destructive/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+            <AlertTriangle className="text-destructive h-6 w-6" />
           </div>
           <CardTitle className="text-2xl">{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {errorCode !== "access_denied" && (
-            <div className="rounded-lg bg-muted/50 p-4 text-sm">
-              <p className="font-mono text-xs text-muted-foreground">
+            <div className="bg-muted/50 rounded-lg p-4 text-sm">
+              <p className="text-muted-foreground font-mono text-xs">
                 {t("oauth.errors.error_code", { code: errorCode })}
               </p>
             </div>
@@ -73,23 +73,21 @@ export default function OAuthErrorPage() {
           <div className="flex flex-col gap-2">
             {errorCode === "waitlist_required" && (
               <Button nativeButton={false} render={<Link href="/waitlist" />}>
-                <UserPlus className="h-4 w-4 mr-2" />
+                <UserPlus className="mr-2 h-4 w-4" />
                 {t("waitlist.buttons.join")}
               </Button>
             )}
             <Button variant="outline" nativeButton={false} render={<Link href="/" />}>
-              <Home className="h-4 w-4 mr-2" />
+              <Home className="mr-2 h-4 w-4" />
               {t("ui.buttons.return_to_home")}
             </Button>
             <Button variant="ghost" onClick={() => window.history.back()}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               {t("ui.buttons.go_back")}
             </Button>
           </div>
 
-          <p className="text-xs text-center text-muted-foreground">
-            {t("oauth.errors.contact_support")}
-          </p>
+          <p className="text-muted-foreground text-center text-xs">{t("oauth.errors.contact_support")}</p>
         </CardContent>
       </Card>
     </div>

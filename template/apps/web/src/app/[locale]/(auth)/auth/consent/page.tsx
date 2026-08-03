@@ -1,11 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Button,
   Card,
@@ -17,7 +11,13 @@ import {
   GdprConsentSection,
 } from "@carlonicora/nextjs-jsonapi/components";
 import { AuthService } from "@carlonicora/nextjs-jsonapi/core";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 export default function ConsentPage() {
   const t = useTranslations();
@@ -67,7 +67,7 @@ export default function ConsentPage() {
 
   if (!pendingId) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="mx-auto w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-destructive">{t("common.errors.error")}</CardTitle>
         </CardHeader>
@@ -79,19 +79,17 @@ export default function ConsentPage() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle className="text-primary flex flex-col items-center pb-4 text-2xl">
           <Image src="/logo.webp" alt="Logo" width={80} height={80} priority />
           {t("auth.gdpr.consent_page_title")}
         </CardTitle>
-        <CardDescription className="text-center">
-          {t("auth.gdpr.consent_page_description")}
-        </CardDescription>
+        <CardDescription className="text-center">{t("auth.gdpr.consent_page_description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {error && (
-          <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-md">
+          <div className="bg-destructive/10 text-destructive mb-4 rounded-md p-3">
             <p className="text-sm">{error}</p>
           </div>
         )}
@@ -99,11 +97,7 @@ export default function ConsentPage() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <GdprConsentSection form={form} />
-            <Button
-              type="submit"
-              className="w-full mt-4"
-              disabled={submitting}
-            >
+            <Button type="submit" className="mt-4 w-full" disabled={submitting}>
               {submitting ? t("ui.buttons.processing") : t("auth.gdpr.complete_registration")}
             </Button>
           </form>

@@ -1,7 +1,6 @@
 "use client";
 
-import { ErrorDetails } from "@carlonicora/nextjs-jsonapi/components";
-import { Logout } from "@carlonicora/nextjs-jsonapi/components";
+import { ErrorDetails, Logout } from "@carlonicora/nextjs-jsonapi/components";
 import { useMessages } from "next-intl";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 

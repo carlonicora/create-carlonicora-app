@@ -1,5 +1,8 @@
 # Dependencies
 node_modules/
+
+# Superpowers brainstorming
+.superpowers/
 .pnp
 .pnp.js
 
@@ -24,6 +27,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# LLM call dumps (dev observability — enabled via ASSISTANT_DUMP_LLM_CALLS=1)
+apps/api/.llm-dumps/
 
 # Environment variables
 .env
@@ -92,6 +98,9 @@ REST.http
 
 # Git worktrees
 .worktrees/
+.claude/worktrees/
 
 # Core update workflow
 .core-update-manifest.json
+
+.playwright-cli/

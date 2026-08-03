@@ -14,10 +14,10 @@ export function InstallPrompt({ isIOS, onInstall, onDismiss }: InstallPromptProp
   const t = useTranslations("pwa.install");
 
   return (
-    <div className="bg-card border-border fixed bottom-4 left-4 right-4 z-50 rounded-lg border p-4 shadow-lg md:left-auto md:right-4 md:w-96">
+    <div className="bg-card border-border fixed right-4 bottom-4 left-4 z-50 rounded-lg border p-4 shadow-lg md:right-4 md:left-auto md:w-96">
       <button
         onClick={onDismiss}
-        className="text-muted-foreground hover:text-foreground absolute right-2 top-2"
+        className="text-muted-foreground hover:text-foreground absolute top-2 right-2"
         aria-label="Close"
       >
         <X className="h-4 w-4" />
@@ -30,9 +30,7 @@ export function InstallPrompt({ isIOS, onInstall, onDismiss }: InstallPromptProp
 
         <div className="flex-1">
           <h3 className="font-semibold">{t("title")}</h3>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {isIOS ? t("ios_description") : t("description")}
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">{isIOS ? t("ios_description") : t("description")}</p>
 
           {isIOS ? (
             <div className="mt-3 space-y-2 text-sm">

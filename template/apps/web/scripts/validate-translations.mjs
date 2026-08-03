@@ -22,7 +22,7 @@ const PACKAGES_PATH = path.join(__dirname, "../../../packages");
 // Patterns to match translation usage
 const USE_TRANSLATIONS_PATTERN = /useTranslations\(\s*["']([^"']*)["']\s*\)/g;
 const USE_TRANSLATIONS_NO_NS_PATTERN = /useTranslations\(\s*\)/g;
-const T_CALL_PATTERN = /\bt\(\s*["']([^"']+)["']/g;
+const T_CALL_PATTERN = /\bt\(\s*[`"']([^`"']+)[`"']/g;
 const GET_TRANSLATIONS_PATTERN = /getTranslations\(\s*["']([^"']*)["']\s*\)/g;
 
 /**

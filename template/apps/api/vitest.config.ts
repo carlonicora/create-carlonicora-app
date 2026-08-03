@@ -22,6 +22,7 @@ export default defineConfig({
     environment: "node",
     setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.{test,spec}.ts"],
+    passWithNoTests: true,
     silent: true,
     reporters: ["default"],
     onConsoleLog: () => false,

@@ -18,7 +18,7 @@ export function VisibilityBadge({ isPublic, className, size = "sm" }: Visibility
   return (
     <div
       className={cn(
-        "flex items-center gap-1 rounded-full bg-primary/90 text-primary-foreground backdrop-blur-sm",
+        "bg-primary/90 text-primary-foreground flex items-center gap-1 rounded-full backdrop-blur-sm",
         size === "sm" && "px-2 py-0.5 text-xs",
         size === "md" && "px-2.5 py-1 text-sm",
         className,

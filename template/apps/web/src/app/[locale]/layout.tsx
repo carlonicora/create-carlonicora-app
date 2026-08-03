@@ -7,13 +7,13 @@ import { Provider } from "jotai";
 import "react-horizontal-scrolling-menu/dist/styles.css";
 
 import { routing } from "@/i18n/routing";
+import type { Metadata, Viewport } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
-import type { Viewport, Metadata } from "next";
 
 const fontSans = Inter({ subsets: ["latin"], weight: ["100", "300", "400", "700"], variable: "--font-sans" });
 
@@ -59,9 +59,7 @@ export const metadata: Metadata = {
     ],
   },
   icons: {
-    apple: [
-      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -87,9 +85,7 @@ export default async function RootLayout(props: { children: React.ReactNode; par
               <BootstrapProvider>
                 <TooltipProvider>
                   <Toaster closeButton />
-                  <PWAProvider>
-                    {children}
-                  </PWAProvider>
+                  <PWAProvider>{children}</PWAProvider>
                 </TooltipProvider>
               </BootstrapProvider>
             </NextIntlClientProvider>

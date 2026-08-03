@@ -1,11 +1,11 @@
 "use client";
 
-import { useOnboarding } from "@carlonicora/nextjs-jsonapi/contexts";
 import { SidebarMenuButton, SidebarMenuItem } from "@carlonicora/nextjs-jsonapi/components";
-import { usePathname } from "next/navigation";
+import { useOnboarding } from "@carlonicora/nextjs-jsonapi/contexts";
 import { HelpCircle } from "lucide-react";
-import { getTourForPath, getTourSteps } from "../config/tours.config";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { getTourForPath, getTourSteps } from "../config/tours.config";
 
 export function OnboardingTrigger() {
   const { startTour, isTourActive } = useOnboarding();

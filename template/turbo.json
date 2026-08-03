@@ -1,5 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "cacheMaxAge": "7d",
+  "cacheMaxSize": "10GB",
   "globalDependencies": ["**/.env.*local", ".env", ".env.e2e"],
   "globalEnv": [
     "NODE_ENV",
@@ -11,7 +13,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"],
       "env": [
         "NODE_ENV",
         "NEXT_PUBLIC_*"
@@ -42,6 +44,7 @@
       "persistent": true
     },
     "test": {
+      "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "env": ["NODE_ENV"],
       "cache": true
@@ -56,6 +59,7 @@
       "cache": false
     },
     "test:cov": {
+      "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "env": ["NODE_ENV"],
       "cache": true
@@ -78,7 +82,7 @@
     },
     "{{name}}-web#build": {
       "dependsOn": ["^build", "@carlonicora/nextjs-jsonapi#build"],
-      "outputs": [".next/**"],
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
       "env": [
         "NODE_ENV",
         "NEXT_PUBLIC_*"

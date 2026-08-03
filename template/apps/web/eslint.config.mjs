@@ -11,9 +11,12 @@ const eslintConfig = [
     },
     rules: {
       // Detect hardcoded strings in JSX (set to "warn" to find all, "off" for production)
-      "i18next/no-literal-string": ["warn", {
-        mode: "jsx-text-only",
-      }],
+      "i18next/no-literal-string": [
+        "warn",
+        {
+          mode: "jsx-text-only",
+        },
+      ],
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-unused-vars": "off",

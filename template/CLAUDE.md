@@ -1,25 +1,8 @@
-<!-- OPENSPEC:START -->
-# OpenSpec Instructions
-
-These instructions are for AI assistants working in this project.
-
-Always open `@/openspec/AGENTS.md` when the request:
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
-
-Use `@/openspec/AGENTS.md` to learn:
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
-
-Keep this managed block so 'openspec update' can refresh the instructions.
-
-<!-- OPENSPEC:END -->
-
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## What Is This
+
+`{{display}}` — a NestJS + Next.js monorepo with Neo4j and JSON:API.
 
 ## Monorepo Structure
 
@@ -35,94 +18,65 @@ This is a monorepo with component-specific instructions. Read the relevant CLAUD
 
 ## Architecture Reference
 
-See [docs/architecture/INDEX.md](docs/architecture/INDEX.md) for detailed patterns. This is your bible for understanding JSON:API implementation.
+Architecture rules and detailed patterns live in the
+**`{{name}}-architecture` skill** at
+`.claude/skills/{{name}}-architecture/`. Invoke that skill BEFORE
+editing any TypeScript file under `apps/api/src/features`,
+`apps/web/src/features`, or `packages/*/src`.
 
-## Working Style & Approach
+The skill's `SKILL.md` contains the full routing table (file pattern →
+references). Detailed reference docs live under
+`.claude/skills/{{name}}-architecture/references/`.
 
-**CRITICAL: Think First, Code Once - Not the Other Way Around**
+## Architecture Guardrails
 
-When tackling any non-trivial task, especially those involving complex systems (UI interactions, state management, API integrations, etc.):
+These rules are NON-NEGOTIABLE. Violating any of them produces broken or insecure code.
 
-### Required Process
-1. **ANALYZE THOROUGHLY FIRST** - Read and understand ALL relevant code before making any changes
-2. **MAP THE SYSTEM** - Identify all dependencies, interactions, and potential side effects
-3. **CLARIFY REQUIREMENTS** - If ANYTHING is unclear, ambiguous, or could be interpreted multiple ways, **STOP and ASK QUESTIONS**. Never assume or guess at requirements.
-4. **DESIGN A COMPLETE SOLUTION** - Think through the entire approach on "paper" first
-5. **PRESENT THE PLAN** - Explain the strategy clearly before writing any code
-6. **IMPLEMENT CAREFULLY** - Make changes systematically, following the agreed plan
-7. **STICK TO THE PLAN** - Don't pivot to quick fixes that create new problems
+### JSON:API Protocol
 
-### Usage of console.log in debugging
-- It is IMPERATIVE that in order to understand what's happening in the system, you use `console.log` in critical points of the system to understand what's TRULY happening!
-- If the user reports an error, you MUST UNDERSTAND what's going on not just through the analysis of the code, but through the analysis of the logs you write
+This system uses {json:api} as its ONLY communication protocol between frontend and backend. EVERY request and response MUST be valid JSON:API. To create a valid JSON:API payload, you MUST use a model — never construct JSON:API structures manually. If a model doesn't exist for the entity, create one first.
 
-### Absolutely Forbidden
-- ❌ Making reactive changes without understanding root causes
-- ❌ Fixing one bug and creating another (going in circles)
-- ❌ Changing approach multiple times mid-task
-- ❌ Quick fixes that break other things
-- ❌ Jumping to implementation before thorough analysis
+### Backend (NestJS + Neo4j)
 
-### If You Get Stuck
-- **STOP** - Don't keep trying random fixes
-- **STEP BACK** - Re-analyze the entire system
-- **ADD CONSOLE LOGS** - Only by seeing the logs you can understand what's going on
-- **ASK** - Request clarification or context from the user
-- **REDESIGN** - Create a new plan based on better understanding
+- ALWAYS extend `AbstractRepository` and `AbstractService` — never bypass the framework
+- ALWAYS use `buildDefaultMatch()` for queries — it auto-injects company filtering. Manual filtering is a security vulnerability
+- ALWAYS use `readOne()`/`readMany()` to return typed objects — NEVER return raw `result.records`
+- ALWAYS use `{CURSOR}` placeholder for paginated queries — NEVER use manual `SKIP`/`LIMIT`
+- ALWAYS pass `serialiser` to `initQuery()` — without it, type mapping fails
+- ALWAYS use `createCrudHandlers()`/`createRelationshipHandlers()` for standard CRUD
+- ALWAYS use meta constants for endpoint paths — NEVER hardcode endpoint strings
+- ALWAYS use DTOs for request validation
+- ALWAYS use parameterized Cypher queries — NEVER interpolate strings
+- Controllers call services, NEVER repositories directly
 
-**Remember:** Breaking more things than you fix wastes time and causes frustration. Spending 10 minutes on proper analysis upfront is better than 60 minutes going in circles.
+### Frontend (Next.js)
 
-## Issue Tracking
+- ALWAYS use `callApi()` — NEVER use `fetch()` directly
+- ALWAYS implement `rehydrate()` and `createJsonApi()` on every model
+- ALWAYS use `EndpointCreator` for building URLs — NEVER hardcode endpoint strings
+- ALWAYS pass `type: Modules.X` in every `callApi()` call — without it, rehydration fails
+- NEVER use `overridesJsonApiCreation` without a dedicated model method
+- NEVER construct JSON:API payloads manually — the model handles serialization
+- This project uses **Base UI** (not Radix) for UI components — NEVER use `asChild`, NEVER wrap `<Button>` inside trigger components. Use the `render` prop for composition. See `.claude/skills/{{name}}-architecture/references/frontend/04-components.md`
 
-ALWAYS use `bd` (Beads) for issue tracking.
+### Before Writing Code
 
-### STRICT RULE: Every `bd create` MUST include `-d`
+Invoke the `{{name}}-architecture` skill — its routing table tells
+you which references to read for the file you are about to edit.
 
-❌ **FORBIDDEN** — will be rejected:
-```bash
-bd create "Update file.ts" -t task
-```
-
-✅ **REQUIRED** — every issue needs full context:
-```bash
-bd create "Title" -t task -p 2 -l "label" -d "## Requirements
-- What needs to be done
-
-## Acceptance Criteria
-- How to verify it's done
-
-## Context
-- Relevant file paths, spec references"
-```
-
-**No exceptions.** If you don't have enough context for `-d`, ask the user first.
-
-## Testing
-
-The monorepo uses **Vitest** for testing across all packages.
-
-### Running Tests
+## Build & Test
 
 ```bash
-# Run all tests from root
-pnpm test
-
-# Run tests for specific packages
-pnpm --filter {{name}}-web test
-pnpm --filter {{name}}-api test
-pnpm --filter @carlonicora/nestjs-neo4jsonapi test
-pnpm --filter @carlonicora/nextjs-jsonapi test
-
-# Run tests with coverage
-pnpm --filter {{name}}-web test:coverage
-
-# Run tests in watch mode
-pnpm --filter {{name}}-web test:watch
+pnpm test                                           # all
+pnpm --filter {{name}}-web test                     # web
+pnpm --filter {{name}}-api test                     # api
+pnpm --filter @carlonicora/nestjs-neo4jsonapi test  # nestjs lib
+pnpm --filter @carlonicora/nextjs-jsonapi test      # nextjs lib
 ```
 
-### Test File Conventions
+If anything fails, you MUST fix it, even if you think it was not created by you. Take responsibility and DON'T BE LAZY!
 
-- Test files should be named `*.spec.ts` or `*.test.ts`
-- Place tests near the code they test or in `__tests__` directories
-- Use `vi.fn()`, `vi.mock()`, `vi.spyOn()` for mocking (not `jest.*`)
-- Import from `vitest` for test utilities: `import { vi, describe, it, expect } from "vitest";`
+## Debugging
+
+- Use `console.log` at critical points to understand runtime behavior
+- When a bug is reported, add logs first — don't guess from code alone

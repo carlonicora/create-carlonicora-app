@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(*)",
+      "WebSearch",
+      "Skill(playwright-cli)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:github.com)",
+      "Skill(nja:nja-architecture)",
+      "Skill(nja:nja-generate)",
+      "Skill(nja:nja-verify)",
+      "Skill(nja:nja-writing-plan)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:writing-plans)",
+      "Skill(superpowers:subagent-driven-development)",
+      "Skill(superpowers:systematic-debugging)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rmdir *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(gh pr edit*)",
+      "Bash(gh pr merge*)"
+    ],
+    "ask": [
+      "Bash(rm *)",
+      "Bash(git commit*)",
+      "Bash(git push*)"
+    ]
+  },
+  "hooks": {
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'set -e; NAME=$(python3 -c \"import sys,json; print(json.load(sys.stdin)[\\\"name\\\"])\"); REPO_ROOT=$(git rev-parse --show-toplevel); WORKTREE_PATH=\"$REPO_ROOT/.claude/worktrees/$NAME\"; mkdir -p \"$REPO_ROOT/.claude/worktrees\"; git -C \"$REPO_ROOT\" worktree add \"$WORKTREE_PATH\" -b \"worktree-$NAME\" dev >&2; cd \"$WORKTREE_PATH\"; [ -f \"$REPO_ROOT/.env\" ] && cp \"$REPO_ROOT/.env\" .env >&2; git submodule update --init --recursive >&2; pnpm install >&2; pnpm --filter @carlonicora/nestjs-neo4jsonapi build >&2; pnpm --filter @carlonicora/nextjs-jsonapi build >&2; echo \"$WORKTREE_PATH\"'"
+          }
+        ]
+      }
+    ]
+  }
+}

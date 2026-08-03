@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, ReactNode, useContext } from "react";
 
 interface HeaderContentContextType {
   headerContent: ReactNode | null;

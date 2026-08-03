@@ -47,6 +47,9 @@ export const SettingsProvider = ({ children, moduleName }: SettingsProviderProps
       type: t(`common.settings`),
     };
 
+    if (module)
+      response.element = t(`entities.${module.name}`, { count: module.name === Modules.Company.name ? 1 : 2 });
+
     return response;
   };
 

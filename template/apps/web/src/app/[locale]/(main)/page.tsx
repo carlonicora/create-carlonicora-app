@@ -1,6 +1,7 @@
+import { AdminIndexContainer } from "@/features/common/components/containers/AdminIndexContainer";
 import IndexContainer from "@/features/common/components/containers/IndexContainer";
 import { generateSpecificMetadata } from "@/utils/metadata";
-import { AuthContainer, CompaniesList, PageContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { CommonProvider, CompanyProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
@@ -21,9 +22,7 @@ export default async function IndexPage() {
     return (
       <CompanyProvider>
         <CommonProvider>
-          <PageContainer>
-            <CompaniesList />
-          </PageContainer>
+          <AdminIndexContainer />
         </CommonProvider>
       </CompanyProvider>
     );
@@ -31,9 +30,7 @@ export default async function IndexPage() {
 
   return (
     <CommonProvider>
-      <PageContainer testId="page-homepage-container">
-        <IndexContainer />
-      </PageContainer>
+      <IndexContainer />
     </CommonProvider>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@carlonicora/nextjs-jsonapi/components";
-import { WifiOff, RefreshCw } from "lucide-react";
+import { RefreshCw, WifiOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 

@@ -1,2 +1,2 @@
-export * from "./OnboardingTrigger";
 export * from "./OnboardingProviderWrapper";
+export * from "./OnboardingTrigger";

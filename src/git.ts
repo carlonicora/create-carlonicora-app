@@ -7,6 +7,11 @@ const execAsync = promisify(exec);
 
 export async function initGit(targetDir: string): Promise<void> {
   execSync('git init', { cwd: targetDir, stdio: 'pipe' });
+  // Force the initial branch to be `master` regardless of the user's
+  // `init.defaultBranch` setting. `symbolic-ref` works on the unborn branch
+  // (before any commit exists) and is stable across git versions, unlike
+  // `git init -b master` which requires git >= 2.28.
+  execSync('git symbolic-ref HEAD refs/heads/master', { cwd: targetDir, stdio: 'pipe' });
 }
 
 export async function addSubmodules(targetDir: string): Promise<void> {
@@ -29,7 +34,11 @@ export async function addSubmodules(targetDir: string): Promise<void> {
     }
 
     try {
-      execSync(`git submodule add ${submodule.url} ${submodule.path}`, {
+      // Track master so the submodule sits on a branch (not a detached commit)
+      // and records `branch = master` in .gitmodules — that makes
+      // `git submodule update --remote` (and a plain pull) fetch the latest
+      // published library automatically.
+      execSync(`git submodule add -b master ${submodule.url} ${submodule.path}`, {
         cwd: targetDir,
         stdio: 'pipe',
       });
@@ -47,6 +56,19 @@ export async function addSubmodules(targetDir: string): Promise<void> {
     cwd: targetDir,
     stdio: 'pipe',
   });
+
+  // Check each submodule out ON master at the latest origin/master, so the
+  // generated project starts on the newest published library and `git pull`
+  // inside a submodule (or `git submodule update --remote`) keeps it current.
+  // NOTE: the template's app code (synced from neural-erp) must stay
+  // API-compatible with the libraries' master HEAD — e.g. it relies on
+  // BlockNoteViewerContainer and the public/howtos controller. If a library
+  // ships a breaking change on master, re-sync the template to match.
+  for (const submodule of submodules) {
+    const sub = path.join(targetDir, submodule.path);
+    execSync(`git -C "${sub}" checkout master`, { stdio: 'inherit' });
+    execSync(`git -C "${sub}" pull --ff-only origin master`, { stdio: 'inherit' });
+  }
 }
 
 export async function buildSubmodules(targetDir: string): Promise<void> {
@@ -105,4 +127,18 @@ export async function createInitialCommit(targetDir: string): Promise<void> {
   } catch {
     // Commit might fail if nothing to commit, which is fine
   }
+}
+
+/**
+ * Layer the branch structure on top of the initial commit: master -> test -> dev.
+ * All three branches point at the same initial commit; the project is left
+ * checked out on `dev`, which is the branch the `claude --worktree` hook
+ * branches from. Must run after `createInitialCommit` so master has a commit.
+ */
+export async function createBranchStructure(targetDir: string): Promise<void> {
+  // Create `test` from master, then `dev` from test.
+  execSync('git branch test master', { cwd: targetDir, stdio: 'pipe' });
+  execSync('git branch dev test', { cwd: targetDir, stdio: 'pipe' });
+  // Leave the generated project checked out on dev.
+  execSync('git checkout dev', { cwd: targetDir, stdio: 'pipe' });
 }

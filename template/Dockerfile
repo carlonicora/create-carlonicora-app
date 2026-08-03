@@ -81,6 +81,10 @@ WORKDIR /app
 # =============================================================================
 FROM shared-builder AS api-development
 
+# Install LibreOffice headless for DOCX -> PDF conversion (used by libreoffice-convert)
+# Mirrors the install in the api-production stage so dev parity is preserved.
+RUN apk add --no-cache libreoffice ttf-liberation ttf-dejavu
+
 # Expose port (set via build arg; defaults to 3400 for local compose)
 ARG API_PORT=3400
 EXPOSE ${API_PORT}
@@ -125,6 +129,7 @@ RUN node scripts/apply-production-versions.js
 RUN sed -i '/nestjs-neo4jsonapi/d; /nextjs-jsonapi/d' pnpm-workspace.yaml
 
 # Install dependencies (fetches libraries from npm)
+ENV NODE_OPTIONS="--max-old-space-size=6144"
 RUN pnpm install --no-frozen-lockfile
 
 # =============================================================================
@@ -148,11 +153,22 @@ RUN pnpm --filter {{name}}-api build
 # =============================================================================
 # API PRODUCTION TARGET
 # =============================================================================
-FROM node:22-alpine AS api-production
+# NOTE: glibc (Debian) base, NOT Alpine. The nestjs-neo4jsonapi onnx-runtime /
+# model-manager infra uses onnxruntime-node, which ships prebuilt binaries
+# linked against glibc and has no musl/Alpine build — on Alpine the native load
+# fails with "ld-linux-x86-64.so.2: No such file" and the worker crashes on
+# boot. Any project enabling the ONNX/model-manager features (e.g. Silero VAD)
+# MUST run on a glibc-based runtime, so this template ships glibc by default.
+FROM node:22-bookworm-slim AS api-production
 
-# Install runtime dependencies only (no build tools + OCR)
-RUN apk add --no-cache cairo jpeg pango giflib libwebp \
-    tesseract-ocr graphicsmagick ghostscript
+# Install runtime dependencies only (no build tools).
+# OCR (tesseract/graphicsmagick/ghostscript), image libs (cairo/jpeg/pango/etc),
+# and LibreOffice headless (DOCX -> PDF via libreoffice-convert) — Debian names.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcairo2 libjpeg62-turbo libpango-1.0-0 libgif7 libwebp7 \
+    tesseract-ocr graphicsmagick ghostscript \
+    libreoffice fonts-liberation fonts-dejavu \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN corepack enable && corepack prepare pnpm@10.18.2 --activate
 
@@ -164,10 +180,21 @@ COPY --from=api-builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspac
 COPY --from=api-builder /app/packages/shared ./packages/shared
 COPY --from=api-builder /app/apps/api ./apps/api
 
+# ML model configuration (single source of truth for the model-manager).
+# Ships empty by default — add entries under registry.onnx / registry.transformers
+# in apps/api/config/models.config.yaml to enable models.
+COPY --from=api-builder /app/apps/api/config/models.config.yaml /app/config/models.config.yaml
+
 # Install only production dependencies
 RUN pnpm install --no-frozen-lockfile --prod --ignore-scripts
 
 WORKDIR /app/apps/api
+
+# ONNX / model-manager runtime config. Models (if any are configured) are
+# downloaded on first worker start into MODELS_CACHE_DIR; MODEL_CONFIG_PATH
+# points at the config copied above.
+ENV MODELS_CACHE_DIR=/app/.cache/models
+ENV MODEL_CONFIG_PATH=/app/config/models.config.yaml
 
 # Expose port (set via build arg; defaults to 3400 for local compose)
 ARG API_PORT=3400
@@ -179,7 +206,7 @@ CMD ["node", "dist/main", "--mode=api"]
 # =============================================================================
 # WEB BUILDER (production) - Uses npm packages
 # =============================================================================
-FROM shared-builder-prod AS web-builder
+FROM api-builder AS web-builder
 
 WORKDIR /app
 

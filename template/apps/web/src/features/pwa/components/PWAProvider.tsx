@@ -10,23 +10,13 @@ interface PWAProviderProps {
 }
 
 export function PWAProvider({ children }: PWAProviderProps) {
-  const {
-    isOnline,
-    isIOS,
-    showInstallPrompt,
-    updateAvailable,
-    install,
-    dismissInstallPrompt,
-    refreshApp,
-  } = usePWA();
+  const { isOnline, isIOS, showInstallPrompt, updateAvailable, install, dismissInstallPrompt, refreshApp } = usePWA();
 
   return (
     <>
       <OfflineIndicator isVisible={!isOnline} />
       {children}
-      {showInstallPrompt && (
-        <InstallPrompt isIOS={isIOS} onInstall={install} onDismiss={dismissInstallPrompt} />
-      )}
+      {showInstallPrompt && <InstallPrompt isIOS={isIOS} onInstall={install} onDismiss={dismissInstallPrompt} />}
       <UpdateNotification isVisible={updateAvailable} onRefresh={refreshApp} />
     </>
   );

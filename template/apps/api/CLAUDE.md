@@ -1,19 +1,10 @@
 # Backend (NestJS + Neo4j) - CLAUDE.md
 
-This file provides guidance specific to the API backend. See also the [root CLAUDE.md](../../CLAUDE.md) for general project rules.
+> **Architecture rules:** invoke the `{{name}}-architecture` skill before
+> editing files under `src/features/`. The skill's routing table directs
+> you to the right reference for the file you are editing.
 
-## Architecture Documentation
-
-| Task | Read |
-|------|------|
-| Core principles | [docs/architecture/00-core-principles.md](../../docs/architecture/00-core-principles.md) |
-| New entity | [docs/architecture/backend/01-entity-basics.md](../../docs/architecture/backend/01-entity-basics.md) |
-| DTOs | [docs/architecture/backend/02-dtos.md](../../docs/architecture/backend/02-dtos.md) |
-| Repository | [docs/architecture/backend/03-repositories.md](../../docs/architecture/backend/03-repositories.md) |
-| Service | [docs/architecture/backend/04-services.md](../../docs/architecture/backend/04-services.md) |
-| Controller | [docs/architecture/backend/05-controllers.md](../../docs/architecture/backend/05-controllers.md) |
-| Template | [docs/architecture/backend/template.md](../../docs/architecture/backend/template.md) |
-| Anti-patterns | [docs/architecture/anti-patterns.md](../../docs/architecture/anti-patterns.md) |
+See [root CLAUDE.md](../../CLAUDE.md) for monorepo structure and the architecture skill pointer.
 
 ## Core Rules
 
@@ -41,67 +32,50 @@ src/features/{domain}/
 └── {entity}.module.ts        # NestJS module definition
 ```
 
-## Key Patterns
+## Key Patterns (by example)
 
-### Meta File Pattern
-```typescript
-export const photographMeta: DataMeta = {
-  type: "photographs",           // JSON:API type (plural, kebab-case)
-  endpoint: "photographs",       // URL segment
-  nodeName: "photograph",        // Cypher variable name
-  labelName: "Photograph",       // Neo4j node label
-};
-```
+Consult the `{{name}}-architecture` skill's reference docs under
+`.claude/skills/{{name}}-architecture/references/backend/` for canonical
+examples of:
 
-### Entity Descriptor Pattern
-```typescript
-export const PhotographDescriptor: EntityDescriptor<Photograph, PhotographRelationships> = {
-  fields: {
-    id: { type: "string", generator: "uuid" },
-    title: { type: "string" },
-    createdAt: { type: "date", generator: "createdAt" },
-  },
-  relationships: {
-    roll: { type: "one", target: rollMeta, direction: "out", relationshipType: "BELONGS_TO" },
-    metadata: { type: "many", target: metadataMeta, direction: "out" },
-  },
-  computedFields: {
-    displayName: (entity) => entity.title || "Untitled",
-  },
-};
-```
-
-### Repository Query Pattern
-```typescript
-// Always use parameterized queries
-const query = `
-  MATCH (${meta.nodeName}:${meta.labelName})
-  WHERE ${meta.nodeName}.id = $photographId
-  RETURN ${meta.nodeName}
-`;
-const result = await this.neo4jService.run(query, { photographId });
-```
+- **Meta file** — `src/features/<domain>/<entity>/entities/<entity>.meta.ts`
+- **Entity + Descriptor** — `src/features/<domain>/<entity>/entities/<entity>.ts`
+- **Repository queries** — `src/features/<domain>/<entity>/<entity>.repository.ts`
 
 ## Testing
 
 ```bash
-# Run API tests
 pnpm --filter {{name}}-api test
-
-# Run E2E tests
 pnpm --filter {{name}}-api test:e2e
-
-# Run with coverage
-pnpm --filter {{name}}-api test:coverage
 ```
+
+## RBAC
+
+Declarative matrix at `src/rbac/permissions.ts` is the source of truth. The
+worker reconciler reads it on bootstrap and applies any drift to Neo4j in
+one transaction. The api process does NOT reconcile.
+
+**Bootstrap a new environment / capture manual DB edits:**
+
+```bash
+pnpm --filter {{name}}-api rbac:dump
+```
+
+This is the ONLY way to (re)generate `src/rbac/permissions.ts` from live
+DB state. It is developer-only; never expose as an HTTP endpoint or wire
+into a deploy step. Full guide:
+[`packages/nestjs-neo4jsonapi/docs/rbac-bootstrap.md`](../../packages/nestjs-neo4jsonapi/docs/rbac-bootstrap.md).
 
 ## Common Mistakes
 
-| Mistake | Correct Approach |
-|---------|------------------|
-| Returning raw Neo4j records | Use `readOne()` / `readMany()` to deserialize |
-| Manual company filtering | Use `buildDefaultMatch()` - filtering is automatic |
-| Hardcoded pagination | Use `{CURSOR}` placeholder in queries |
-| String interpolation in Cypher | Use parameterized queries with `$paramName` |
-| Bypassing AbstractService | Always extend and use inherited methods |
-| Missing relationship definitions | Define ALL relationships in EntityDescriptor |
+| Mistake                                             | Correct Approach                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Returning raw Neo4j records                         | Use `readOne()` / `readMany()` to deserialize                                                                                                                                                                                                                                                                                                                                                                                          |
+| Manual company filtering                            | Use `buildDefaultMatch()` - filtering is automatic                                                                                                                                                                                                                                                                                                                                                                                     |
+| Hardcoded pagination                                | Use `{CURSOR}` placeholder in queries                                                                                                                                                                                                                                                                                                                                                                                                  |
+| String interpolation in Cypher                      | Use parameterized queries with `$paramName`                                                                                                                                                                                                                                                                                                                                                                                            |
+| Bypassing AbstractService                           | Always extend and use inherited methods                                                                                                                                                                                                                                                                                                                                                                                                |
+| Missing relationship definitions                    | Define ALL relationships in EntityDescriptor                                                                                                                                                                                                                                                                                                                                                                                           |
+| Storing dates as strings in Neo4j                   | All date fields MUST be native Neo4j `Date`/`DateTime` types. Entity descriptors use `type: "date"` or `type: "datetime"`. Write path uses `date(left($value, 10))` or `datetime($value)`. Read path (`convertNeo4jDate`) returns `YYYY-MM-DD` strings only for JSON serialization — storage stays native.                                                                                                                             |
+| `PATCH /users/:userId` for general updates          | PATCH is mapped exclusively to `reactivateUser` and ignores the body. `PUT /users/:userId` replaces ALL fields — partial payloads wipe data. Always send the full user state.                                                                                                                                                                                                                                                          |
+| Side-effect hooks in `AbstractService` or event bus | Never add framework-level hooks (AbstractService, `@nestjs/event-emitter`) for embeddings, notifications, indexing, or downstream work. Each entity service that needs a side effect calls it explicitly in its own `create`/`put`/`patch` override. Default to synchronous in-line calls; use BullMQ only for genuinely long-running jobs. Shared side effects go in a helper service the entity services call — not an auto-trigger. |

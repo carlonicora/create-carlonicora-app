@@ -1,15 +1,21 @@
 import { FeatureIds } from "@/enums/feature.ids";
 import {
+  AssistantMessageModule,
+  AssistantModule,
+  AuditLogModule,
   AuthModule,
   AuthorModule,
   BackupCodeVerifyModule,
   BillingModule,
+  ChunkModule,
   CompanyModule,
   ContentModule,
   DataClassRegistry,
   FeatureModule,
   FieldSelector,
+  HowToModule,
   ModuleModule,
+  ModulePathsModule,
   ModuleRegistry,
   ModuleWithPermissions,
   NotificationModule,
@@ -20,7 +26,9 @@ import {
   PasskeyRenameModule,
   PasskeyVerifyLoginModule,
   PasskeyAuthenticationOptionsModule,
+  PermissionMappingModule,
   PushModule,
+  RbacMatrixModule,
   RoleModule,
   S3Module,
   setBootstrapper,
@@ -47,6 +55,8 @@ import { LucideIcon } from "lucide-react";
 
 // Feature module imports
 
+import { SearchModule } from "@/features/essentials/search/SearchModule";
+
 const moduleFactory = (params: {
   pageUrl?: string;
   name: string;
@@ -55,27 +65,38 @@ const moduleFactory = (params: {
   feature?: FeatureIds;
   moduleId?: string;
   icon?: LucideIcon;
+  identifier?: string[];
   inclusions?: Record<string, { types?: string[]; fields?: FieldSelector<any>[] }>;
-}): ModuleWithPermissions => ({
-  pageUrl: params.pageUrl,
-  name: params.name,
-  model: params.model,
-  feature: params.feature,
-  moduleId: params.moduleId,
-  cache: params.cache,
-  icon: params.icon,
-  inclusions: params.inclusions ?? {},
-});
+}): ModuleWithPermissions => {
+  if (params.model) {
+    params.model.identifierFields = params.identifier ?? ["name"];
+  }
+
+  return {
+    pageUrl: params.pageUrl,
+    name: params.name,
+    model: params.model,
+    feature: params.feature,
+    moduleId: params.moduleId,
+    cache: params.cache,
+    icon: params.icon,
+    inclusions: params.inclusions ?? {},
+  };
+};
 
 // SINGLE SOURCE OF TRUTH: Define ALL modules ONCE as object
 // TypeScript infers types from this object
 const allModules = {
   // Foundation modules (types defined in library, code in app except S3)
+  AuditLog: AuditLogModule(moduleFactory),
   Auth: AuthModule(moduleFactory),
   Company: CompanyModule(moduleFactory),
   Feature: FeatureModule(moduleFactory),
   Module: ModuleModule(moduleFactory),
+  ModulePaths: ModulePathsModule(moduleFactory),
   Notification: NotificationModule(moduleFactory),
+  PermissionMapping: PermissionMappingModule(moduleFactory),
+  RbacMatrix: RbacMatrixModule(moduleFactory),
   Push: PushModule(moduleFactory),
   Role: RoleModule(moduleFactory),
   S3: S3Module(moduleFactory),
@@ -112,6 +133,14 @@ const allModules = {
   TwoFactorChallenge: TwoFactorChallengeModule(moduleFactory),
   TwoFactorStatus: TwoFactorStatusModule(moduleFactory),
   BackupCodeVerify: BackupCodeVerifyModule(moduleFactory),
+  // Search module
+  Search: SearchModule(moduleFactory),
+  // How-to module
+  HowTo: HowToModule(moduleFactory),
+  // Assistant modules
+  Assistant: AssistantModule(moduleFactory),
+  AssistantMessage: AssistantMessageModule(moduleFactory),
+  Chunk: ChunkModule(moduleFactory),
 } satisfies Record<string, ModuleWithPermissions>;
 
 // Export type derived from the object - NO DUPLICATION

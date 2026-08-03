@@ -102,8 +102,7 @@ class IntersectionObserverMock {
   disconnect = vi.fn();
   takeRecords = vi.fn(() => []);
 }
-global.IntersectionObserver =
-  IntersectionObserverMock as unknown as typeof IntersectionObserver;
+global.IntersectionObserver = IntersectionObserverMock as unknown as typeof IntersectionObserver;
 
 // Mock scrollTo
 window.scrollTo = vi.fn();

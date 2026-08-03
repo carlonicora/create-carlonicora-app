@@ -64,8 +64,8 @@ export async function copyTemplate(
 
   for (const entry of entries) {
     const srcPath = path.join(srcDir, entry.name);
-    // Rename dotfiles back to their proper names
-    const destName = DOTFILE_RENAMES[entry.name] || entry.name;
+    // Rename dotfiles back to their proper names, then apply project-name substitution
+    const destName = applyReplacements(DOTFILE_RENAMES[entry.name] || entry.name, config);
     const destPath = path.join(destDir, destName);
 
     if (entry.isDirectory()) {

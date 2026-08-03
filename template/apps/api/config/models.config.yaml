@@ -1,0 +1,40 @@
+# ML Model Configuration
+# Single source of truth for all ML models used by apps/api.
+#
+# This ships EMPTY by default — no models are downloaded or loaded. To enable
+# ONNX (native CPU inference via onnxruntime-node) or Transformers.js models,
+# add entries to the lists below.
+#
+# Loading is opt-in: a model is only fetched/loaded when your app wires up the
+# model-manager (OnnxRuntimeModule / ModelManagerModule from
+# @carlonicora/nestjs-neo4jsonapi). Until then this file is just a placeholder.
+#
+# Each ONNX file is fetched from
+#   https://huggingface.co/<modelId>/resolve/main/<path>
+# and integrity-checked against the literal `hash` below.
+#
+# Resolution:
+#   - config path: MODEL_CONFIG_PATH env, else <cwd>/config/models.config.yaml
+#   - model cache: MODELS_CACHE_DIR env, else <cwd>/.cache/models
+#   - Worker mode loads ALL models; API mode loads only entries with loadInApi: true.
+
+version: "1.0.0"
+
+registry:
+  # ONNX Runtime models — native CPU inference via onnxruntime-node.
+  # Example entry (uncomment and adapt):
+  #
+  # onnx:
+  #   - name: my-model                       # unique id used to fetch the session
+  #     modelId: <hf-namespace>/<hf-repo>     # Hugging Face repo
+  #     path: my-model.onnx                   # file path within the repo
+  #     version: "1.0.0"
+  #     hash: sha256:<sha256-of-the-file>     # integrity check (required)
+  #     priority: 1                           # lower loads first
+  #     optional: true                        # download/load failure must not crash
+  #     loadInApi: false                      # also load in API mode (worker always loads)
+  #     description: "What this model does"
+  onnx: []
+
+  # Transformers.js models.
+  transformers: []

@@ -16,6 +16,6 @@ export function useOnboardingLabels(): OnboardingLabels {
       close: t("tour.close"),
       stepCounter: (current, total) => t("tour.step_counter", { current, total }),
     }),
-    [t]
+    [t],
   );
 }

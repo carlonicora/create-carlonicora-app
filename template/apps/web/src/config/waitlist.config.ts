@@ -3,8 +3,7 @@ import { configureWaitlist } from "@carlonicora/nextjs-jsonapi";
 configureWaitlist({
   heroTitle: "Join the {{name}} Waitlist",
   heroSubtitle: "Be among the first to experience our platform",
-  heroDescription:
-    "Get early access and exclusive benefits when you join our waitlist.",
+  heroDescription: "Get early access and exclusive benefits when you join our waitlist.",
   benefits: [
     "Early access to all features",
     "Exclusive early bird pricing",

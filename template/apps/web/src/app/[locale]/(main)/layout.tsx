@@ -1,11 +1,16 @@
+import "@carlonicora/nextjs-jsonapi/contexts/styles.css";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import "react-horizontal-scrolling-menu/dist/styles.css";
-import "@carlonicora/nextjs-jsonapi/contexts/styles.css";
 
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
 import { TrialBlockingWrapper } from "@/features/common/components/wrappers/TrialBlockingWrapper";
 import { OnboardingProviderWrapper } from "@/features/onboarding";
-import { AuthContainer, PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
+import {
+  AuthContainer,
+  PushNotificationProvider,
+  RefreshUser,
+  SidebarProvider,
+} from "@carlonicora/nextjs-jsonapi/components";
 import { CurrentUserProvider, NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
 import { cookies } from "next/headers";
@@ -19,9 +24,11 @@ export default async function MainLayout(props: { children: React.ReactNode; par
 
   if (!(await ServerSession.isLogged()))
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center">
-        <AuthContainer componentType={AuthComponent.Landing} />
-      </div>
+      <CurrentUserProvider>
+        <div className="flex min-h-screen w-full flex-col items-center justify-center">
+          <AuthContainer componentType={AuthComponent.Landing} />
+        </div>
+      </CurrentUserProvider>
     );
 
   // if (await ServerSession.isLicenseActive())

@@ -1,4 +1,5 @@
 {
+    "search.useIgnoreFiles": false,
     "i18n-ally.localesPaths": [
         "apps/web/messages",
         "packages/nextjs-jsonapi/src/i18n",

@@ -1,19 +1,19 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
-import { Check, Copy, CheckCircle } from "lucide-react";
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Button,
   Input,
   Label,
 } from "@carlonicora/nextjs-jsonapi/components";
+import { Check, CheckCircle, Copy } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useState } from "react";
 
 /**
  * OAuth Success Page
@@ -55,54 +55,36 @@ export default function OAuthSuccessPage() {
   }, [code]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-muted/30">
+    <div className="bg-muted/30 flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
             <CheckCircle className="h-6 w-6 text-green-600" />
           </div>
           <CardTitle className="text-2xl">{t("oauth.success.title")}</CardTitle>
-          <CardDescription>
-            {t("oauth.success.description")}
-          </CardDescription>
+          <CardDescription>{t("oauth.success.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="code">{t("oauth.success.code_label")}</Label>
             <div className="flex gap-2">
-              <Input
-                id="code"
-                value={code}
-                readOnly
-                className="font-mono text-sm"
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleCopy}
-                title="Copy to clipboard"
-              >
-                {copied ? (
-                  <Check className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
+              <Input id="code" value={code} readOnly className="font-mono text-sm" />
+              <Button variant="outline" size="icon" onClick={handleCopy} title="Copy to clipboard">
+                {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
           </div>
 
-          <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-            <p className="font-medium mb-2">{t("oauth.success.instructions")}</p>
-            <ol className="list-decimal list-inside space-y-1">
+          <div className="bg-muted/50 text-muted-foreground rounded-lg p-4 text-sm">
+            <p className="mb-2 font-medium">{t("oauth.success.instructions")}</p>
+            <ol className="list-inside list-decimal space-y-1">
               <li>{t("oauth.success.step_copy")}</li>
               <li>{t("oauth.success.step_return")}</li>
               <li>{t("oauth.success.step_paste")}</li>
             </ol>
           </div>
 
-          <p className="text-xs text-center text-muted-foreground">
-            {t("oauth.success.expiry_note")}
-          </p>
+          <p className="text-muted-foreground text-center text-xs">{t("oauth.success.expiry_note")}</p>
         </CardContent>
       </Card>
     </div>

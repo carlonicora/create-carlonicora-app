@@ -1,17 +1,10 @@
 # Frontend (Next.js) - CLAUDE.md
 
-This file provides guidance specific to the Web frontend. See also the [root CLAUDE.md](../../CLAUDE.md) for general project rules.
+> **Architecture rules:** invoke the `{{name}}-architecture` skill before
+> editing files under `src/features/`. The skill's routing table directs
+> you to the right reference for the file you are editing.
 
-## Architecture Documentation
-
-| Task | Read |
-|------|------|
-| Core principles | [docs/architecture/00-core-principles.md](../../docs/architecture/00-core-principles.md) |
-| Models | [docs/architecture/frontend/01-models.md](../../docs/architecture/frontend/01-models.md) |
-| Interfaces | [docs/architecture/frontend/02-interfaces.md](../../docs/architecture/frontend/02-interfaces.md) |
-| Services | [docs/architecture/frontend/03-services.md](../../docs/architecture/frontend/03-services.md) |
-| Template | [docs/architecture/frontend/template.md](../../docs/architecture/frontend/template.md) |
-| Anti-patterns | [docs/architecture/anti-patterns.md](../../docs/architecture/anti-patterns.md) |
+See [root CLAUDE.md](../../CLAUDE.md) for monorepo structure and the architecture skill pointer.
 
 ## Core Rules
 
@@ -39,92 +32,22 @@ src/features/{domain}/
     └── {Entity}.spec.tsx     # Component tests
 ```
 
-## Key Patterns
+## Key Patterns (by example)
 
-### Model Pattern
-```typescript
-export class Photograph extends AbstractApiData {
-  title: string = "";
-  createdAt: Date = new Date();
+Consult the `{{name}}-architecture` skill's reference docs under
+`.claude/skills/{{name}}-architecture/references/frontend/` for canonical
+examples of:
 
-  static rehydrate(data: PhotographInterface): Photograph {
-    const photo = new Photograph();
-    photo.id = data.id;
-    photo.title = data.title;
-    photo.createdAt = new Date(data.createdAt);
-    return photo;
-  }
-
-  createJsonApi(): JsonApiData {
-    return {
-      type: "photographs",
-      id: this.id,
-      attributes: {
-        title: this.title,
-      },
-    };
-  }
-}
-```
-
-### Service Pattern
-```typescript
-export class PhotographService extends AbstractService<Photograph> {
-  async findByRoll(rollId: string): Promise<Photograph[]> {
-    const response = await this.callApi({
-      type: Modules.Photograph,
-      endpoint: EndpointCreator.index({ parentType: "rolls", parentId: rollId }),
-    });
-    return response.data.map(Photograph.rehydrate);
-  }
-}
-```
-
-### ModuleFactory Pattern
-```typescript
-export const PhotographModule = (factory: ModuleFactory) =>
-  factory({
-    pageUrl: "/photographs",
-    name: "photographs",
-    model: Photograph,
-    moduleId: "photograph-module",
-    inclusions: {
-      roll: RollModule,
-      metadata: MetadataModule,
-    },
-  });
-```
-
-### Container/Component Pattern
-```typescript
-// Container: handles data
-export const PhotographListContainer = ({ rollId }: Props) => {
-  const [photographs, setPhotographs] = useState<Photograph[]>([]);
-
-  useEffect(() => {
-    photographService.findByRoll(rollId).then(setPhotographs);
-  }, [rollId]);
-
-  return <PhotographList photographs={photographs} />;
-};
-
-// Component: pure render
-export const PhotographList = ({ photographs }: { photographs: Photograph[] }) => (
-  <div>{photographs.map(p => <PhotographCard key={p.id} photo={p} />)}</div>
-);
-```
+- **Model class** — `src/features/<domain>/<entity>/data/<Entity>.ts`
+- **Service** — `src/features/<domain>/<entity>/data/<Entity>Service.ts`
+- **ModuleFactory** — `src/features/<domain>/<entity>/<Entity>Module.ts`
+- **Container** — `src/features/<domain>/<entity>/components/containers/<Entity>Container.tsx`
 
 ## Testing
 
 ```bash
-# Run web tests
 pnpm --filter {{name}}-web test
-
-# Run with coverage
 pnpm --filter {{name}}-web test:coverage
-
-# Run in watch mode
-pnpm --filter {{name}}-web test:watch
 ```
 
 ### Testing Utilities
@@ -136,28 +59,23 @@ import {
   createMockApiData,
   screen,
 } from "@carlonicora/nextjs-jsonapi/testing";
-
-// Create mock data
-const mockPhoto = createMockApiData({
-  type: "photographs",
-  id: "123",
-  attributes: { title: "Test Photo" },
-});
-
-// Render with providers
-renderWithProviders(<PhotographCard photo={mockPhoto} />);
-
-// Assert
-expect(screen.getByText("Test Photo")).toBeInTheDocument();
 ```
 
 ## Common Mistakes
 
-| Mistake | Correct Approach |
-|---------|------------------|
-| Using `fetch()` directly | Use `callApi()` from service |
+| Mistake                                         | Correct Approach                               |
+| ----------------------------------------------- | ---------------------------------------------- |
+| Using `fetch()` directly                        | Use `callApi()` from service                   |
 | `overridesJsonApiCreation: true` without method | Implement dedicated `createJsonApi()` in model |
-| Missing `type: Modules.Entity` in service calls | Always specify the module type |
-| State in presentational components | Move state to containers or atoms |
-| Hardcoded strings | Use `useTranslations()` for i18n |
-| Missing `rehydrate()` | All models must implement static `rehydrate()` |
+| Missing `type: Modules.Entity` in service calls | Always specify the module type                 |
+| State in presentational components              | Move state to containers or atoms              |
+| Hardcoded strings                               | Use `useTranslations()` for i18n               |
+| Missing `rehydrate()`                           | All models must implement static `rehydrate()` |
+| Raw `<input>`, `<select>`, `<button>`           | Use components from `@carlonicora/nextjs-jsonapi/components` (Select, Button, FormInput, AlertDialog, Dialog, UserAvatar, Badge…). Raw inputs render as invisible/unstyled text. |
+| `asChild` prop on triggers                      | Project uses BaseUI (not Radix) — `asChild` does not exist. Nest children directly, or use the `render` prop for composition. |
+| Duplicating components that already exist       | Grep `apps/web/src` and `packages/nextjs-jsonapi/src` for existing components before writing new ones. Reuse with props. |
+| Modifying shared/foundation components (`apps/web/src/foundations/`, `packages/`) | Never edit foundation components for a single feature. Duplicate into `features/<domain>/components/` and update the route. |
+| `z.number()` for currency fields                | `FormInput type="currency"` operates on strings. Use `z.coerce.string()` in the Zod schema, then parse via `parseCurrencyInput()` / `centsToInputValue()` in submit. |
+| Raw JS `Date` in JSON:API date-only payloads    | Import `formatLocalDate` from `@carlonicora/nextjs-jsonapi/core` and emit `YYYY-MM-DD` (e.g. `response.data.attributes.date = formatLocalDate(data.date)`). Otherwise `JSON.stringify()` UTC-shifts the value. Never re-implement inline — the helper is shared. |
+| Resolving `Modules[name]` at import time        | The `Modules` Proxy registry is populated during app init, after imports. Store the module name as a string and resolve lazily inside `useMemo` or a render-time function. |
+| Partial User PUT payload                        | `PUT /users/:userId` replaces ALL fields; missing fields get wiped. `PATCH /users/:userId` is bound to `reactivateUser` and ignores the body. Always spread full current user state. |

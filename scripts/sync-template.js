@@ -134,6 +134,10 @@ const PROTECTED_PATHS = [
   'package.json', 'apps/api/package.json', 'apps/web/package.json', 'packages/shared/package.json',
   'pnpm-workspace.yaml', 'env.example', 'scripts/update.sh',
   'docker-compose.yml', 'docker-compose.api.yml', 'docker-compose.web.yml', 'docker-compose.worker.yml',
+  // hand-maintained: api-production runs on a glibc base (node:22-bookworm-slim)
+  // so onnxruntime-node / model-manager works out of the box. neural-erp's
+  // Dockerfile is Alpine, so a sync must NOT overwrite this.
+  'Dockerfile',
   'CLAUDE.md', 'AGENTS.md', 'apps/api/CLAUDE.md', 'apps/web/CLAUDE.md', 'packages/shared/CLAUDE.md',
   // LIFT-AS-STUB
   'apps/web/src/features/common/components/containers/AdminIndexContainer.tsx',

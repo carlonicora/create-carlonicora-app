@@ -1,3 +1,50 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+
+overrides:
+  react: 19.2.4
+  react-dom: 19.2.4
+  '@types/react': 19.2.7
+  '@types/react-dom': 19.2.3
+  class-validator: ^0.14.3
+  typescript: ^5.9.3
+  '@nestjs/common': ^11.1.13
+  '@nestjs/config': ^4.0.3
+  '@nestjs/core': ^11.1.13
+  '@nestjs/platform-fastify': ^11.1.13
+  '@nestjs/platform-socket.io': ^11.1.13
+  '@nestjs/websockets': ^11.1.13
+  yjs: ^13.6.27
+  validator: '>=13.15.20'
+  sharp: ^0.33.5
+  jotai: ^2.17.1
+
+ignoredBuiltDependencies:
+  - '@tensorflow/tfjs-node'
+  - canvas
+  - core-js
+
+peerDependencyRules:
+  allowAny:
+    - '@nestjs/*'
+    - reflect-metadata
+    - discord-api-types
+
+allowBuilds:
+  '@nestjs/core': true
+  '@parcel/watcher': true
+  '@scarf/scarf': true
+  '@swc/core': true
+  bcrypt: true
+  cpu-features: true
+  esbuild: true
+  msgpackr-extract: true
+  msw: true
+  necord: true
+  onnxruntime-node: true
+  protobufjs: true
+  sharp: true
+  ssh2: true
+  tesseract.js: true
+  unrs-resolver: true

@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
 import {
   Button,
   Dialog,
@@ -13,6 +10,9 @@ import {
   DialogTitle,
   Input,
 } from "@carlonicora/nextjs-jsonapi/components";
+import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 interface DeleteAccountDialogProps {
   open: boolean;
@@ -54,11 +54,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
           <p className="text-muted-foreground mb-2 text-sm">
             {t("delete_confirmation_prompt", { companyName: company?.name })}
           </p>
-          <Input
-            value={confirmation}
-            onChange={(e) => setConfirmation(e.target.value)}
-            placeholder={company?.name}
-          />
+          <Input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={company?.name} />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

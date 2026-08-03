@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -37,7 +37,8 @@ export function usePWA(): UsePWAReturn {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
+    const isIOSDevice =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
     setIsIOS(isIOSDevice);
   }, []);
 
@@ -45,8 +46,9 @@ export function usePWA(): UsePWAReturn {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const standalone = window.matchMedia("(display-mode: standalone)").matches
-      || (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
     setIsStandalone(standalone);
     setIsInstalled(standalone);
   }, []);
@@ -55,7 +57,10 @@ export function usePWA(): UsePWAReturn {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    setIsOnline(navigator.onLine);
+    // Don't use navigator.onLine for initial state — it can return false
+    // even when the network is working (e.g. dev server with HMR connected).
+    // The useState default (true) is the safe initial value. Only the
+    // online/offline events should change the state.
 
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);

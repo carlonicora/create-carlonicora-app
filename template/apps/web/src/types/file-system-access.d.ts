@@ -15,7 +15,13 @@ interface FileSystemCreateWritableOptions {
 }
 
 interface FileSystemWritableFileStream extends WritableStream {
-  write(data: BufferSource | Blob | string | { type: "write" | "seek" | "truncate"; data?: BufferSource | Blob | string; position?: number; size?: number }): Promise<void>;
+  write(
+    data:
+      | BufferSource
+      | Blob
+      | string
+      | { type: "write" | "seek" | "truncate"; data?: BufferSource | Blob | string; position?: number; size?: number },
+  ): Promise<void>;
   seek(position: number): Promise<void>;
   truncate(size: number): Promise<void>;
 }
@@ -35,8 +41,14 @@ interface FileSystemFileHandle {
 
 declare global {
   interface Window {
-    showOpenFilePicker?: (options?: { multiple?: boolean; types?: Array<{ description?: string; accept: Record<string, string[]> }> }) => Promise<FileSystemFileHandle[]>;
-    showSaveFilePicker?: (options?: { suggestedName?: string; types?: Array<{ description?: string; accept: Record<string, string[]> }> }) => Promise<FileSystemFileHandle>;
+    showOpenFilePicker?: (options?: {
+      multiple?: boolean;
+      types?: Array<{ description?: string; accept: Record<string, string[]> }>;
+    }) => Promise<FileSystemFileHandle[]>;
+    showSaveFilePicker?: (options?: {
+      suggestedName?: string;
+      types?: Array<{ description?: string; accept: Record<string, string[]> }>;
+    }) => Promise<FileSystemFileHandle>;
     showDirectoryPicker?: (options?: DirectoryPickerOptions) => Promise<FileSystemDirectoryHandle>;
   }
 }

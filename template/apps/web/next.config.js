@@ -30,6 +30,7 @@ const nextConfig = {
       bodySizeLimit: "5mb",
     },
   },
+  allowedDevOrigins: ['{{name}}.test'],
   pageExtensions: ["ts", "tsx", "mdx"],
   images: {
     minimumCacheTTL: 60,
@@ -134,7 +135,7 @@ const nextConfig = {
           // Permissions-Policy - restricts browser features
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            value: "camera=(self), microphone=(), geolocation=()",
           },
         ],
       },
