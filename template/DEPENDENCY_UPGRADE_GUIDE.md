@@ -10,9 +10,17 @@
 > headers mark places where you MUST stop and ask the user via the
 > `AskUserQuestion` tool — do not proceed unilaterally past them.
 >
-> Last refined: 2026-05-13, based on the narr8 monorepo upgrade. Each
+> Last refined: 2026-08-09, based on the narr8 monorepo upgrade. Each
 > recommendation is paired with the concrete failure mode that taught us
 > the lesson; read those failure modes before deviating.
+
+> **2026-08-09 governance update:** shared versions live once in the
+> `catalog:` block of `pnpm-workspace.yaml`; `autoInstallPeers` is off (a
+> missing peer is a loud install problem, not a silent second copy); and
+> `scripts/check-dep-drift.js` runs inside `pnpm lint` to enforce all of the
+> invariants this guide describes — including that no override undercuts a
+> declared floor. If the drift check fails, fix the drift; do not weaken the
+> check.
 
 ---
 
@@ -209,7 +217,10 @@ ls node_modules/.pnpm | grep -E "^@nestjs\+(common|core)@" | sort -u
 If you see more than one variant of the SAME version, you have a peer
 fingerprint conflict.
 
-**Pin in:** `pnpm-workspace.yaml` overrides: `class-validator: ^0.14.3`.
+**Pin in:** `pnpm-workspace.yaml` overrides — and match whatever range the
+submodule currently declares (read `packages/nestjs-neo4jsonapi/package.json`;
+do NOT trust any version number written in this guide). The invariant is
+lockstep with the submodule, not a specific version.
 
 ### 3.4 `class-transformer`, `rxjs`, `reflect-metadata`
 
@@ -248,14 +259,10 @@ readlink packages/nextjs-jsonapi/node_modules/react
 # Both should point to the same .pnpm directory.
 ```
 
-**Pin in:** `pnpm-workspace.yaml` overrides — exact versions:
-```yaml
-react: 19.2.4
-react-dom: 19.2.4
-```
-
-(Substitute whatever exact version is in the library's
-`package.json` dependencies. Use exact, not caret.)
+**Pin ONCE in the `catalog:` block of `pnpm-workspace.yaml`** (exact version,
+not caret), and have both `apps/web` and the `overrides:` block reference it
+as `'catalog:'`. One catalog entry then moves the declared range and the
+forced resolution together, so they cannot drift apart.
 
 ### 3.6 `@types/react`, `@types/react-dom`
 
@@ -266,17 +273,25 @@ Same reasoning. The library and app must see the same types. Pin in
 
 All NestJS packages must stay on the same minor as
 `nestjs-neo4jsonapi`'s peer. Mismatched `@nestjs/core` ↔ `@nestjs/common`
-also breaks DI. Pin in `pnpm-workspace.yaml` overrides:
+also breaks DI. The versions live ONCE in the `catalog:` block of `pnpm-workspace.yaml`
+(kept equal to the submodule's peer floors), and both `apps/api` and the
+`overrides:` block reference them as `'catalog:'`:
 ```yaml
-'@nestjs/common': ^11.1.13
-'@nestjs/config': ^4.0.3
-'@nestjs/core': ^11.1.13
-'@nestjs/platform-fastify': ^11.1.13
-'@nestjs/platform-socket.io': ^11.1.13
-'@nestjs/websockets': ^11.1.13
+catalog:
+  '@nestjs/common': ^11.1.28   # = the submodule's current peer floor
+  # ...core, config, platform-fastify, platform-socket.io, websockets
+overrides:
+  '@nestjs/common': 'catalog:'
+  # ...same for the other five
 ```
-Adjust the exact range to match whatever the submodule's
-`peerDependencies` block declares.
+CRITICAL: a pnpm override REPLACES every declared range — it does not
+intersect. An override carrying a literal that is lower than what the
+manifests declare silently resolves BELOW the declared floor with no peer
+warning. That is why these overrides must reference the catalog instead of
+repeating literals, and why `scripts/check-dep-drift.js` (which runs inside
+`pnpm lint`) checks every override directionally against every declared
+range. When the submodule raises its peer floors, bump the catalog entry —
+the drift check will refuse to pass until you do.
 
 ### 3.8 Anything else listed as `dependencies` in either submodule
 

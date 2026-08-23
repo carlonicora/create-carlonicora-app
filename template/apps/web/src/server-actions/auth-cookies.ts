@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import pako from "pako";
+import { gzip } from "pako";
 
 export async function updateToken(params: {
   token?: string;
@@ -82,7 +82,7 @@ export async function updateToken(params: {
     });
 
   if (params.modules) {
-    const compressedValue = Buffer.from(pako.gzip(JSON.stringify(params.modules))).toString("base64");
+    const compressedValue = Buffer.from(gzip(JSON.stringify(params.modules))).toString("base64");
 
     (await cookies()).set({
       name: "modules",

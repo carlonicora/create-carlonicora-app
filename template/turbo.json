@@ -2,7 +2,11 @@
   "$schema": "https://turbo.build/schema.json",
   "cacheMaxAge": "7d",
   "cacheMaxSize": "10GB",
-  "globalDependencies": ["**/.env.*local", ".env", ".env.e2e"],
+  "globalDependencies": [
+    "**/.env.*local",
+    ".env",
+    ".env.e2e"
+  ],
   "globalEnv": [
     "NODE_ENV",
     "PORT",
@@ -12,8 +16,15 @@
   ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "!.next/dev/**"
+      ],
       "env": [
         "NODE_ENV",
         "NEXT_PUBLIC_*"
@@ -22,20 +33,28 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dev:worker": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "start": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": false,
       "persistent": true
     },
     "start:prod": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": false,
       "persistent": true
     },
@@ -44,9 +63,13 @@
       "persistent": true
     },
     "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
-      "env": ["NODE_ENV"],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [],
+      "env": [
+        "NODE_ENV"
+      ],
       "cache": true
     },
     "test:watch": {
@@ -54,14 +77,25 @@
       "persistent": true
     },
     "test:e2e": {
-      "dependsOn": ["build"],
-      "env": ["NODE_ENV", "PORT"],
+      "dependsOn": [
+        "build"
+      ],
+      "env": [
+        "NODE_ENV",
+        "PORT"
+      ],
       "cache": false
     },
     "test:cov": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
-      "env": ["NODE_ENV"],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "env": [
+        "NODE_ENV"
+      ],
       "cache": true
     },
     "lint": {
@@ -76,13 +110,24 @@
       "cache": false
     },
     "typecheck": {
-      "dependsOn": ["^build"],
-      "outputs": ["*.tsbuildinfo"],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "*.tsbuildinfo"
+      ],
       "cache": true
     },
     "{{name}}-web#build": {
-      "dependsOn": ["^build", "@carlonicora/nextjs-jsonapi#build"],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
+      "dependsOn": [
+        "^build",
+        "@carlonicora/nextjs-jsonapi#build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "!.next/dev/**"
+      ],
       "env": [
         "NODE_ENV",
         "NEXT_PUBLIC_*"

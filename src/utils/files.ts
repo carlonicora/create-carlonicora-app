@@ -53,6 +53,7 @@ const DOTFILE_RENAMES: Record<string, string> = {
   releaserc: '.releaserc',
   swcrc: '.swcrc',
   'env.example': '.env.example',
+  'pnpmfile.cjs': '.pnpmfile.cjs',
 };
 
 export async function copyTemplate(
