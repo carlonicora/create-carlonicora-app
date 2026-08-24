@@ -313,3 +313,78 @@ the user's call, and nothing here should modify or discard it.
 | Integrity checks give false positives and get ignored | the three known-fragile checks have explicit requirements in `references/integrity.md`, derived from real false positives hit during the audit |
 | Verification gate skipped under time pressure | it lives inside the same skill as the merge, not a separate one |
 | `en.json` keeps accumulating neural-erp business copy | out of scope here; check 3 makes the *required* set explicit, so a later trim is safe |
+
+---
+
+## Amendment — 2026-08-24: Phase 4 scope, decided against the real drift report
+
+Phase 4 above was written from a manual audit. `compare-template` v2 has since run against
+both targets (450 paths: 53 DIVERGED · 53 TARGET_AHEAD · 196 TARGET_ONLY · 73 TEMPLATE_ONLY ·
+27 NEVER_ADOPT · 48 ALIGNED). The report **validated** every Phase 4 item, and surfaced three
+areas the audit missed. This amendment records what changed and the decisions taken.
+
+### 1. Most of `TARGET_ONLY` is configuration, not judgement
+
+81 of the 196 rows are not adoption decisions at all — they are missing ignore entries:
+27 `apps/web/public/` brand assets, 34 e2e specs, 8 `playwright-cli` skill files, 5 script
+fixtures, 3 target-local `.claude/` files, 4 pieces of junk (`CLAUDE_OLD.md`,
+`validate-post-tmp.ts`, a stray `jest.config.js`, `tsconfig.scripts.json`).
+
+**Decision:** tighten `template.sources.json` FIRST. Triage reads as noise until the list is
+down to the ~115 genuine candidates. Precedent: B1's switch to `git ls-files` removed 54 junk
+rows without adding a single ignore entry.
+
+### 2. The settings migration is a MOVE the tool cannot see
+
+`(features)/settings/*` appears as 6 `TEMPLATE_ONLY` rows and wyrdli's `(foundations)/settings/*`
+as `TARGET_ONLY`. The tool compares paths, so it sees a delete plus an add. Only a human sees
+one move. Same for the i18n work: `apps/web/messages/en.json` is a SINGLE `DIVERGED` row that
+stands for ~142 keys, and is a merge rather than an adoption.
+
+**Decision:** structural changes are designed as tasks, not driven row-by-row.
+
+### 3. Four product decisions
+
+- **HowTo admin UI — ADOPT** from neural-erp (`administration/howtos/{page,[id]/page}.tsx`).
+  This reverses the retired sync script's exclusion, which labelled them "project-specific".
+  They are not: both are thin route shells over the library's `HowToListContainer`,
+  `HowToContainer` and `HowToProvider`, with zero imports from neural-erp's own features. The
+  template already registers `HowToModule` and ships four public `(public-help)/help/*` reader
+  pages, so without these it ships a reader with no way to author what it reads.
+- **`playwright-cli` skill — ADOPT** all 8 files from neural-erp.
+- **Locales — `en` only.** `it.json` goes on the ignore list.
+- **e2e infrastructure — inherit the STRUCTURE AND LOGIC of `~/Development/a360ai`, not its
+  tests.** See below. a360ai is a ONE-TIME DONOR, not a fourth target in
+  `template.sources.json`; adding it later is a single config entry.
+
+### 4. e2e harness — new scope, not present in Phase 4 as first written
+
+a360ai's harness is the mature one in this family, and every non-obvious decision in it encodes
+a real failure. What the template inherits is the design, generalized:
+
+- **`scripts/e2e.sh`** — recreate test DBs empty, boot the stack on dedicated ports, wait,
+  run Playwright, tear down. Args forward to `playwright test` for scoped runs.
+- **Boot order: worker ALONE first, then api and web.** The worker owns the migrator, and both
+  it and the api create indexes with a check-then-create (TOCTOU) pattern in `onModuleInit`. Boot
+  them together against a fresh database and both see no index, both create it, and one crashes
+  with "An equivalent index already exists".
+- **Distinct BullMQ queue prefixes.** Redis is a single shared instance across this machine's
+  projects. Without distinct prefixes the e2e worker and the dev worker consume the SAME queues —
+  a job enqueued by one is executed by the other against the other stack's database.
+- **Web runs a PRODUCTION build, never `next dev`.** Under dev each route cold-compiles on first
+  hit (15-110s), so a suite takes 45+ minutes and flakes on compile timeouts.
+- **`E2E_BUILD=true` → `distDir: ".next-e2e"`.** The e2e build must never touch the dev server's
+  `.next`; sharing it makes a running `next dev` 404 every route.
+- **`E2E_INSECURE_COOKIES=true`** so auth cookies survive plain http under `NODE_ENV=production`.
+- **`RATE_LIMIT_ENABLED=false`** — the login route hard-codes a per-IP `@Throttle` that
+  env-configured throttlers cannot raise; a serial auth spec otherwise 429s.
+- **`CORS_ORIGINS` includes `localhost`** — `navigator.serviceWorker` requires a secure context,
+  which a custom `/etc/hosts` name over plain http is not, so PWA tests load via localhost.
+- **Playwright project graph:** a `setup` project that seeds and logs in, with every other
+  project declaring `dependencies: ["setup"]` and reusing its `storageState`; `fullyParallel:
+  false` and `workers: 1`, because the suite shares seeded state.
+- **Teardown:** `killtree` + port-scoped cleanup on trap. **Never a name-pattern kill** — several
+  projects run simultaneously on this machine.
+
+The template ships the harness plus one or two generic exemplar specs. It does NOT ship
+a360ai's ~70 domain specs, its corpus service, or its dashboard reporter.
