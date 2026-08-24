@@ -93,7 +93,7 @@ export function compareTemplate({ repoRoot, outDir = repoRoot }) {
       const raw = readComparableBody(file.full);
       // A binary's digest must not go through generalize() — there is no app
       // name inside a hash, and rewriting one would only corrupt it.
-      const body = isOpaqueBody(raw) ? raw : normaliseText(generalize(raw, target.appName));
+      const body = isOpaqueBody(raw) ? raw : normaliseText(generalize(raw, target.appName, { domains: target.domains }));
       return {
         name: target.name,
         present: true,

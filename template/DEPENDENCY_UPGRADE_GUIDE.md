@@ -1,4 +1,4 @@
-# Dependency Upgrade Playbook for narr8-family Projects
+# Dependency Upgrade Playbook
 
 > **Audience:** Claude (or any coding agent) executing a dependency upgrade
 > sweep on a project built with the
@@ -10,7 +10,7 @@
 > headers mark places where you MUST stop and ask the user via the
 > `AskUserQuestion` tool — do not proceed unilaterally past them.
 >
-> Last refined: 2026-08-09, based on the narr8 monorepo upgrade. Each
+> Last refined: 2026-08-09, based on a production monorepo upgrade on this stack. Each
 > recommendation is paired with the concrete failure mode that taught us
 > the lesson; read those failure modes before deviating.
 
@@ -138,7 +138,7 @@ git reset --hard "$TAG" && rm -rf node_modules pnpm-lock.yaml && pnpm install
 
 ## 3. Hold-back list — packages that MUST NOT cross a major boundary
 
-Each entry here has been verified to break narr8 when bumped. Ask the
+Each entry here has been verified to break a project on this stack when bumped. Ask the
 user before crossing any of these boundaries.
 
 ### 3.1 `eslint` — keep at `^9.x`
@@ -312,7 +312,7 @@ workspace package and run `ncu -u && pnpm install` in each. **If it
 skips the submodule packages, extend it** — drift in those libraries
 silently rots over time.
 
-The narr8 template, for reference:
+A working example, for reference:
 
 ```bash
 #!/bin/bash
@@ -659,7 +659,7 @@ follow-up errors and their resolutions:
 - `UnknownDependenciesException` → §7 (peer fingerprint duplicate).
 - Next.js error: "Cross-origin access to Next.js dev resources is
   blocked by default" → add the dev host to `allowedDevOrigins` in
-  `apps/web/next.config.js`. Example: `allowedDevOrigins: ["narr8.test"]`.
+  `apps/web/next.config.js`. Example: `allowedDevOrigins: ["{{name}}.test"]`.
   (This is project-specific; ask the user for their dev host.)
 - Any module DI error at startup → §7.
 
@@ -742,7 +742,7 @@ BUMPS` comment header at the top, listing every pin in §3 with:
 - Why it's pinned (the failure mode in one sentence)
 - The condition that would let you unblock it
 
-Template from narr8:
+Worked example:
 
 ```bash
 #!/bin/bash

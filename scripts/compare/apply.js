@@ -49,7 +49,7 @@ export function applyPaths({ repoRoot, target, paths, dryRun = false }) {
     if (isBinaryFile(source)) {
       fs.copyFileSync(source, destination);
     } else {
-      fs.writeFileSync(destination, generalize(fs.readFileSync(source, "utf8"), target.appName), "utf8");
+      fs.writeFileSync(destination, generalize(fs.readFileSync(source, "utf8"), target.appName, { domains: target.domains }), "utf8");
     }
     applied.push(rel);
   }

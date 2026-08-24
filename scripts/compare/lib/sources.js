@@ -71,7 +71,7 @@ export function loadSources(repoRoot) {
     }
     const dir = path.resolve(repoRoot, entry.path);
     if (!fs.existsSync(dir)) throw new Error(`target "${entry.name}" not found at ${dir}`);
-    return { name: entry.name, dir, appName: entry.appName, ignore: entry.ignore ?? [] };
+    return { name: entry.name, dir, appName: entry.appName, ignore: entry.ignore ?? [], domains: entry.domains ?? [] };
   });
 
   return { targets, neverAdopt: parsed.neverAdopt ?? [], templateOnly: parsed.templateOnly ?? [] };

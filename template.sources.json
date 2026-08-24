@@ -42,6 +42,10 @@
         "apps/api/jest.config.js",
         "apps/web/.impeccable",
         "apps/api/tsconfig.scripts.json"
+      ],
+      "domains": [
+        "api.wyrd.li",
+        "wyrd.li"
       ]
     },
     {
@@ -100,6 +104,10 @@
         "apps/web/messages/it.json",
         "CLAUDE_OLD.md",
         "apps/api/jest.config.js"
+      ],
+      "domains": [
+        "neural-erp.com",
+        "neuralerp.com"
       ]
     }
   ],

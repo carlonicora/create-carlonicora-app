@@ -33,9 +33,22 @@ function patternsFor(appName) {
   ];
 }
 
-export function generalize(content, appName) {
+export function generalize(content, appName, options = {}) {
   if (!appName) throw new TypeError("generalize requires an appName");
   let result = content;
+
+  // Declared domains first, and longest-first so "api.wyrd.li" cannot be left
+  // as "api.{{name}}" by an earlier match on "wyrd.li".
+  //
+  // A project's domain is NOT derivable from its package name — wyrdli ships on
+  // wyrd.li — so it has to be declared per target in template.sources.json.
+  // Without this the word-boundary fallback below sails straight past it and
+  // the donor's live domain lands in every scaffolded app.
+  const domains = (options.domains ?? []).filter(Boolean).sort((a, b) => b.length - a.length);
+  for (const domain of domains) {
+    result = result.split(domain).join("{{name}}.com");
+  }
+
   for (const [search, replace] of patternsFor(appName)) {
     result = result.split(search).join(replace);
   }

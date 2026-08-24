@@ -67,7 +67,7 @@ overrides:
   # between app and submodule spawns two @nestjs/common instances and breaks DI
   # at runtime (tests that mock services pass right through it).
   class-validator: ^0.15.1
-  # Without this pin the tree can resolve two rxjs copies (verified in narr8
+  # Without this pin the tree can resolve two rxjs copies (verified on this stack
   # 2026-08-09 by removing it: 7.8.1 and 7.8.2 both resolved) — keep one copy.
   rxjs: ^7.8.2
   # Keep ONE @nestjs/* copy in the tree, but take the version from the catalog

@@ -33,3 +33,31 @@ test("is a no-op when the app name does not occur", () => {
 test("throws rather than silently mangling when appName is empty", () => {
   assert.throws(() => generalize("x", ""), TypeError);
 });
+
+test("a declared domain is generalized — the app name alone does not catch it", () => {
+  // wyrdli ships on wyrd.li: the domain is not derivable from the package name,
+  // which is why it must be declared. Without this the live domain leaks into
+  // every scaffolded app.
+  assert.equal(generalize("https://wyrd.li/x", "wyrdli"), "https://wyrd.li/x");
+  assert.equal(
+    generalize("https://wyrd.li/x", "wyrdli", { domains: ["wyrd.li"] }),
+    "https://{{name}}.com/x",
+  );
+});
+
+test("longer domains win, so a subdomain is not left half-rewritten", () => {
+  assert.equal(
+    generalize("api.wyrd.li", "wyrdli", { domains: ["wyrd.li", "api.wyrd.li"] }),
+    "{{name}}.com",
+  );
+});
+
+test("no domains declared behaves exactly as before", () => {
+  assert.equal(generalize("wyrdli-api", "wyrdli", {}), "{{name}}-api");
+  assert.equal(generalize("wyrdli-api", "wyrdli"), "{{name}}-api");
+});
+
+test("an empty domain entry is ignored rather than replacing everything", () => {
+  assert.equal(generalize("hello", "wyrdli", { domains: ["", null] }), "hello");
+});
+
