@@ -66,9 +66,10 @@ gate should fail before an expensive one runs.
 pnpm compare:template
 ```
 
-Writes `template-drift-report.md` (for reading) and `template-drift-report.json` (for working).
-The markdown groups rows judgement-first and `ALIGNED` last, on purpose: a report that opens
-with hundreds of unchanged files is an unread report.
+Writes `template-drift-report.md` and `template-drift-report.json`. **Both are evidence for
+you, not output for the user** — see stage 8. Work from the `.json`; the `.md` exists so a
+human can audit a decision you made, not so they can make it. It groups rows judgement-first
+and `ALIGNED` last for that reason.
 
 ### 3. triage
 
