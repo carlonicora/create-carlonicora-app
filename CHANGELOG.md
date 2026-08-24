@@ -1,3 +1,27 @@
+## [1.13.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.12.0...v1.13.0) (2026-08-24)
+
+### 🚀 Features
+
+* **template:** administration surface, settings rail, e2e harness, repairs ([dd8d594](https://github.com/carlonicora/create-carlonicora-app/commit/dd8d594b3ce180e4b3b08c24a400ebe19a5d6466))
+* **tooling:** integrity harness, multi-target drift report, template-sync skill ([520661c](https://github.com/carlonicora/create-carlonicora-app/commit/520661cd8147ecfe3c57ae518f60f0821123a34e))
+
+### 🐛 Bug Fixes
+
+* **ci:** resync package-lock.json with package.json ([b8bb1af](https://github.com/carlonicora/create-carlonicora-app/commit/b8bb1afcbee4259a315bb889cdf75bf66644da44))
+* **compare:** generalize declared donor domains; strip donor branding from the template ([b3c08d6](https://github.com/carlonicora/create-carlonicora-app/commit/b3c08d605eaf195182837f9d622ff2aed90172d1))
+
+### 📚 Documentation
+
+* add template multi-source alignment design spec ([dbbf6fc](https://github.com/carlonicora/create-carlonicora-app/commit/dbbf6fc87d34ff8c2df479edc8e9e87f82b7c2cc))
+* spec and implementation plans for the template alignment work ([3a1b4ad](https://github.com/carlonicora/create-carlonicora-app/commit/3a1b4ad8ff5683d79405575c61f8be348b2623bc))
+* **template-sync:** make the skill produce a decision list, not a 400-row report ([4e159be](https://github.com/carlonicora/create-carlonicora-app/commit/4e159be6139abc5f4f5e1cfe73af42a33acd55d2))
+* **template-sync:** stop the compare stage calling the report "for reading" ([850bf8e](https://github.com/carlonicora/create-carlonicora-app/commit/850bf8e228d32d070e1986da47bb015c7bcf2cea))
+
+### ♻️ Chores
+
+* **deps:** upgrade toolchain, adopt pnpm 11 workspace config, bump CI runtimes ([eddb266](https://github.com/carlonicora/create-carlonicora-app/commit/eddb2666499ef31c08187e0234d0850bb23be219)), closes [vercel/next.js#91768](https://github.com/vercel/next.js/issues/91768)
+* **template:** pin production versions to nestjs-neo4jsonapi 3.2.0 ([4de1cfb](https://github.com/carlonicora/create-carlonicora-app/commit/4de1cfb9002cc7c31e70d58f7f70f30852e66769))
+
 ## [1.12.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.11.1...v1.12.0) (2026-08-03)
 
 ### 🚀 Features
