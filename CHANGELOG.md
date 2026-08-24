@@ -1,3 +1,9 @@
+## [1.13.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.13.0...v1.13.1) (2026-08-24)
+
+### 🐛 Bug Fixes
+
+* **template:** set oxc:false in the api vitest configs and drop jest leftovers ([ec4f2aa](https://github.com/carlonicora/create-carlonicora-app/commit/ec4f2aa8442ddb69d33c5aa05397173342bd851a))
+
 ## [1.13.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.12.0...v1.13.0) (2026-08-24)
 
 ### 🚀 Features
