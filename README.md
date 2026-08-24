@@ -81,78 +81,109 @@ pnpm build
 
 ### Maintaining the template
 
-The template is **not** synced from one source project. It is compared against
-several, and merged by judgement. Whichever project most recently advanced a
-given file is a *hint*; the decision is always a human's.
+Two projects already run this stack — `wyrdli` and `neural-erp`. They keep improving
+and the template goes stale. This is how you catch up.
 
-#### The loop
+#### You do not read the report
+
+```
+Skill(template-sync)
+```
+
+That is the whole workflow. The skill runs the comparison, reads the 400-row report,
+throws away everything that structurally cannot matter, and comes back with a short
+ranked proposal:
+
+```
+Reviewed 400 rows (77 after triage). Proposing:
+
+ADOPT (9)
+  apps/web/src/app/.../administration/users/page.tsx   from wyrdli  — admin route the index links to
+  apps/api/templates/email/*.hbs (12 files)            from wyrdli  — whitespace only
+KEEP TEMPLATE (5)
+  .github/workflows/dev.yml   — wyrdli deleted its test step; a scaffolder keeps one
+NEEDS YOUR CALL (2)
+  apps/web/messages/it.json   — ship a second locale as an example, or stay en-only?
+
+Nothing adopted yet. Say which groups to apply.
+```
+
+You answer, it applies, it runs the gates. `template-drift-report.md` is evidence for
+the agent — you should not have to open it.
+
+The rest of this section is what the tool does underneath, for when something looks
+wrong.
+
+#### What the comparison actually does
+
+**It reads other repositories on your machine.** Not this one — sibling checkouts
+listed in `template.sources.json`, resolved relative to this repo's root:
+
+```jsonc
+{ "name": "wyrdli",     "path": "../wyrdli"     }   // → /Users/you/Development/wyrdli
+{ "name": "neural-erp", "path": "../neural-erp" }   // → /Users/you/Development/neural-erp
+```
+
+**Strictly read-only against them** — never writes, never runs their scripts, never
+touches their git state. A missing path stops the run rather than silently comparing
+against nothing.
+
+For each file: does the template have it, does each project, and are they identical
+once the project's own name is generalized back to `{{name}}`? Plus one `git log` pass
+per project for *when* each file last changed and in *what kind of commit*.
 
 ```bash
-pnpm compare:template     # 1. gather evidence
+pnpm compare:template     # writes template-drift-report.{md,json}, both gitignored
 ```
 
-Reads `template.sources.json`, compares `template/` against every configured
-target, and writes `template-drift-report.md` (grouped for reading) and
-`template-drift-report.json` (for programmatic triage). Every row is classified:
-
-| Classification | Meaning | What to do |
-|---|---|---|
-| `ALIGNED` | template matches every target | nothing |
-| `TARGET_AHEAD` | exactly one target differs | consider adopting |
-| `DIVERGED` | targets disagree with each other | judgement required |
-| `TARGET_ONLY` | a target has it, the template doesn't | candidate addition |
-| `TEMPLATE_ONLY` | only the template has it | confirm it's intentional |
-| `NEVER_ADOPT` | protected by config | skip without reading |
+#### What the numbers mean
 
 ```
-2. Read the report — judgement-needed groups come first, ALIGNED last.
-3. Invoke the template-sync skill for the rules behind each decision.
-4. Adopt what you decided:
+DIVERGED 56 · TARGET_AHEAD 57 · TARGET_ONLY 90 · TEMPLATE_ONLY 100 · NEVER_ADOPT 27 · ALIGNED 70
 ```
+
+**This is a difference report, not a defect report.** Around half of any run needs no
+action, and much of the rest *should* differ permanently — `CLAUDE.md`, `README.md`,
+`Dockerfile`, `tsconfig.json` and the CI workflows differ from both projects by design.
+
+**A high `TEMPLATE_ONLY` is healthy.** It counts what the template provides that no
+product happens to use — the PWA and onboarding features, the e2e harness, the bundled
+skills. It rises every time the template gains something.
+
+| Classification | Means |
+|---|---|
+| `ALIGNED` | identical everywhere |
+| `TARGET_AHEAD` | exactly one project differs |
+| `DIVERGED` | the projects disagree with each other and with the template |
+| `TARGET_ONLY` | a project has it, the template doesn't |
+| `TEMPLATE_ONLY` | only the template has it |
+| `NEVER_ADOPT` | protected by config |
+
+Each row names a `winner` — the project whose version is *probably* worth considering.
+**A hint, not a verdict.** A commit touching more than 25 files is flagged `(bulk)` and
+ranked below smaller recent edits: a rename sweep touches a file without advancing it.
+In one measured case the "newer" commit on a CI workflow had *deleted* its test step.
+
+#### Applying by hand
 
 ```bash
 pnpm template:apply --target wyrdli --paths "path/one.ts,path/two.tsx" [--dry-run]
 ```
 
-```bash
-pnpm check:template --strict   # 5. nine integrity checks must pass
-pnpm test                      # 6. the tooling's own suite
-```
+Copies exactly those paths, rewriting the project's name back to `{{name}}` /
+`{{display}}`. **Never copy a file by hand** — this is the only thing that
+re-generalizes, and a hand copy leaks the donor's product name and branding into every
+app scaffolded afterwards.
 
-Then verify a real scaffolded app still works — see *Verifying a generated app*.
-
-#### Rules that are not obvious
-
-- **Never hand-copy a file from a target.** `template:apply` re-generalizes the
-  donor's project name into `{{name}}` / `{{display}}` as it copies. Copying by
-  hand skips that and leaks the donor's brand into every scaffolded app.
-- **`{{name}}` and `{{display}}` are different values** — kebab-case (`my-app`)
-  and human-readable (`My App`). Mixing them inside one rendered artifact is
-  visible to the end user.
-- **Recency is a hint, not a decision.** A rename sweep or a dependency chore
-  touches hundreds of files without advancing any of them. The report flags
-  those commits `(bulk)` and ranks them below smaller, more recent edits.
-- **A check that fires on correct code is a broken check.** Fix the check, never
-  the code. Editing working code to silence a linter is how correct code gets
-  degraded.
-
-#### Adding a source project
-
-Add an entry to `template.sources.json`:
+#### Adding another project
 
 ```jsonc
-{
-  "name": "my-project",
-  "path": "../my-project",
-  "appName": "my-project",
-  "ignore": ["apps/web/src/features/features", "apps/web/public", "..."]
-}
+{ "name": "my-project", "path": "../my-project", "appName": "my-project",
+  "ignore": ["apps/web/src/features/features", "apps/web/public"] }
 ```
 
-`ignore` is that project's *business* code — everything the template should
-never learn about. Repo-level `neverAdopt` and `templateOnly` apply to all
-targets; the reasoning behind each entry is in
-`.claude/skills/template-sync/references/never-adopt.md`.
+`ignore` is that project's *business* code. Get it wrong and the report fills with
+noise; the fix is almost always another `ignore` entry, not a decision.
 
 ### Checking the template is sound
 

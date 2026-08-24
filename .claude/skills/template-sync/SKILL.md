@@ -72,6 +72,27 @@ with hundreds of unchanged files is an unread report.
 
 ### 3. triage
 
+**Shrink the list before judging anything.** A run produces ~400 rows; fewer than a
+quarter deserve a human decision. Judging the raw report is how a sync run turns into
+an afternoon.
+
+Strip, in this order:
+
+1. `ALIGNED`, `NEVER_ADOPT`, `TEMPLATE_ONLY` — no action by definition (~200 rows).
+2. Rows outside `apps/` — `CLAUDE.md`, `README.md`, `AGENTS.md`, `Dockerfile`,
+   `tsconfig*`, `turbo.json`, `.github/**`, `docs/**`. These differ from every project
+   **by design and permanently**. A row here is not drift.
+
+```bash
+node -e "const j=require('./template-drift-report.json');
+const rows=j.rows.filter(r=>['DIVERGED','TARGET_AHEAD','TARGET_ONLY'].includes(r.classification))
+ .filter(r=>r.rel.startsWith('apps/')||r.rel.startsWith('packages/'));
+console.log(rows.length+' rows need judgement');
+rows.forEach(r=>console.log(r.classification.padEnd(13),(r.winner??'-').padEnd(11),r.rel))"
+```
+
+What remains is the real queue. Judge that.
+
 | Classification | Action |
 |---|---|
 | `ALIGNED` | Nothing. Do not open the file. |
@@ -127,9 +148,36 @@ hard prohibition, not advice.
 
 ### 8. report
 
-Per row: what was adopted, what was rejected, and **why**, citing the rule. Then the integrity
-result, the verification result, and anything you chose to leave for the user. Do not commit —
-the user commits after manual verification.
+**The human never reads `template-drift-report.md`.** It is 400+ rows of evidence for
+you, not a deliverable for them. Handing it over — or a per-row narration of it — is a
+failure of this stage.
+
+Produce a SHORT ranked proposal and stop. Target 20 lines, hard ceiling 40:
+
+```
+Reviewed N rows (M after triage). Proposing:
+
+ADOPT (k)
+  <path>            from <target>   — <one clause: what it fixes or adds>
+KEEP TEMPLATE (k)
+  <path>            — <one clause: why the template's version is right>
+NEEDS YOUR CALL (k)
+  <path>            — <the actual question, in one sentence>
+
+Nothing adopted yet. Say which groups to apply.
+```
+
+Rules for it:
+
+- Group by decision, never by classification. The user does not care that a row was
+  `TARGET_AHEAD`; they care whether it lands.
+- One clause per row. If a row needs a paragraph it belongs in NEEDS YOUR CALL.
+- Collapse repetition: "12 email templates from wyrdli — whitespace only" is one line,
+  not twelve.
+- NEEDS YOUR CALL is for genuine product decisions, not for anything you were merely
+  unsure about. Decide what you can decide.
+- **Adopt nothing before they answer.** Then apply, run `integrity` and `verify`, and
+  report only what changed and what the gates said.
 
 ## Red flags — stop and re-read `references/precedence.md`
 
