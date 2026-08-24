@@ -84,7 +84,7 @@ Read this file when:
 ## Service Pattern
 
 ```typescript
-// <entity>.service.ts
+// example.service.ts
 import { AbstractService, JsonApiPaginator, JsonApiService } from "@carlonicora/nestjs-neo4jsonapi";
 import { Injectable } from "@nestjs/common";
 import { ClsService } from "nestjs-cls";
@@ -113,13 +113,12 @@ export class ExampleService extends AbstractService<Example, typeof ExampleDescr
   // - delete({ id })
 
   /**
-   * Custom business logic: Find examples by status
-   * Exposes the repository's findByStatus method
+   * Custom business logic: Find examples pending review
+   * Exposes the repository's findPendingReviews method
    */
-  async findByStatus(params: { status: string; query: any }): Promise<any> {
+  async findPendingReviews(params: { query: any }): Promise<any> {
     const paginator = new JsonApiPaginator(params.query);
-    const data = await this.exampleRepository.findByStatus({
-      status: params.status,
+    const data = await this.exampleRepository.findPendingReviews({
       cursor: paginator.generateCursor(),
     });
     return this.jsonApiService.buildList(ExampleDescriptor.model, data, paginator);
@@ -134,13 +133,15 @@ export class ExampleService extends AbstractService<Example, typeof ExampleDescr
 ### Exposing a Repository Custom Query
 
 ```typescript
-async findByStatus(params: { status: string; query: any }): Promise<any> {
+/**
+ * When repository has a custom query, create matching service method
+ */
+async findPendingReviews(params: { query: any }): Promise<any> {
   // 1. Create paginator from query params
   const paginator = new JsonApiPaginator(params.query);
 
   // 2. Call repository method with cursor
-  const data = await this.exampleRepository.findByStatus({
-    status: params.status,
+  const data = await this.exampleRepository.findPendingReviews({
     cursor: paginator.generateCursor(),
   });
 
@@ -152,7 +153,10 @@ async findByStatus(params: { status: string; query: any }): Promise<any> {
 ### Business Logic Before Repository Call
 
 ```typescript
-async createWithDefaults(params: { data: JsonApiDTOData }): Promise<any> {
+/**
+ * Validate or transform before persisting
+ */
+async createExampleWithDefaults(params: { data: JsonApiDTOData }): Promise<any> {
   // Business logic: set defaults, validate, etc.
   if (!params.data.attributes.description) {
     params.data.attributes.description = "Default description";
@@ -166,14 +170,17 @@ async createWithDefaults(params: { data: JsonApiDTOData }): Promise<any> {
 ### Combining Multiple Repository Calls
 
 ```typescript
-async archiveWithChildren(params: { id: string }): Promise<void> {
-  // Get parent
-  const parent = await this.exampleRepository.findById({ id: params.id });
+/**
+ * Orchestrate multiple operations
+ */
+async archiveExampleWithItems(params: { id: string }): Promise<void> {
+  // Get example
+  const example = await this.exampleRepository.findById({ id: params.id });
 
-  // Archive all children (call another repository)
-  await this.childRepository.archiveByParent({ parentId: params.id });
+  // Archive all items (call another repository)
+  await this.itemRepository.archiveByExample({ exampleId: params.id });
 
-  // Archive parent
+  // Archive example
   await this.exampleRepository.archive({ id: params.id });
 }
 ```
@@ -186,6 +193,21 @@ Services should:
 - Let repository `NotFoundException` propagate
 - Throw business logic errors (e.g., `BadRequestException`)
 - Use framework exception classes from `@nestjs/common`
+
+```typescript
+async findPendingReviews(params: { query: any }): Promise<any> {
+  const data = await this.exampleRepository.findPendingReviews({
+    cursor: paginator.generateCursor(),
+  });
+
+  // Business logic validation
+  if (data.length === 0) {
+    // This is fine - return empty list
+  }
+
+  return this.jsonApiService.buildList(ExampleDescriptor.model, data, paginator);
+}
+```
 
 ---
 

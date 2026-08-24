@@ -30,7 +30,16 @@ import { recentPagesAtom, useCurrentUserContext, useNotificationContext } from "
 import { Action, Modules, ModuleWithPermissions } from "@carlonicora/nextjs-jsonapi/core";
 import { RoleId } from "@{{name}}/shared";
 import { useAtomValue } from "jotai";
-import { CrownIcon, HistoryIcon, HomeIcon } from "lucide-react";
+import {
+  Building2Icon,
+  CoinsIcon,
+  CreditCardIcon,
+  CrownIcon,
+  HistoryIcon,
+  HomeIcon,
+  PlugZapIcon,
+  UsersIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -165,6 +174,64 @@ export default function CommonSidebar() {
       addSidebarItems(response, t, generateUrl, hasRole(RoleId.Administrator));
     }
 
+    // Administration group. Gated on the Administrator role through
+    // useCurrentUserContext's hasRole — the same role the (admin) route group's
+    // layout checks on the server, so the rail never advertises a destination
+    // that would answer 403.
+    //
+    // The entries mirror the platform group of the library's
+    // AdminIndexContainer (the page an administrator lands on at `/`): same
+    // destinations, same order. Products appears only when Stripe is
+    // configured, exactly as the index does. The group key is "administration"
+    // because the render loop derives the group label from it via
+    // t("common.sidebar", { type: groupLabel }).
+    if (hasRole(RoleId.Administrator)) {
+      response.set("administration", {
+        hasTitle: true,
+        items: [
+          {
+            title: t(`entities.companies`, { count: 2 }),
+            url: generateUrl({ page: `/administration/companies` }),
+            icon: Building2Icon,
+            testId: "sidebar-companies-link",
+            activeUrls: ["/administration/companies"],
+          },
+          {
+            title: t(`entities.users`, { count: 2 }),
+            url: generateUrl({ page: `/administration/users` }),
+            icon: UsersIcon,
+            testId: "sidebar-users-link",
+            activeUrls: ["/administration/users"],
+          },
+          {
+            title: t(`token_usage.admin.title`),
+            url: generateUrl({ page: `/administration/token-usage` }),
+            icon: CoinsIcon,
+            testId: "sidebar-token-usage-link",
+            activeUrls: ["/administration/token-usage"],
+          },
+          {
+            title: t(`ai_connections.admin.title`),
+            url: generateUrl({ page: `/administration/ai-connections` }),
+            icon: PlugZapIcon,
+            testId: "sidebar-ai-connections-link",
+            activeUrls: ["/administration/ai-connections"],
+          },
+          ...(isStripeConfigured()
+            ? [
+                {
+                  title: t(`billing.admin.products.title`),
+                  url: generateUrl({ page: `/administration/products` }),
+                  icon: CreditCardIcon,
+                  testId: "sidebar-stripe-products-link",
+                  activeUrls: ["/administration/products", "/administration/prices"],
+                },
+              ]
+            : []),
+        ],
+      });
+    }
+
     return response;
   }, [currentUser, company, recentPages, t, generateUrl, hasRole]);
 
@@ -297,7 +364,7 @@ export default function CommonSidebar() {
                   render={undefined}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                   tooltip={t("common.upgrade")}
-                  onClick={() => router.push("/settings/billing?action=subscribe")}
+                  onClick={() => router.push("/settings?section=billing&action=subscribe")}
                 >
                   <CrownIcon className="h-4 w-4" />
                   {state === "expanded" && <span>{t("common.upgrade")}</span>}

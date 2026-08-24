@@ -11,7 +11,7 @@
       "Skill(playwright-cli)",
       "WebFetch(domain:ui.shadcn.com)",
       "WebFetch(domain:github.com)",
-      "Skill(nja:nja-architecture)",
+      "Skill({{name}}-architecture)",
       "Skill(nja:nja-generate)",
       "Skill(nja:nja-verify)",
       "Skill(nja:nja-writing-plan)",

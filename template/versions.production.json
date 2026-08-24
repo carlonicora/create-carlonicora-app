@@ -1,4 +1,4 @@
 {
-  "@carlonicora/nestjs-neo4jsonapi": "2.0.0",
-  "@carlonicora/nextjs-jsonapi": "2.0.0"
+  "@carlonicora/nestjs-neo4jsonapi": "3.1.1",
+  "@carlonicora/nextjs-jsonapi": "3.3.8"
 }

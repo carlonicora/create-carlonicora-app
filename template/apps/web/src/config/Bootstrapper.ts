@@ -1,5 +1,7 @@
 import { FeatureIds } from "@/enums/feature.ids";
 import {
+  AiConnectionModule,
+  AssistantActionModule,
   AssistantMessageModule,
   AssistantModule,
   AuditLogModule,
@@ -29,6 +31,8 @@ import {
   PermissionMappingModule,
   PushModule,
   RbacMatrixModule,
+  ReferralModule,
+  ReferralStatsModule,
   RoleModule,
   S3Module,
   setBootstrapper,
@@ -40,6 +44,7 @@ import {
   StripePromotionCodeModule,
   StripeSubscriptionModule,
   StripeUsageModule,
+  tokenUsageModules,
   TotpAuthenticatorModule,
   TotpSetupModule,
   TotpVerifyLoginModule,
@@ -88,6 +93,10 @@ const moduleFactory = (params: {
 // TypeScript infers types from this object
 const allModules = {
   // Foundation modules (types defined in library, code in app except S3)
+  AiConnection: AiConnectionModule(moduleFactory),
+  AssistantAction: AssistantActionModule(moduleFactory),
+  Referral: ReferralModule(moduleFactory),
+  ReferralStats: ReferralStatsModule(moduleFactory),
   AuditLog: AuditLogModule(moduleFactory),
   Auth: AuthModule(moduleFactory),
   Company: CompanyModule(moduleFactory),
@@ -141,6 +150,10 @@ const allModules = {
   Assistant: AssistantModule(moduleFactory),
   AssistantMessage: AssistantMessageModule(moduleFactory),
   Chunk: ChunkModule(moduleFactory),
+  // One spread rather than six named entries: registration is the app's job and
+  // a forgotten name is not a compile error — FoundationModuleDefinitions
+  // declares all six, so Modules.X typechecks and is undefined at runtime.
+  ...tokenUsageModules(moduleFactory),
 } satisfies Record<string, ModuleWithPermissions>;
 
 // Export type derived from the object - NO DUPLICATION

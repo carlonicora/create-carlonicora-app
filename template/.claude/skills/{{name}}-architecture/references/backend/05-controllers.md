@@ -80,6 +80,18 @@ private readonly relationships = createRelationshipHandlers(() => this.exampleSe
 | Non-resource operation (e.g., `/archive`, `/publish`)? | **Custom POST endpoint** |
 | Relationship with edge properties? | **Custom relationship endpoint** |
 
+### Standard vs Custom Endpoints
+
+| Operation | Standard Route | Custom Route Example |
+|-----------|---------------|---------------------|
+| List all | `GET /examples` | `GET /examples/pending` |
+| Get one | `GET /examples/:id` | - |
+| Create | `POST /examples` | - |
+| Update | `PUT /examples/:id` | - |
+| Delete | `DELETE /examples/:id` | - |
+| By relationship | `GET /users/:id/examples` | - |
+| Add related with meta | - | `POST /examples/:id/items/:itemId` |
+
 ---
 
 ## COMMON MISTAKES
@@ -107,7 +119,7 @@ private readonly relationships = createRelationshipHandlers(() => this.exampleSe
 ## Controller Pattern
 
 ```typescript
-// <entity>.controller.ts
+// example.controller.ts
 import {
   Audit,
   AuditService,
@@ -142,7 +154,7 @@ export class ExampleController {
     private readonly auditService: AuditService,
   ) {}
 
-  // GET /<entities>
+  // GET /examples
   @Get(exampleMeta.endpoint)
   async findAll(
     @Res() reply: FastifyReply,
@@ -154,7 +166,7 @@ export class ExampleController {
     return this.crud.findAll(reply, { query, search, fetchAll, orderBy });
   }
 
-  // GET /<entities>/:id
+  // GET /examples/:id
   @Get(`${exampleMeta.endpoint}/:exampleId`)
   @Audit(exampleMeta, "exampleId")
   async findById(
@@ -164,7 +176,7 @@ export class ExampleController {
     return this.crud.findById(reply, exampleId);
   }
 
-  // POST /<entities>
+  // POST /examples
   @Post(exampleMeta.endpoint)
   @CacheInvalidate(exampleMeta)
   async create(
@@ -174,7 +186,7 @@ export class ExampleController {
     return this.crud.create(reply, body);
   }
 
-  // PUT /<entities>/:id
+  // PUT /examples/:id
   @Put(`${exampleMeta.endpoint}/:exampleId`)
   @ValidateId("exampleId")
   @CacheInvalidate(exampleMeta, "exampleId")
@@ -185,7 +197,7 @@ export class ExampleController {
     return this.crud.update(reply, body);
   }
 
-  // DELETE /<entities>/:id
+  // DELETE /examples/:id
   @Delete(`${exampleMeta.endpoint}/:exampleId`)
   @HttpCode(HttpStatus.NO_CONTENT)
   @CacheInvalidate(exampleMeta, "exampleId")
@@ -196,7 +208,7 @@ export class ExampleController {
     return this.crud.delete(reply, exampleId);
   }
 
-  // GET /users/:userId/<entities> (nested endpoint)
+  // GET /users/:userId/examples (nested endpoint)
   @Get(`${ownerMeta.endpoint}/:userId/${ExampleDescriptor.model.endpoint}`)
   async findByOwner(
     @Res() reply: FastifyReply,
@@ -224,14 +236,16 @@ export class ExampleController {
 
 ### Filtered List Endpoint
 
+Custom endpoints that don't fit standard CRUD bypass handlers and call service directly:
+
 ```typescript
-// GET /<entities>/pending
+// GET /examples/pending
 @Get(`${exampleMeta.endpoint}/pending`)
 async findPending(
   @Res() reply: FastifyReply,
   @Query() query: any,
 ) {
-  const response = await this.exampleService.findByStatus({ status: "pending", query });
+  const response = await this.exampleService.findPendingReviews({ query });
   reply.send(response);
 }
 ```
@@ -239,7 +253,7 @@ async findPending(
 ### Relationship Endpoint with Edge Properties
 
 ```typescript
-// POST /<entities>/:id/items/:itemId
+// POST /examples/:exampleId/items/:itemId
 @Post(`${exampleMeta.endpoint}/:exampleId/${itemMeta.endpoint}/:itemId`)
 async addItem(
   @Res() reply: FastifyReply,
@@ -249,7 +263,7 @@ async addItem(
 ) {
   const response = await this.exampleService.addToRelationshipFromDTO({
     id: exampleId,
-    relationship: ExampleDescriptor.relationshipKeys.items,
+    relationship: ExampleDescriptor.relationshipKeys.item,
     data: { id: itemId, type: itemMeta.endpoint, meta: body.data?.meta },
   });
   reply.send(response);
@@ -259,7 +273,7 @@ async addItem(
 ### Non-Resource Operation
 
 ```typescript
-// POST /<entities>/:id/archive
+// POST /examples/:exampleId/archive
 @Post(`${exampleMeta.endpoint}/:exampleId/archive`)
 @HttpCode(HttpStatus.NO_CONTENT)
 @CacheInvalidate(exampleMeta, "exampleId")
@@ -281,6 +295,12 @@ Controllers handle errors automatically via NestJS exception filters:
 - **404 Not Found**: Service throws `NotFoundException`
 - **412 Precondition Failed**: `@ValidateId` validation failure
 - **500 Internal Server Error**: Unhandled exceptions
+
+```typescript
+// These exceptions are thrown and handled automatically
+throw new NotFoundException(`Example with id ${id} not found`);
+throw new BadRequestException("Invalid operation");
+```
 
 ---
 

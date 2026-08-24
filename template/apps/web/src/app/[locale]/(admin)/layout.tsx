@@ -4,8 +4,9 @@ import "react-horizontal-scrolling-menu/dist/styles.css";
 import LayoutDetails from "@/features/common/components/details/LayoutDetails";
 import { OnboardingProviderWrapper } from "@/features/onboarding";
 import { routing } from "@/i18n/routing";
-import { PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
+import { ErrorDetails, PushNotificationProvider, RefreshUser, SidebarProvider } from "@carlonicora/nextjs-jsonapi/components";
 import { CurrentUserProvider, NotificationContextProvider, SocketProvider } from "@carlonicora/nextjs-jsonapi/contexts";
+import { RoleId } from "@{{name}}/shared";
 import { hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { Inter } from "next/font/google";
@@ -31,7 +32,17 @@ export default async function AdminLayout(props: { children: React.ReactNode; pa
   const messages = await getMessages();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
-  if (await ServerSession.isLogged())
+  if (await ServerSession.isLogged()) {
+    // The whole (admin) subtree is administrator-only: the routes it holds carry
+    // no auth code of their own, so this gate is the only thing standing between
+    // an ordinary authenticated user and every administration page.
+    if (!(await ServerSession.hasRole(RoleId.Administrator)))
+      return (
+        <div className="flex min-h-screen w-full flex-col items-center justify-center">
+          <ErrorDetails code={403} message="" />
+        </div>
+      );
+
     return (
       <SocketProvider token={token}>
         <OnboardingProviderWrapper>
@@ -48,6 +59,7 @@ export default async function AdminLayout(props: { children: React.ReactNode; pa
         </OnboardingProviderWrapper>
       </SocketProvider>
     );
+  }
 
   return <div className="flex min-h-screen w-full flex-col items-center justify-center">{children}</div>;
 }

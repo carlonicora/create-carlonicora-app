@@ -1,89 +1,43 @@
 import { defineConfig, devices } from "@playwright/test";
+import { E2E } from "./tests/e2e.env";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-import dotenv from "dotenv";
-import path from "path";
-dotenv.config({ path: path.resolve(__dirname, ".env") });
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
-
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
   testDir: "./tests",
-  timeout: 60000,
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  // Generous: a first navigation against a freshly booted stack pays for the
+  // api's lazy schema work and the browser's first paint of a heavy route.
+  timeout: 120000,
+  // The suite shares one seeded database. Parallelism makes it non-deterministic
+  // — a spec that reads what another spec wrote then passes or fails on timing
+  // rather than on behaviour. Keep both of these as they are.
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 1,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: "html",
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  retries: process.env.CI ? 1 : 0,
+  reporter: [["html", { open: "never" }]],
+  // The stack (database + worker + api + web) is owned by scripts/e2e.sh.
+  // Playwright NEVER starts servers — there is no webServer block, on purpose.
+  // Adding one boots a second, unmigrated stack on top of the real one.
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: `http://${process.env.PUBLIC_HOSTNAME || "{{name}}.test"}:3301`,
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL: E2E.webBase,
     trace: "on-first-retry",
     actionTimeout: 15000,
   },
-
-  /* Configure projects for major browsers */
   projects: [
-    // Setup project
-    { name: "setup", testMatch: /.*\.setup\.ts/ },
-
-    // Unauthenticated tests
+    // Seeds the fixtures the suite needs (the database itself was already
+    // recreated and migrated by scripts/e2e.sh) and saves one storageState per
+    // persona. Every other project depends on it, so a scoped run still seeds.
+    { name: "setup", testMatch: /setup\/seed\.setup\.ts/ },
     {
       name: "chromium-unauth",
       use: { ...devices["Desktop Chrome"] },
+      dependencies: ["setup"],
       testDir: "./tests/unauthenticated",
     },
-
-    // Authenticated tests
     {
-      name: "chromium-auth",
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: "playwright/.auth/user.json",
-      },
+      name: "chromium-smoke",
+      use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/admin.json" },
       dependencies: ["setup"],
-      testDir: "./tests/authenticated",
+      testDir: "./tests/smoke",
     },
-
-    /* Test against  viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
-
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "npm run dev",
-    url: `http://${process.env.PUBLIC_HOSTNAME || "{{name}}.test"}:3301`,
-    reuseExistingServer: true,
-    timeout: 120 * 1000,
-  },
 });

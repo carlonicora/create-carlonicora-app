@@ -32,7 +32,7 @@ Read this file when:
 2. **PUT requires all fields** - Full replacement semantics.
 3. **PATCH makes all fields optional** - Partial update semantics.
 4. **Relationship DTOs for edge properties** - When relationship has `fields`, create dedicated DTOs.
-5. **Use `@IsDateString()` for date/datetime attributes** - never `@IsString()`. The descriptor declares the field as `"date"` or `"datetime"`; the DTO is the wire-format guard. See [../date-handling.md](../date-handling.md).
+5. **Use `@IsDateString()` for date/datetime attributes** — never `@IsString()`. The descriptor declares the field as `"date"` or `"datetime"`; the DTO is the wire-format guard. See [../date-handling.md](../date-handling.md).
 
 ---
 
@@ -52,6 +52,7 @@ Read this file when:
 |----------|--------|
 | Does relationship have edge properties (fields array)? | **Yes** - Create relationship DTO |
 | Is it a simple association without metadata? | **No** - Use standard entity DTO |
+| e.g. adding an Item with a position to an Example | Create `ExampleItemsAddSingleDTO` |
 
 ---
 
@@ -104,7 +105,7 @@ Read this file when:
 ## Reference DTO (for relationship references)
 
 ```typescript
-// <entity>.dto.ts
+// example.dto.ts
 import { Type } from "class-transformer";
 import { Equals, IsNotEmpty, IsUUID, ValidateNested } from "class-validator";
 import { exampleMeta } from "../entities/example.meta";
@@ -137,7 +138,7 @@ export class ExampleDataListDTO {
 ## POST DTO (Create)
 
 ```typescript
-// <entity>.post.dto.ts
+// example.post.dto.ts
 import { UserDataDTO } from "@carlonicora/nestjs-neo4jsonapi";
 import { Type } from "class-transformer";
 import {
@@ -146,6 +147,7 @@ import {
 } from "class-validator";
 import { exampleMeta } from "../entities/example.meta";
 
+// Attributes for creation
 export class ExamplePostAttributesDTO {
   @IsDefined()       // Required in entity = @IsDefined()
   @IsNotEmpty()
@@ -157,6 +159,7 @@ export class ExamplePostAttributesDTO {
   description?: string;
 }
 
+// Relationships for creation
 export class ExamplePostRelationshipsDTO {
   @ValidateNested()
   @IsDefined()       // Required relationship
@@ -164,6 +167,7 @@ export class ExamplePostRelationshipsDTO {
   owner: UserDataDTO;
 }
 
+// Complete data structure
 export class ExamplePostDataDTO {
   @Equals(exampleMeta.endpoint)
   type: string;
@@ -182,6 +186,7 @@ export class ExamplePostDataDTO {
   relationships: ExamplePostRelationshipsDTO;
 }
 
+// Top-level wrapper
 export class ExamplePostDTO {
   @ValidateNested()
   @IsNotEmpty()
@@ -194,7 +199,59 @@ export class ExamplePostDTO {
 
 ## PUT DTO (Full Update)
 
-Same structure as POST DTO - full replacement semantics, all required fields stay required.
+```typescript
+// example.put.dto.ts
+import { UserDataDTO } from "@carlonicora/nestjs-neo4jsonapi";
+import { Type } from "class-transformer";
+import {
+  Equals, IsDefined, IsNotEmpty, IsOptional,
+  IsString, IsUUID, ValidateNested,
+} from "class-validator";
+import { exampleMeta } from "../entities/example.meta";
+
+export class ExamplePutAttributesDTO {
+  @IsDefined()       // Same as POST - full replacement
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+export class ExamplePutRelationshipsDTO {
+  @ValidateNested()
+  @IsDefined()
+  @Type(() => UserDataDTO)
+  owner: UserDataDTO;
+}
+
+export class ExamplePutDataDTO {
+  @Equals(exampleMeta.endpoint)
+  type: string;
+
+  @IsUUID()
+  id: string;
+
+  @ValidateNested()
+  @IsNotEmpty()
+  @Type(() => ExamplePutAttributesDTO)
+  attributes: ExamplePutAttributesDTO;
+
+  @ValidateNested()
+  @IsNotEmpty()
+  @Type(() => ExamplePutRelationshipsDTO)
+  relationships: ExamplePutRelationshipsDTO;
+}
+
+export class ExamplePutDTO {
+  @ValidateNested()
+  @IsNotEmpty()
+  @Type(() => ExamplePutDataDTO)
+  data: ExamplePutDataDTO;
+}
+```
 
 ---
 
@@ -202,8 +259,10 @@ Same structure as POST DTO - full replacement semantics, all required fields sta
 
 When a relationship has edge properties (defined in entity descriptor's `fields` array), create dedicated DTOs for add/update operations.
 
+### Example: adding an Item to an Example with a position
+
 ```typescript
-// <entity>.relationship.dto.ts
+// example.relationship.dto.ts
 import { Type } from "class-transformer";
 import { IsDefined, IsNumber, IsOptional, ValidateNested } from "class-validator";
 
@@ -228,6 +287,54 @@ export class ExampleItemsAddSingleDTO {
   @IsOptional()
   @Type(() => ExampleItemsAddSingleDataDTO)
   data?: ExampleItemsAddSingleDataDTO;
+}
+```
+
+### Example: adding a Person with an access code
+
+```typescript
+// example.person.relationship.dto.ts
+import { Type } from "class-transformer";
+import { IsDefined, IsOptional, IsString, ValidateNested } from "class-validator";
+
+export class ExamplePersonMetaDTO {
+  @IsDefined()
+  @IsString()
+  code: string;
+
+  @IsOptional()
+  @IsString()
+  expiresAt?: string;
+}
+
+export class ExamplePersonAddSingleDataDTO {
+  @ValidateNested()
+  @IsOptional()
+  @Type(() => ExamplePersonMetaDTO)
+  meta?: ExamplePersonMetaDTO;
+}
+
+export class ExamplePersonAddSingleDTO {
+  @ValidateNested()
+  @IsOptional()
+  @Type(() => ExamplePersonAddSingleDataDTO)
+  data?: ExamplePersonAddSingleDataDTO;
+}
+```
+
+### Using Relationship DTOs in Controller
+
+```typescript
+// In example.controller.ts
+@Post(`${exampleMeta.endpoint}/:exampleId/${itemMeta.endpoint}/:itemId`)
+async addItem(
+  @Param("exampleId") exampleId: string,
+  @Param("itemId") itemId: string,
+  @Body() body: ExampleItemsAddSingleDTO,
+) {
+  // body.data.meta contains the edge properties
+  const position = body.data?.meta?.position ?? 0;
+  // ... add relationship with edge properties
 }
 ```
 

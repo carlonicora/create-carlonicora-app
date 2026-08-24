@@ -40,11 +40,11 @@ Read this file when:
 
 ## ENFORCEMENT CHECKPOINT
 
-> **STOP - Before committing service code, verify:**
+> **STOP — Before committing service code, verify:**
 > 1. Are you using `callApi()`, not `fetch()`? If using `fetch()`, **STOP**.
 > 2. Are you using `EndpointCreator` for URLs? If hardcoding endpoint strings, **STOP**.
 > 3. If you need `overridesJsonApiCreation`, does the model have a dedicated method for it? If constructing JSON:API manually in the service, **STOP** and create a model method.
-> 4. Does every `callApi()` call include `type: Modules.X`? If missing, **STOP** - rehydration will fail.
+> 4. Does every `callApi()` call include `type: Modules.X`? If missing, **STOP** — rehydration will fail.
 
 ---
 
@@ -63,13 +63,13 @@ Read this file when:
 
 | Operation | HTTP Method | Endpoint Pattern |
 |-----------|-------------|------------------|
-| Get one | GET | `/<entities>/:id` |
-| Get list | GET | `/<entities>` |
-| Get by relationship | GET | `/users/:id/<entities>` |
-| Create | POST | `/<entities>` |
-| Update | PUT | `/<entities>/:id` |
-| Delete | DELETE | `/<entities>/:id` |
-| Add related with meta | POST | `/<entities>/:id/<children>/:childId` |
+| Get one | GET | `/examples/:id` |
+| Get list | GET | `/examples` |
+| Get by relationship | GET | `/users/:id/examples` |
+| Create | POST | `/examples` |
+| Update | PUT | `/examples/:id` |
+| Delete | DELETE | `/examples/:id` |
+| Add related with meta | POST | `/examples/:id/persons/:personId` |
 
 ---
 
@@ -105,7 +105,7 @@ import { Example } from "./Example";
 
 export class ExampleService extends AbstractService {
   /**
-   * GET single entity by ID
+   * GET single example by ID
    */
   static async findOne(params: { id: string }): Promise<ExampleInterface> {
     return this.callApi<ExampleInterface>({
@@ -119,7 +119,7 @@ export class ExampleService extends AbstractService {
   }
 
   /**
-   * GET list
+   * GET list of examples
    */
   static async findMany(params: {
     search?: string;
@@ -138,7 +138,7 @@ export class ExampleService extends AbstractService {
   }
 
   /**
-   * GET by owner (nested endpoint)
+   * GET examples by owner (nested endpoint)
    */
   static async findManyByOwner(params: { ownerId: string }): Promise<ExampleInterface[]> {
     return this.callApi({
@@ -153,7 +153,7 @@ export class ExampleService extends AbstractService {
   }
 
   /**
-   * POST create
+   * POST create new example
    */
   static async create(params: ExampleInput): Promise<ExampleInterface> {
     return this.callApi({
@@ -165,7 +165,7 @@ export class ExampleService extends AbstractService {
   }
 
   /**
-   * PUT update
+   * PUT update example
    */
   static async update(params: ExampleInput): Promise<ExampleInterface> {
     return this.callApi({
@@ -175,12 +175,12 @@ export class ExampleService extends AbstractService {
         endpoint: Modules.Example,
         id: params.id,
       }).generate(),
-      input: params,
+      input: params,  // Model.createJsonApi() handles conversion
     });
   }
 
   /**
-   * DELETE
+   * DELETE example
    */
   static async delete(params: { id: string }): Promise<void> {
     await this.callApi({
@@ -194,8 +194,37 @@ export class ExampleService extends AbstractService {
   }
 
   /**
-   * POST add item with edge properties (position)
+   * POST add person with edge properties (code, expiresAt)
    * Uses dedicated model method - NEVER use overridesJsonApiCreation
+   */
+  static async addPerson(params: {
+    exampleId: string;
+    personId: string;
+    code: string;
+    expiresAt?: string;
+  }): Promise<ExampleInterface> {
+    const example = new Example();
+    return this.callApi({
+      type: Modules.Example,
+      method: HttpMethod.POST,
+      endpoint: new EndpointCreator({
+        endpoint: Modules.Example,
+        id: params.exampleId,
+        childEndpoint: Modules.Person,
+        childId: params.personId,
+      }).generate(),
+      input: example.createAddPersonJsonApi({
+        personId: params.personId,
+        code: params.code,
+        expiresAt: params.expiresAt,
+      }),
+      overridesJsonApiCreation: true,  // OK - model method provides proper structure
+    });
+  }
+
+  /**
+   * POST add item with position (edge property)
+   * Uses dedicated model method
    */
   static async addItem(params: {
     exampleId: string;
@@ -229,14 +258,14 @@ export class ExampleService extends AbstractService {
 ### fetch() vs callApi()
 
 ```typescript
-// WRONG - Using fetch directly
+// ❌ WRONG - Using fetch directly
 static async findOne(id: string) {
-  const response = await fetch(`/api/<domain>/<entities>/${id}`);
+  const response = await fetch(`/api/examples/${id}`);
   const json = await response.json();
   return json.data;  // Raw JSON:API, not typed!
 }
 
-// CORRECT - Using callApi
+// ✅ CORRECT - Using callApi
 static async findOne(params: { id: string }): Promise<ExampleInterface> {
   return this.callApi<ExampleInterface>({
     type: Modules.Example,
@@ -252,7 +281,7 @@ static async findOne(params: { id: string }): Promise<ExampleInterface> {
 ### Edge Properties: Manual vs Dedicated Model Method
 
 ```typescript
-// WRONG - Manual JSON:API construction in service
+// ❌ WRONG - Manual JSON:API construction in service
 static async addItem(exampleId: string, itemId: string, position: number) {
   return this.callApi({
     method: HttpMethod.POST,
@@ -268,7 +297,7 @@ static async addItem(exampleId: string, itemId: string, position: number) {
   });
 }
 
-// CORRECT - Use dedicated model method
+// ✅ CORRECT - Use dedicated model method
 static async addItem(params: {
   exampleId: string;
   itemId: string;
@@ -290,6 +319,57 @@ static async addItem(params: {
     }),
     overridesJsonApiCreation: true,  // OK - model handles structure
   });
+}
+```
+
+### Standard CRUD: overridesJsonApiCreation vs input
+
+```typescript
+// ❌ WRONG - Unnecessary overridesJsonApiCreation
+static async create(data: ExampleInput) {
+  return this.callApi({
+    method: HttpMethod.POST,
+    endpoint: "examples",
+    input: {
+      data: {
+        type: "examples",
+        id: data.id,
+        attributes: { name: data.name },
+      }
+    },
+    overridesJsonApiCreation: true,  // UNNECESSARY!
+  });
+}
+
+// ✅ CORRECT - Let model handle JSON:API
+static async create(params: ExampleInput): Promise<ExampleInterface> {
+  return this.callApi({
+    type: Modules.Example,
+    method: HttpMethod.POST,
+    endpoint: new EndpointCreator({ endpoint: Modules.Example }).generate(),
+    input: params,  // Model.createJsonApi() handles it
+  });
+}
+```
+
+---
+
+## Error Handling
+
+Services handle errors through the framework:
+- API errors are caught and transformed by `callApi()`
+- 404 responses result in `undefined` or empty arrays
+- Network errors propagate as exceptions
+
+```typescript
+// Error handling in components
+try {
+  const example = await ExampleService.findOne({ id: exampleId });
+  if (!example) {
+    // Handle not found
+  }
+} catch (error) {
+  // Handle network or server errors
 }
 ```
 

@@ -12,7 +12,7 @@ export async function generateSpecificMetadata(params: {
 }): Promise<Metadata> {
   const t = await getTranslations();
 
-  const url = (await headers()).get("x-full-url") ?? ENV.APP_URL ?? "{{name}}.com";
+  const url = (await headers()).get("x-full-url") ?? ENV.APP_URL ?? "https://{{name}}.com";
 
   const title: string = params.title ? `${params.title} | ${t(`common.title`)}` : t(`common.title`);
   const description = params.description ? params.description : t(`common.description`);
@@ -34,14 +34,11 @@ export async function generateSpecificMetadata(params: {
       title: title,
       description: description,
     },
-    metadataBase: new URL(ENV.APP_URL ?? "{{name}}.com"),
+    metadataBase: new URL(ENV.APP_URL ?? "https://{{name}}.com"),
     alternates: {
       canonical: url,
       languages: {
         en: "/en",
-        it: "/it",
-        fr: "/fr",
-        fi: "/fi",
       },
     },
   };

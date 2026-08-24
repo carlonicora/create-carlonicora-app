@@ -139,11 +139,6 @@
       "en": "🇬🇧 English",
       "it": "🇮🇹 Italiano"
     },
-    "administration": "Administration",
-    "administration_subtitle": "Manage system settings and configuration",
-    "administration_companies_description": "Manage companies and their settings",
-    "administration_rbac_description": "Manage roles and permissions",
-    "administration_howtos_description": "Create and manage how-to guides",
     "open": "Open",
     "version_display": "{{name}} Version",
     "loading": "Loading...",
@@ -333,9 +328,9 @@
     "security_settings": "Security Settings",
     "account_settings": "Account Settings",
     "show_password": "Show Password",
-    "sidebar": "{type, select, crm {Customer Relationship Management} logistic {Logistic} operations {Operations} plm {Product Lifecycle Management} assets {Assets and Consumables} warehouse {Warehouse} km {Knowledge Management} sales {Sales} catalog {Catalog} hr {Human Resources} finance {Finance} favourites {Favourites} procurement {Procurement} features {Features} other {N/A}}",
+    "sidebar": "{type, select, crm {Customer Relationship Management} logistic {Logistic} operations {Operations} plm {Product Lifecycle Management} assets {Assets and Consumables} warehouse {Warehouse} km {Knowledge Management} sales {Sales} catalog {Catalog} hr {Human Resources} finance {Finance} favourites {Favourites} procurement {Procurement} features {Features} administration {Administration} other {N/A}}",
     "theme": "Change Theme",
-    "title": "Neural ERP",
+    "title": "{{display}}",
     "upgrade": "Upgrade",
     "upgrade_plan": "Upgrade Your Plan",
     "upgrade_cta_title": "Unlock More Analysis Pages",
@@ -469,7 +464,128 @@
     "title": "Billing & Subscriptions",
     "admin": {
       "products": {
-        "title": "Product Catalog"
+        "title": "Product Catalog",
+        "entity": "product",
+        "create": "Create Product",
+        "tabs": {
+          "details": "Details"
+        },
+        "empty": {
+          "title": "No products yet",
+          "description": "Create a product to start offering subscriptions."
+        },
+        "fields": {
+          "name": "Name",
+          "description": "Description",
+          "status": "Status",
+          "prices": "Prices",
+          "stripeId": "Stripe product ID"
+        },
+        "placeholders": {
+          "name": "e.g. Pro",
+          "description": "What this product gives a subscriber"
+        },
+        "errors": {
+          "name": "A product name is required"
+        },
+        "status": {
+          "active": "Active",
+          "archived": "Archived"
+        },
+        "archive": {
+          "title": "Archive product",
+          "description": "\"{name}\" will stop being available for new subscriptions. Existing subscriptions are unaffected. You can restore it later.",
+          "confirm": "Archive"
+        },
+        "restore": {
+          "title": "Restore product",
+          "description": "\"{name}\" will be available for new subscriptions again.",
+          "confirm": "Restore"
+        }
+      },
+      "prices": {
+        "title": "Prices",
+        "entity": "price",
+        "create": "Create Price",
+        "empty": {
+          "title": "No prices yet",
+          "description": "Add a price to make this product subscribable."
+        },
+        "fields": {
+          "product": "Product",
+          "nickname": "Nickname",
+          "amount": "Amount",
+          "currency": "Currency",
+          "interval": "Billing interval",
+          "intervalCount": "Interval count",
+          "usageType": "Usage type",
+          "token": "Credits",
+          "trial": "Trial price",
+          "description": "Description",
+          "features": "Marketing features",
+          "platformFeatures": "Platform features",
+          "status": "Status",
+          "type": "Type",
+          "billing": "Billing",
+          "stripeId": "Stripe price ID"
+        },
+        "placeholders": {
+          "amount": "9.99",
+          "intervalCount": "1",
+          "nickname": "e.g. Monthly",
+          "description": "What this tier includes",
+          "token": "1000",
+          "feature": "Feature {index}"
+        },
+        "help": {
+          "trial": "Marks this as the trial plan. Only one price should be marked as trial.",
+          "core": "Core — always included"
+        },
+        "errors": {
+          "amount": "Enter an amount of 0 or more",
+          "currency": "A currency is required"
+        },
+        "status": {
+          "active": "Active",
+          "archived": "Archived"
+        },
+        "badge": {
+          "trial": "Trial",
+          "metered": "Metered"
+        },
+        "type": {
+          "oneTime": "One-time",
+          "recurring": "Recurring"
+        },
+        "interval": {
+          "one_time": "One-time",
+          "day": "Daily",
+          "week": "Weekly",
+          "month": "Monthly",
+          "year": "Yearly"
+        },
+        "usage": {
+          "licensed": "Licensed (per unit)",
+          "metered": "Metered (usage-based)"
+        },
+        "immutability": {
+          "title": "Stripe prices are immutable",
+          "description": "Amount, currency and billing interval cannot change after a price is created. To change them, create a new price and archive this one."
+        },
+        "actions": {
+          "addFeature": "Add feature",
+          "removeFeature": "Remove feature"
+        },
+        "archive": {
+          "title": "Archive price",
+          "description": "{label} will stop accepting new subscriptions. Existing subscriptions continue unchanged. You can restore it later.",
+          "confirm": "Archive"
+        },
+        "restore": {
+          "title": "Restore price",
+          "description": "{label} will accept new subscriptions again.",
+          "confirm": "Restore"
+        }
       }
     },
     "tokens": {
@@ -7404,6 +7520,185 @@
       "ar_aging": {
         "title": "Accounts receivable aging"
       }
+    }
+  },
+  "administration": {
+    "title": "Administration",
+    "subtitle": "Manage the platform, its companies and its billing.",
+    "group": {
+      "platform": "Platform"
+    },
+    "companies": {
+      "description": "Companies, their users and their subscriptions"
+    },
+    "users": {
+      "description": "Every user on the platform"
+    },
+    "token_usage": {
+      "description": "AI spend, credits and usage over time"
+    },
+    "rbac": {
+      "description": "Roles and module permissions"
+    },
+    "billing": {
+      "description": "Stripe products, prices and credit allowances"
+    },
+    "ai_connections": {
+      "description": "AI providers, models and fallback chains"
+    }
+  },
+  "ai_connections": {
+    "admin": {
+      "title": "AI Connections",
+      "entity": "connection",
+      "create": "Add connection",
+      "scope": {
+        "global": "Global",
+        "company": "Company",
+        "inherits_global": "Inheriting the global chain"
+      },
+      "env_fallback": ".env fallback",
+      "empty": {
+        "title": "No connections yet",
+        "description": "Add a connection to put a provider in front of the .env fallback."
+      },
+      "types": {
+        "ai": "Chat",
+        "aiLite": "Chat (lite)",
+        "aiLarge": "Chat (large)",
+        "vision": "Vision",
+        "audio": "Audio",
+        "image": "Image generation",
+        "embedder": "Embedder",
+        "transcriber": "Transcriber",
+        "documentAi": "Document AI"
+      },
+      "fields": {
+        "name": "Name",
+        "provider": "Provider",
+        "model": "Model",
+        "url": "URL",
+        "apiKey": "API key",
+        "region": "Region",
+        "instance": "Instance",
+        "apiVersion": "API version",
+        "googleCredentialsBase64": "Google credentials (base64)",
+        "allowFallbacks": "Allow provider fallbacks",
+        "reasoningEffort": "Reasoning effort",
+        "maxOutputTokens": "Maximum output tokens",
+        "dimensions": "Dimensions",
+        "inputCostPer1MTokens": "Input cost per 1M tokens",
+        "outputCostPer1MTokens": "Output cost per 1M tokens",
+        "cachedInputCostPer1MTokens": "Cached input cost per 1M tokens",
+        "costPerMinute": "Cost per minute",
+        "costPerPage": "Cost per page",
+        "directUrl": "Direct URL",
+        "language": "Language",
+        "directFormat": "Direct request format",
+        "directProvider": "Direct provider",
+        "enabled": "Enabled",
+        "costs_section": "Costs"
+      },
+      "placeholders": {
+        "name": "e.g. OpenRouter primary",
+        "secret_unchanged": "Unchanged — leave blank to keep"
+      },
+      "reorder": {
+        "up": "Move earlier in the chain",
+        "down": "Move later in the chain"
+      },
+      "errors": {
+        "name": "A connection name is required",
+        "required_field": "This field is required for the selected provider"
+      },
+      "embedder_warning": {
+        "title": "Changing the embedder invalidates every stored vector",
+        "description": "Changing the embedder model or its dimensions invalidates every vector already stored. All content must be re-embedded before search and retrieval work again."
+      },
+      "delete": {
+        "title": "Delete connection",
+        "description": "This connection will be removed from the chain and calls will move on to the next connection in line.",
+        "confirm": "Delete"
+      }
+    }
+  },
+  "token_usage": {
+    "admin": {
+      "title": "Token usage",
+      "detail": "Detail",
+      "no_data": "No usage in this period",
+      "usage_over_time": "Usage over time",
+      "stack_by": "Stack by",
+      "stack": {
+        "scope": "Scope",
+        "type": "Type",
+        "company": "Company"
+      },
+      "by_company": "By company",
+      "by_user": "By user",
+      "customer_by_operation": "Customer usage by operation",
+      "platform_by_operation": "Platform usage by operation",
+      "all_companies": "All companies",
+      "customer_spend": "Customer spend",
+      "platform_spend": "Platform spend",
+      "total_cost": "Total cost",
+      "avg_per_call": "Average per call",
+      "cache_hit": "Cache hit",
+      "vs_previous": "vs previous period",
+      "other": "Other",
+      "granularity": {
+        "label": "Granularity",
+        "day": "Day",
+        "week": "Week",
+        "month": "Month"
+      },
+      "metric": {
+        "label": "Metric",
+        "cost": "Cost",
+        "credits": "Credits",
+        "tokens": "Tokens"
+      },
+      "columns": {
+        "label": "Name",
+        "sublabel": "Detail",
+        "active_users": "Active users",
+        "calls": "Calls",
+        "tokens_in": "Tokens in",
+        "tokens_out": "Tokens out",
+        "cost": "Cost",
+        "credits": "Credits",
+        "share": "Share"
+      }
+    },
+    "report": {
+      "title": "AI usage",
+      "used_in_period": "Credits used this period",
+      "vs_previous": "vs previous period",
+      "monthly_left": "Monthly credits left",
+      "extra_credits": "Extra credits",
+      "calls": "AI calls",
+      "usage_over_time": "Usage over time",
+      "by_operation": "By operation",
+      "no_data": "No usage in this period"
+    },
+    "series": {
+      "other": "Other"
+    },
+    "timeline": {
+      "empty": "No usage recorded in this period"
+    },
+    "types": {
+      "textGeneration": "Text generation",
+      "imageGeneration": "Image generation",
+      "transcription": "Transcription",
+      "operator": "Assistant actions",
+      "embedding": "Search indexing",
+      "summariser": "Summarisation",
+      "responder": "Assistant answers",
+      "graphCreator": "Connection mapping",
+      "communitySummariser": "Community overviews",
+      "customer": "Customer",
+      "platform": "Platform"
     }
   }
 }

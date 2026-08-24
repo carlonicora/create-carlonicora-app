@@ -32,7 +32,7 @@ Read this file when:
 2. **Use getter syntax** - `get propertyName(): Type` for all properties.
 3. **Extend `ApiDataInterface`** - All interfaces extend the base interface.
 4. **Define edge property interfaces separately** - Create dedicated interface for relationship metadata.
-5. **Type date/datetime fields as `Date`** - when the backend descriptor declares `type: "date"` or `"datetime"`, the interface getter MUST be `Date` (or `Date | undefined`), never `string`. The wire format is a string; the model's `rehydrate()` is responsible for converting it. See [../date-handling.md](../date-handling.md).
+5. **Type date/datetime fields as `Date`** — when the backend descriptor declares `type: "date"` or `"datetime"`, the interface getter MUST be `Date` (or `Date | undefined`), never `string`. The wire format is a string; the model's `rehydrate()` is responsible for converting it. See [../date-handling.md](../date-handling.md).
 
 ---
 
@@ -79,12 +79,15 @@ Read this file when:
 ```typescript
 // ExampleInterface.ts
 import { ApiDataInterface } from "@carlonicora/nextjs-jsonapi";
-import { ItemInterface } from "../../<domain>/data/ItemInterface";
+import { PersonInterface } from "../../person/data/PersonInterface";
+import { ItemInterface } from "../../item/data/ItemInterface";
 import { UserInterface } from "../../user/data/UserInterface";
 
-// Edge metadata for item relationship
-export interface ItemRelationshipMeta {
-  position: number;
+// Edge metadata for person relationship
+export interface PersonRelationshipMeta {
+  code: string;
+  completed: boolean;
+  expiresAt?: string;
 }
 
 export interface ExampleInterface extends ApiDataInterface {
@@ -94,14 +97,20 @@ export interface ExampleInterface extends ApiDataInterface {
   // Optional attribute - can be undefined
   get description(): string | undefined;
 
+  // Array attribute - always returns array (may be empty)
+  get sampleItems(): string[];
+
   // Computed property
   get itemCount(): number;
 
   // Single relationship - may not be included
   get owner(): UserInterface | undefined;
 
-  // Array relationship with edge properties - merged with edge metadata
-  get items(): (ItemInterface & ItemRelationshipMeta)[];
+  // Array relationship - always returns array (may be empty)
+  get items(): ItemInterface[];
+
+  // Relationship with edge properties - merged with edge metadata
+  get persons(): (PersonInterface & PersonRelationshipMeta)[];
 }
 ```
 
@@ -118,7 +127,8 @@ export type ExampleInput = {
   name: string;                  // Required attribute
   description?: string;          // Optional attribute
   ownerId: string;               // Required relationship
-  itemIds?: string[];            // Optional relationship (edge props handled via dedicated methods)
+  itemIds?: string[];      // Optional relationship
+  personIds?: string[];          // Optional relationship
 };
 ```
 
@@ -130,34 +140,53 @@ When a relationship has edge properties (defined in backend entity descriptor's 
 
 ```typescript
 // Define edge property interface
-export interface ItemRelationshipMeta {
-  position: number;    // Required edge property
+export interface PersonRelationshipMeta {
+  code: string;           // Required edge property
+  completed: boolean;     // Required edge property
+  expiresAt?: string;     // Optional edge property
 }
 
 // Use in interface with intersection type
-get items(): (ItemInterface & ItemRelationshipMeta)[];
+get persons(): (PersonInterface & PersonRelationshipMeta)[];
 ```
 
 This allows accessing both entity properties and edge properties:
 
 ```typescript
-const item = example.items[0];
-console.log(item.name);       // From ItemInterface
-console.log(item.position);   // From ItemRelationshipMeta
+const person = example.persons[0];
+console.log(person.name);       // From PersonInterface
+console.log(person.code);       // From PersonRelationshipMeta
+console.log(person.completed);  // From PersonRelationshipMeta
 ```
 
 ---
 
 ## Relationship Input for Edge Properties
 
-For operations that add related entities with edge properties, create dedicated input types:
+For operations that add related entities with edge properties:
 
 ```typescript
+// ExampleInput.ts - for standard create/update
+export type ExampleInput = {
+  id: string;
+  name: string;
+  ownerId: string;
+  itemIds?: string[];  // Simple array of IDs
+};
+
 // ExampleAddItemInput.ts - for add item with position
 export type ExampleAddItemInput = {
   exampleId: string;
   itemId: string;
   position: number;  // Edge property
+};
+
+// ExampleAddPersonInput.ts - for add person with access code
+export type ExampleAddPersonInput = {
+  exampleId: string;
+  personId: string;
+  code: string;           // Edge property
+  expiresAt?: string;     // Edge property
 };
 ```
 

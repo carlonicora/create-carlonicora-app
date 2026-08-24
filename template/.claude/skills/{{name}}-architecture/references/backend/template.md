@@ -370,10 +370,11 @@ export class ExampleModule implements OnModuleInit {
 export type Example = Entity & {
   name: string;
   description?: string;
-  itemCount?: number;     // Computed
+  itemCount?: number;      // Computed
+  sampleItems?: string[];  // Computed
   company: Company;
   owner: User;
-  items?: Item[];         // Relationship with edge properties
+  items?: Item[];           // Relationship with edge properties
 };
 
 export const ExampleDescriptor = defineEntity<Example>()({
@@ -383,6 +384,7 @@ export const ExampleDescriptor = defineEntity<Example>()({
     name: { type: "string", required: true },
     description: { type: "string" },
     itemCount: { type: "number" },
+    sampleItems: { type: "string[]" },
   },
 
   computed: {
@@ -391,6 +393,13 @@ export const ExampleDescriptor = defineEntity<Example>()({
         if (!params.record.has("itemCount")) return params.data?.itemCount;
         const count = params.record.get("itemCount");
         return count?.toNumber ? count.toNumber() : Number(count) || 0;
+      },
+    },
+    sampleItems: {
+      compute: (params) => {
+        if (!params.record.has("sampleItems")) return [];
+        const items = params.record.get("sampleItems") || [];
+        return items.map((p: any) => p?.properties?.url).filter(Boolean);
       },
     },
   },
@@ -409,6 +418,32 @@ export const ExampleDescriptor = defineEntity<Example>()({
 });
 ```
 
+## Repository (Medium) - Add buildReturnStatement
+
+```typescript
+@Injectable()
+export class ExampleRepository extends AbstractRepository<Example, typeof ExampleDescriptor.relationships> {
+  protected readonly descriptor = ExampleDescriptor;
+
+  constructor(neo4j: Neo4jService, securityService: SecurityService, clsService: ClsService) {
+    super(neo4j, securityService, clsService);
+  }
+
+  protected buildReturnStatement(): string {
+    return `
+      MATCH (${exampleMeta.nodeName}:${exampleMeta.labelName})-[:BELONGS_TO]->(${exampleMeta.nodeName}_${companyMeta.nodeName}:${companyMeta.labelName})
+      MATCH (${exampleMeta.nodeName})<-[:CREATED]-(${exampleMeta.nodeName}_${ownerMeta.nodeName}:${ownerMeta.labelName})
+      CALL {
+        WITH ${exampleMeta.nodeName}
+        OPTIONAL MATCH (${exampleMeta.nodeName})-[:CONTAINS]->(item:Item)
+        RETURN count(item) as itemCount, collect(item)[0..4] as sampleItems
+      }
+      RETURN ${exampleMeta.nodeName}, ${exampleMeta.nodeName}_${companyMeta.nodeName}, ${exampleMeta.nodeName}_${ownerMeta.nodeName}, itemCount, sampleItems
+    `;
+  }
+}
+```
+
 ---
 
 # Tier 3: Complex Entity
@@ -418,60 +453,83 @@ export const ExampleDescriptor = defineEntity<Example>()({
 ## Repository (Complex) - Add custom query
 
 ```typescript
-async findByStatus(params: { status: string; cursor: JsonApiCursorInterface }): Promise<Example[]> {
-  const query = this.neo4j.initQuery({ serialiser: ExampleDescriptor.model, cursor: params.cursor });
-  query.queryParams = { ...query.queryParams, status: params.status };
-  query.query = `
-    ${this.buildDefaultMatch()}
-    WHERE ${exampleMeta.nodeName}.status = $status
-    ORDER BY ${exampleMeta.nodeName}.createdAt DESC
-    {CURSOR}
-    ${this.buildReturnStatement()}
-  `;
-  return this.neo4j.readMany(query);
+@Injectable()
+export class ExampleRepository extends AbstractRepository<Example, typeof ExampleDescriptor.relationships> {
+  // ... Medium tier code ...
+
+  async findPending(params: { cursor: JsonApiCursorInterface }): Promise<Example[]> {
+    const query = this.neo4j.initQuery({ serialiser: ExampleDescriptor.model, cursor: params.cursor });
+    query.query = `
+      ${this.buildDefaultMatch()}
+      WHERE ${exampleMeta.nodeName}.status = 'pending'
+      ORDER BY ${exampleMeta.nodeName}.createdAt DESC
+      {CURSOR}
+      ${this.buildReturnStatement()}
+    `;
+    return this.neo4j.readMany(query);
+  }
 }
 ```
 
 ## Service (Complex) - Add custom method
 
 ```typescript
-async findByStatus(params: { status: string; query: any }): Promise<any> {
-  const paginator = new JsonApiPaginator(params.query);
-  const data = await this.exampleRepository.findByStatus({
-    status: params.status,
-    cursor: paginator.generateCursor(),
-  });
-  return this.jsonApiService.buildList(ExampleDescriptor.model, data, paginator);
+@Injectable()
+export class ExampleService extends AbstractService<Example, typeof ExampleDescriptor.relationships> {
+  // ... Medium tier code ...
+
+  async findPending(params: { query: any }): Promise<any> {
+    const paginator = new JsonApiPaginator(params.query);
+    const data = await this.exampleRepository.findPending({ cursor: paginator.generateCursor() });
+    return this.jsonApiService.buildList(ExampleDescriptor.model, data, paginator);
+  }
 }
 ```
 
 ## Controller (Complex) - Add custom endpoint
 
-```typescript
-// Custom filtered endpoint (bypasses handlers)
-@Get(`${exampleMeta.endpoint}/pending`)
-async findPending(
-  @Res() reply: FastifyReply,
-  @Query() query: any,
-) {
-  const response = await this.exampleService.findByStatus({ status: "pending", query });
-  reply.send(response);
-}
+Custom endpoints bypass handler factories and call service directly:
 
-// Relationship endpoint with edge properties (bypasses handlers)
-@Post(`${exampleMeta.endpoint}/:exampleId/${itemMeta.endpoint}/:itemId`)
-async addItem(
-  @Res() reply: FastifyReply,
-  @Param("exampleId") exampleId: string,
-  @Param("itemId") itemId: string,
-  @Body() body: ExampleItemsAddSingleDTO,
-) {
-  const response = await this.exampleService.addToRelationshipFromDTO({
-    id: exampleId,
-    relationship: ExampleDescriptor.relationshipKeys.items,
-    data: { id: itemId, type: itemMeta.endpoint, meta: body.data?.meta },
-  });
-  reply.send(response);
+```typescript
+@UseGuards(JwtAuthGuard)
+@Controller()
+export class ExampleController {
+  private readonly crud = createCrudHandlers(() => this.exampleService);
+  private readonly relationships = createRelationshipHandlers(() => this.exampleService);
+
+  constructor(
+    private readonly exampleService: ExampleService,
+    private readonly cacheService: CacheService,
+    private readonly auditService: AuditService,
+  ) {}
+
+  // ... Standard CRUD using handlers (same as Simple tier) ...
+
+  // Custom filtered endpoint (bypasses handlers)
+  @Get(`${exampleMeta.endpoint}/pending`)
+  async findPending(
+    @Res() reply: FastifyReply,
+    @Query() query: any,
+  ) {
+    const response = await this.exampleService.findPending({ query });
+    reply.send(response);
+  }
+
+  // Relationship endpoint with edge properties (bypasses handlers)
+  @Post(`${exampleMeta.endpoint}/:exampleId/${itemMeta.endpoint}/:itemId`)
+  async addItem(
+    @Res() reply: FastifyReply,
+    @Param("exampleId") exampleId: string,
+    @Param("itemId") itemId: string,
+    @Body() body: ExampleItemsAddSingleDTO,
+  ) {
+    const response = await this.exampleService.addToRelationshipFromDTO({
+      id: exampleId,
+      relationship: ExampleDescriptor.relationshipKeys.items,
+      data: { id: itemId, type: itemMeta.endpoint, meta: body.data?.meta },
+    });
+    reply.send(response);
+  }
 }
 ```
 

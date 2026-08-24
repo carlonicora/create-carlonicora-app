@@ -16,28 +16,29 @@ Invoke whenever the next action is to create or edit a TypeScript file under any
 
 If the task is to create a NEW entity (backend or frontend), use the full-chain rows in the routing table below.
 
-## Routing table (file to references)
+## Routing table (file → references)
 
 ### Backend (apps/api)
 
 | File pattern | Read references in this order |
 |---|---|
-| `apps/api/src/features/*/entities/*` | `references/core-principles.md` -> `references/backend/01-entity-basics.md` -> `references/date-handling.md` (if any field represents a date/datetime) |
-| `apps/api/src/features/**/*.dto.ts` (or under `*/dtos/*`) | `references/backend/02-dtos.md` -> `references/date-handling.md` (if any attribute is a date/datetime) |
-| `apps/api/src/features/**/*.repository.ts` (or under `*/repositories/*`) | `references/backend/03-repositories.md` -> `references/anti-patterns.md` -> `references/date-handling.md` (if any custom Cypher writes a date/datetime) |
+| `apps/api/src/features/*/entities/*` | `references/core-principles.md` → `references/backend/01-entity-basics.md` → `references/date-handling.md` (if any field represents a date/datetime) |
+| `apps/api/src/features/**/*.dto.ts` (or under `*/dtos/*`) | `references/backend/02-dtos.md` → `references/date-handling.md` (if any attribute is a date/datetime) |
+| `apps/api/src/features/**/*.repository.ts` (or under `*/repositories/*`) | `references/backend/03-repositories.md` → `references/anti-patterns.md` → `references/date-handling.md` (if any custom Cypher writes a date/datetime) |
 | `apps/api/src/features/**/*.service.ts` (or under `*/services/*`) | `references/backend/04-services.md` |
-| `apps/api/src/features/**/*.controller.ts` (or under `*/controllers/*`) | `references/backend/05-controllers.md` -> `references/backend/02-dtos.md` |
-| Creating a NEW backend entity (full chain) | `references/core-principles.md` -> `references/backend/01-entity-basics.md` -> `references/backend/02-dtos.md` -> `references/backend/03-repositories.md` -> `references/backend/04-services.md` -> `references/backend/05-controllers.md` -> `references/backend/template.md` -> `references/date-handling.md` (if any field is a date/datetime) |
+| `apps/api/src/features/**/*.controller.ts` (or under `*/controllers/*`) | `references/backend/05-controllers.md` → `references/backend/02-dtos.md` |
+| `apps/api/src/features/*/agent/**` (agent nodes, prompts, schemas — anything that calls an LLM) | `references/backend/06-llm-calls.md` → `references/backend/04-services.md` |
+| Creating a NEW backend entity (full chain) | `references/core-principles.md` → `references/backend/01-entity-basics.md` → `references/backend/02-dtos.md` → `references/backend/03-repositories.md` → `references/backend/04-services.md` → `references/backend/05-controllers.md` → `references/backend/template.md` → `references/date-handling.md` (if any field is a date/datetime) |
 
 ### Frontend (apps/web)
 
 | File pattern | Read references in this order |
 |---|---|
-| `apps/web/src/features/*/data/*Interface.ts` | `references/frontend/02-interfaces.md` -> `references/date-handling.md` (if any getter is `Date`) |
-| `apps/web/src/features/*/data/*Service.ts` | `references/frontend/03-services.md` -> `references/anti-patterns.md` |
-| `apps/web/src/features/*/data/*.ts` (other) | `references/frontend/01-models.md` -> `references/date-handling.md` (if `rehydrate()` or `createJsonApi()` touches a date/datetime) |
-| `apps/web/src/features/*/components/**` (or `**/*.tsx` under features) | `references/frontend/04-components.md` |
-| Creating a NEW frontend entity (full chain) | `references/core-principles.md` -> `references/frontend/02-interfaces.md` -> `references/frontend/01-models.md` -> `references/frontend/03-services.md` -> `references/frontend/04-components.md` -> `references/frontend/template.md` -> `references/date-handling.md` (if any field is a date/datetime) |
+| `apps/web/src/features/*/data/*Interface.ts` | `references/frontend/02-interfaces.md` → `references/date-handling.md` (if any getter is `Date`) |
+| `apps/web/src/features/*/data/*Service.ts` | `references/frontend/03-services.md` → `references/anti-patterns.md` |
+| `apps/web/src/features/*/data/*.ts` (other) | `references/frontend/01-models.md` → `references/date-handling.md` (if `rehydrate()` or `createJsonApi()` touches a date/datetime) |
+| `apps/web/src/features/*/components/**` (or `**/*.tsx` under features) | `references/frontend/04-components.md` → `references/frontend/05-typography.md` (if the edit styles text) |
+| Creating a NEW frontend entity (full chain) | `references/core-principles.md` → `references/frontend/02-interfaces.md` → `references/frontend/01-models.md` → `references/frontend/03-services.md` → `references/frontend/04-components.md` → `references/frontend/05-typography.md` → `references/frontend/template.md` → `references/date-handling.md` (if any field is a date/datetime) |
 
 ### Shared packages
 
@@ -50,40 +51,50 @@ If the task is to create a NEW entity (backend or frontend), use the full-chain 
 ### Code review or debugging
 
 Read `references/anti-patterns.md` first, then the layer-specific reference for the file under review.
+Read `references/decisions.md` when the question is *why* a pattern exists rather than *what* it is.
 
-## Non-negotiable rules
+## Non-negotiable rules (mirror of root CLAUDE.md guardrails)
+
+> The canonical copy of these rules lives in the repository root `CLAUDE.md`. This is a survival summary in case CLAUDE.md context was compacted away. If anything here conflicts with `CLAUDE.md`, `CLAUDE.md` wins.
 
 ### Protocol
-- All API traffic uses **JSON:API**. Never construct JSON:API payloads manually - use the model.
+- All API traffic uses **JSON:API**. Never construct JSON:API payloads manually — use the model.
 
 ### Backend (NestJS + Neo4j)
-- Extend `AbstractRepository` and `AbstractService` - never bypass the framework
-- Use `buildDefaultMatch()` for queries - auto-injects company filtering (security-critical)
-- Use `readOne()` / `readMany()` - never return raw `result.records`
-- Use `{CURSOR}` placeholder for paginated queries - never manual `SKIP`/`LIMIT`
-- Pass `serialiser` to `initQuery()` - without it, type mapping fails
+- Extend `AbstractRepository` and `AbstractService` — never bypass the framework
+- Use `buildDefaultMatch()` for queries — auto-injects company filtering (security-critical)
+- Use `readOne()` / `readMany()` — never return raw `result.records`
+- Use `{CURSOR}` placeholder for paginated queries — never manual `SKIP`/`LIMIT`
+- Pass `serialiser` to `initQuery()` — without it, type mapping fails
 - Use `createCrudHandlers()` / `createRelationshipHandlers()` for standard CRUD
-- Use meta constants for endpoint paths - never hardcode strings
+- Use meta constants for endpoint paths — never hardcode strings
 - Use DTOs for request validation
-- Always parameterized Cypher - never string interpolation
+- Always parameterized Cypher — never string interpolation
 - Controllers call services, never repositories directly
 
 ### Frontend (Next.js)
-- Use `callApi()` - never `fetch()` directly
+- Use `callApi()` — never `fetch()` directly
 - Implement `rehydrate()` and `createJsonApi()` on every model
-- Use `EndpointCreator` for URLs - never hardcode endpoint strings
+- Use `EndpointCreator` for URLs — never hardcode endpoint strings
 - Always pass `type: Modules.X` in `callApi()` calls
 - Never use `overridesJsonApiCreation` without a dedicated model method
-- Never construct JSON:API payloads manually - the model handles serialization
+- Never construct JSON:API payloads manually — the model handles serialization
 - This project uses **Base UI** (not Radix). Never use `asChild`. Never wrap `<Button>` inside trigger components. Use the `render` prop.
+- Every piece of text belongs to exactly one of the 17 typography roles — never a raw `<h1>`, never a raw palette color on text, never `font-mono`, never an underlined link
+
+### LLM calls (backend agents)
+- Every `LLMService.call` passes BOTH `inputSchema` and `outputSchema`, with `.describe()` on every field
+- System prompts are static doctrine — no `${}` interpolation, and no backtick anywhere in the template literal, including comments
+- Attribute every call: `tokenUsageType`, `relationshipId`/`relationshipType`, `metadata.agentName`/`metadata.nodeName`
+- Full rules: `references/backend/06-llm-calls.md`
 
 ### Dates and DateTimes (cross-cutting)
-- A calendar date (no time) MUST be `type: "date"` in the entity descriptor - never `"string"`
-- A point-in-time (timestamped event) MUST be `type: "datetime"` - never `"string"`, never `"date"`
-- Custom Cypher writes MUST cast: `date(left($v, 10))` for dates, `datetime($v)` for datetimes
+- A calendar date (no time) MUST be `type: "date"` in the entity descriptor — never `"string"`
+- A point-in-time (timestamped event) MUST be `type: "datetime"` — never `"string"`, never `"date"`
+- Custom Cypher writes MUST cast: `date(left($v, 10))` for dates, `datetime($v)` for datetimes — the framework only auto-casts the standard `create`/`put`/`patch` path
 - DTOs MUST validate with `@IsDateString()` (never `@IsString()`) on date/datetime attributes
 - Frontend interfaces MUST type date/datetime getters as `Date` (or `Date | undefined`) and `rehydrate()` MUST parse with `new Date(...)`
-- Frontend `createJsonApi()` MUST use `formatLocalDate(d)` (imported from `@carlonicora/nextjs-jsonapi/core`) for `type: "date"` fields, and `d.toISOString()` for `type: "datetime"` fields
+- Frontend `createJsonApi()` MUST use `formatLocalDate(d)` (imported from `@carlonicora/nextjs-jsonapi/core` — never re-implemented inline) for `type: "date"` fields, and `d.toISOString()` for `type: "datetime"` fields
 - Full lifecycle and verification checklist: `references/date-handling.md`
 
 ## How to use this skill
@@ -99,16 +110,19 @@ Read `references/anti-patterns.md` first, then the layer-specific reference for 
 |---|---|
 | `references/core-principles.md` | Foundational rules: JSON:API compliance, type safety, security defaults |
 | `references/anti-patterns.md` | Common mistakes and how to avoid them |
-| `references/date-handling.md` | Cross-cutting: date/datetime native-storage contract, end-to-end (descriptor to DTO to repository to model) |
+| `references/date-handling.md` | Cross-cutting: date/datetime native-storage contract, end-to-end (descriptor → DTO → repository → model) |
+| `references/decisions.md` | Architecture Decision Records — why patterns exist |
 | `references/feature-template.md` | Feature handbook template |
 | `references/backend/01-entity-basics.md` | Entity metadata + Entity Descriptors |
 | `references/backend/02-dtos.md` | DTOs for POST/PUT request validation |
 | `references/backend/03-repositories.md` | AbstractRepository, Cypher queries, company filtering, pagination |
 | `references/backend/04-services.md` | AbstractService, business logic, JSON:API response building |
 | `references/backend/05-controllers.md` | HTTP handlers, auth guards, cache invalidation |
+| `references/backend/06-llm-calls.md` | LLM call design: inputSchema + .describe() on every field, output schema shape rules, prompt safety, attribution, tools |
 | `references/backend/template.md` | Copy-paste template for new backend entities |
 | `references/frontend/01-models.md` | AbstractApiData, rehydrate(), createJsonApi() |
 | `references/frontend/02-interfaces.md` | TypeScript interfaces for models |
 | `references/frontend/03-services.md` | AbstractService, callApi(), EndpointCreator |
 | `references/frontend/04-components.md` | Base UI patterns (NOT Radix), render prop, trigger composition |
+| `references/frontend/05-typography.md` | Typography roles: one Tailwind recipe per text role, color tokens, header-markup rules |
 | `references/frontend/template.md` | Copy-paste template for new frontend entities |

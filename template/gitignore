@@ -16,6 +16,9 @@ dist/
 build/
 out/
 .next/
+# The e2e stack's build output (next.config.js sets distDir when E2E_BUILD=true,
+# so an e2e run never clobbers the dev server's .next).
+.next-e2e/
 *.tsbuildinfo
 next-env.d.ts
 
@@ -33,6 +36,9 @@ apps/api/.llm-dumps/
 
 # Environment variables
 .env
+# Local overrides for the e2e stack (copy of env.e2e.example). Carries database
+# credentials and the seeded administrator's password — never commit it.
+.env.e2e
 .env.local
 .env.development.local
 .env.test.local
@@ -60,7 +66,10 @@ apps/api/.llm-dumps/
 # Playwright
 playwright-report/
 playwright/.cache/
+# storageState files: these hold LIVE session tokens for the seeded personas.
+# Never commit them, never publish them, never attach one to a bug report.
 playwright/.auth/
+apps/web/playwright/.auth/
 test-results/
 
 # Debug

@@ -1,6 +1,6 @@
+// Import env first to ensure bootstrap() runs before any Modules access
 import { generateSpecificMetadata } from "@/utils/metadata";
-import { CompaniesList, PageContainer } from "@carlonicora/nextjs-jsonapi/components";
-import { CompanyProvider } from "@carlonicora/nextjs-jsonapi/contexts";
+import { CompaniesListContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
@@ -12,12 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+/**
+ * The container owns CompanyProvider and the page shell. It has to: a Server
+ * Component cannot pass `Modules.Company` to a client component — the registry
+ * entry carries an icon component and methods.
+ */
 export default async function CompaniesListPage() {
-  return (
-    <CompanyProvider>
-      <PageContainer className="pr-4">
-        <CompaniesList />
-      </PageContainer>
-    </CompanyProvider>
-  );
+  return <CompaniesListContainer />;
 }

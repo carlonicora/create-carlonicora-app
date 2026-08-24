@@ -39,7 +39,7 @@ Read this file when:
 
 ## ENFORCEMENT CHECKPOINT
 
-> **STOP - Before committing entity code, verify:**
+> **STOP — Before committing entity code, verify:**
 > 1. Is the Descriptor exported alongside the type? If no, **STOP**.
 > 2. Are computed values in `computed`, not `fields`? If a derived value is in `fields`, **STOP**.
 > 3. Are relationship directions correct from THIS entity's perspective? If unsure, **STOP** and check the Decision Matrix below.
@@ -64,8 +64,8 @@ Read this file when:
 |----------|---------------|
 | Does this entity OWN/CREATE/CONTAIN the related entity? | `direction: "out"` |
 | Is this entity OWNED_BY/BELONGS_TO the related entity? | `direction: "in"` |
-| Example: Parent CONTAINS Children | `direction: "out"` |
-| Example: User CREATED Parent | `direction: "in"` (from Parent's perspective) |
+| e.g. Example CONTAINS Items | `direction: "out"` |
+| e.g. User CREATED Example | `direction: "in"` (from Example's perspective) |
 
 ### When to Use Edge Properties
 
@@ -73,6 +73,7 @@ Read this file when:
 |----------|--------|
 | Does the relationship need metadata (position, code, timestamp)? | Add `fields` array |
 | Is it just a simple association? | No `fields` array needed |
+| e.g. position of an Item inside an Example | `fields: [{ name: "position", type: "number" }]` |
 
 ---
 
@@ -100,14 +101,14 @@ Read this file when:
 Every entity has a metadata file defining its JSON:API type and Neo4j labels.
 
 ```typescript
-// <entity>.meta.ts
+// example.meta.ts
 import { DataMeta } from "@carlonicora/nestjs-neo4jsonapi";
 
 export const exampleMeta: DataMeta = {
   type: "examples",        // JSON:API type (plural, kebab-case)
   endpoint: "examples",    // HTTP endpoint path
-  nodeName: "example",     // Neo4j query variable name
-  labelName: "Example",    // Neo4j node label (PascalCase)
+  nodeName: "example",      // Neo4j query variable name
+  labelName: "Example",     // Neo4j node label (PascalCase)
 };
 ```
 
@@ -116,18 +117,27 @@ export const exampleMeta: DataMeta = {
 ## Entity Type Definition
 
 ```typescript
-// <entity>.ts
-import { Company, defineEntity, Entity, ownerMeta, User } from "@carlonicora/nestjs-neo4jsonapi";
+// example.ts
+import { Company, defineEntity, Entity, ownerMeta, S3Service, User } from "@carlonicora/nestjs-neo4jsonapi";
 import { exampleMeta } from "./example.meta";
-// Import related entity types as needed for your domain
+import { Item } from "../../item/entities/item";
+import { itemMeta } from "../../item/entities/item.meta";
+import { Person } from "../../person/entities/person";
+import { personMeta } from "../../person/entities/person.meta";
 
+/**
+ * Entity Type - TypeScript type definition
+ * Extends Entity base type with entity-specific properties
+ */
 export type Example = Entity & {
   name: string;
   description?: string;
-  itemCount?: number;      // Computed - count from query
+  sampleItems?: string[];  // Computed - derived from query
+  itemCount?: number;           // Computed - count from query
   company: Company;
   owner: User;
-  items?: Item[];          // Related entity collection
+  item?: Item[];
+  person?: Person[];
 };
 ```
 
@@ -139,15 +149,37 @@ export type Example = Entity & {
 export const ExampleDescriptor = defineEntity<Example>()({
   ...exampleMeta,  // Spread metadata
 
+  // Services available in transforms
+  injectServices: [S3Service],
+
   // Field definitions (atomic properties stored in Neo4j node)
   fields: {
     name: { type: "string", required: true },
     description: { type: "string" },
+    sampleItems: {
+      type: "string[]",
+      // Transform: convert S3 keys to signed URLs
+      transform: async (data, services) => {
+        if (!data.sampleItems?.length) return [];
+        return Promise.all(
+          data.sampleItems.map((url: string) =>
+            services.S3Service.generateSignedUrl({ key: url })
+          )
+        );
+      },
+    },
     itemCount: { type: "number" },
   },
 
   // Computed properties (derived from Neo4j query results)
   computed: {
+    sampleItems: {
+      compute: (params) => {
+        if (!params.record.has("sampleItems")) return [];
+        const items = params.record.get("sampleItems") || [];
+        return items.map((p: any) => p?.properties?.url).filter(Boolean);
+      },
+    },
     itemCount: {
       compute: (params) => {
         if (!params.record.has("itemCount")) return params.data?.itemCount;
@@ -162,20 +194,33 @@ export const ExampleDescriptor = defineEntity<Example>()({
   relationships: {
     owner: {
       model: ownerMeta,
-      direction: "in",           // User CREATED Example -> incoming to Example
+      direction: "in",           // User CREATED Example → incoming to Example
       relationship: "CREATED",   // Neo4j relationship type
       cardinality: "one",        // Single relationship
       dtoKey: "owner",           // Key in DTOs
     },
-    items: {
+    item: {
       model: itemMeta,
-      direction: "out",          // Example CONTAINS Items -> outgoing from Example
+      direction: "out",          // Example CONTAINS Items → outgoing from Example
       relationship: "CONTAINS",
-      cardinality: "many",
+      cardinality: "many",       // Collection
       required: false,
       dtoKey: "items",
       // Edge properties (stored on the relationship)
       fields: [{ name: "position", type: "number", required: true }],
+    },
+    person: {
+      model: personMeta,
+      direction: "in",           // Person HAS_ACCESS_TO Example → incoming to Example
+      relationship: "HAS_ACCESS_TO",
+      cardinality: "many",
+      required: false,
+      dtoKey: "persons",
+      // Edge properties for access control
+      fields: [
+        { name: "code", type: "string", required: true },
+        { name: "expiresAt", type: "datetime", required: false },
+      ],
     },
   },
 });
@@ -197,16 +242,16 @@ export type ExampleDescriptorType = typeof ExampleDescriptor;
 | `"string[]"` | Array of strings | List<String> |
 | `"number[]"` | Array of numbers | List<Integer> |
 
-### Dates and DateTimes - non-negotiable
+### Dates and DateTimes — non-negotiable
 
 A field that represents a calendar date MUST be `type: "date"`. A field that
 represents an instant in time MUST be `type: "datetime"`. **Never declare a
-temporal field as `"string"`** - the framework reads the descriptor to emit
+temporal field as `"string"`** — the framework reads the descriptor to emit
 the correct Cypher cast (`date(left($v, 10))` / `datetime($v)`), and if the
 type is wrong the value lands in Neo4j as a `String` and Cypher temporal
 operators silently break.
 
-Full lifecycle (descriptor to DTO to repository to frontend) and verification
+Full lifecycle (descriptor → DTO → repository → frontend) and verification
 checklist: **[../date-handling.md](../date-handling.md)**.
 
 ---

@@ -37,7 +37,7 @@ const eslintConfig = [
     },
   },
   {
-    ignores: [".next/**", "out/**", "build/**", "coverage/**", "next-env.d.ts", "node_modules/**"],
+    ignores: [".next/**", ".next-e2e/**", "out/**", "build/**", "coverage/**", "next-env.d.ts", "node_modules/**", "test-results/**", "playwright-report/**"],
   },
   {
     // Disable i18n literal string checks in test files

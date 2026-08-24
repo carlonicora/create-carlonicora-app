@@ -94,6 +94,12 @@ def main():
     print(f"Source: {src_path}\n")
     img = Image.open(src_path).convert("RGBA")
 
+    # The icons/ and splash/ subdirectories are outputs, not inputs: on a clean
+    # checkout they do not exist yet and Pillow will not create them, so every
+    # write below fails with FileNotFoundError.
+    os.makedirs(ICONS, exist_ok=True)
+    os.makedirs(SPLASH, exist_ok=True)
+
     # Detect primary color and create white version for splash screens
     primary_color = detect_primary_color(img)
     print(f"Detected primary color: RGB{primary_color}")

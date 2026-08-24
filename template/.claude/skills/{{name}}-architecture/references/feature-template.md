@@ -60,18 +60,18 @@ last_updated: "YYYY-MM-DD"
 
 | From | To | Relationship Type | Direction | Edge Properties |
 |------|-----|-------------------|-----------|-----------------|
-| Example | Account | BELONGS_TO | out | - |
-| Example | User | CREATED | in | - |
+| Example | Account | BELONGS_TO | out | — |
+| Example | User | CREATED | in | — |
 
 ## API Endpoints
 
 | Method | Path | Description | Auth | DTO |
 |--------|------|-------------|------|-----|
-| GET | /examples | List all | JWT | - |
-| GET | /examples/:id | Get one | JWT | - |
+| GET | /examples | List all | JWT | — |
+| GET | /examples/:id | Get one | JWT | — |
 | POST | /examples | Create | JWT | ExamplePostDTO |
 | PUT | /examples/:id | Update | JWT | ExamplePutDTO |
-| DELETE | /examples/:id | Delete | JWT | - |
+| DELETE | /examples/:id | Delete | JWT | — |
 
 ## Business Rules
 
@@ -109,7 +109,7 @@ last_updated: "YYYY-MM-DD"
 | Page | Element | Action | API Call |
 |------|---------|--------|----------|
 | List | Data table | Displays all records | GET /examples |
-| List | Create button | Opens create form | - |
+| List | Create button | Opens create form | — |
 | Detail | Edit form | Updates record | PUT /examples/:id |
 | Detail | Delete button | Confirms and deletes | DELETE /examples/:id |
 

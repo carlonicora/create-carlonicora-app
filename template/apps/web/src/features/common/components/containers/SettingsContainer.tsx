@@ -1,212 +1,195 @@
 "use client";
 
-import {
-  SettingsNavButton,
-  SettingsNavLink,
-  SettingsNavSection,
-} from "@/features/common/components/layouts/SettingsNav";
-import { useRouter } from "@/i18n/routing";
-import { SettingsPageLayout } from "@/features/common/components/layouts/SettingsPageLayout";
-import { useSettingsContext } from "@/features/common/contexts/SettingsContext";
-import { Action, ModuleWithPermissions, Modules, getRoleId } from "@carlonicora/nextjs-jsonapi";
+import OAuthClientListContainer from "@/features/common/components/containers/OAuthClientListContainer";
+import UserProfileContainer, { PROFILE_SECTION } from "@/features/common/components/containers/UserProfileContainer";
+import { SettingsSectionActionsProvider } from "@/features/common/contexts/SettingsSectionActionsContext";
 import {
   BillingDashboardContainer,
-  ProductsAdminContainer,
+  ProductProvider,
+  ProductsList,
   isStripeConfigured,
 } from "@carlonicora/nextjs-jsonapi/billing";
 import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
   AllUsersListContainer,
-  CompanyEditor,
   CompanyContent,
+  CompanyEditor,
   RoundPageContainer,
+  Tab,
 } from "@carlonicora/nextjs-jsonapi/components";
-import { useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
+import { SharedProvider, useCurrentUserContext } from "@carlonicora/nextjs-jsonapi/contexts";
+import {
+  Action,
+  BreadcrumbItemData,
+  CompanyInterface,
+  ModuleWithPermissions,
+  Modules,
+} from "@carlonicora/nextjs-jsonapi/core";
+import { RoleId } from "@{{name}}/shared";
+import { useTranslations } from "next-intl";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
-import { CompanyInterface } from "@carlonicora/nextjs-jsonapi/core";
-import { Code2, LucideIcon, Package, Wallet } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { ReactNode, useCallback, useEffect, useState } from "react";
-
-type SidebarItem = {
-  id: string;
-  icon: LucideIcon;
-  label?: string;
-  container: ReactNode;
-  module: ModuleWithPermissions;
-  singleItem?: boolean;
-  requiredPermission?: Action;
-  requiredRole?: string;
-  hidden?: boolean;
-  fullWidth?: boolean;
+/**
+ * One settings rail section. `visible` carries each section's own gate verbatim
+ * rather than a generic permission DSL, because the gates genuinely differ:
+ * some are role-only, some permission-only, some both.
+ */
+type SettingsItem = {
+  section: string;
+  label: string;
+  content: ReactNode;
+  group: string;
+  key?: ModuleWithPermissions;
+  visible: boolean;
 };
 
-export default function SettingsContainer({ children }: { children?: ReactNode }) {
-  const { module, setModule } = useSettingsContext();
+export default function SettingsContainer({ initialSection }: { initialSection: string }) {
   const t = useTranslations();
-  const locale = useLocale();
-  const router = useRouter();
-  const { hasPermissionToModule, hasRole, currentUser, company: initialCompany } = useCurrentUserContext();
-  const [selectedComponent, setSelectedComponent] = useState<SidebarItem | null>(null);
   const generateUrl = usePageUrlGenerator();
+  const { hasPermissionToModule, hasRole, company: initialCompany } = useCurrentUserContext();
+
+  // Active rail section, seeded from the server-read ?section=. Mirrored in
+  // state via onSectionChange because the rail writes the URL with
+  // history.replaceState, which does not re-render this ancestor — and the
+  // breadcrumb and the title both depend on it.
+  const [section, setSection] = useState(initialSection);
   const [company, setCompany] = useState(initialCompany);
+
+  // The current user is stored in an atomWithStorage whose getOnInit is false,
+  // so the FIRST client render sees company === null and the real value only
+  // arrives on the mount effect. useState captures that first value only, so
+  // without this sync the Company pane would stay null forever and
+  // CompanyContent would render nothing.
+  useEffect(() => {
+    setCompany(initialCompany);
+  }, [initialCompany]);
+
+  // Sections mount as tab *content* — descendants of the shared header — so they
+  // cannot feed `title.functions` upward directly. Each publishes here, keyed by
+  // section; only the active section's node reaches the header below.
+  const [actionsBySection, setActionsBySection] = useState<Record<string, ReactNode>>({});
+  const registerSectionActions = useCallback((sectionKey: string, actions: ReactNode) => {
+    setActionsBySection((prev) => ({ ...prev, [sectionKey]: actions }));
+  }, []);
+  const sectionActionsValue = useMemo(() => ({ register: registerSectionActions }), [registerSectionActions]);
 
   const handleCompanyUpdate = useCallback((updated: CompanyInterface) => {
     setCompany(updated);
   }, []);
 
-  // Build sidebars array - only include billing if Stripe is configured
-  const billingSection = isStripeConfigured()
-    ? !hasRole(getRoleId().Administrator)
-      ? {
-          name: "billing",
-          label: t("billing.title"),
-          items: [
-            {
-              id: "billing",
-              icon: Wallet,
-              label: t("billing.title"),
-              container: <BillingDashboardContainer />,
-              module: Modules.Billing,
-              requiredPermission: Action.Read,
-              singleItem: true,
-            },
-          ],
-        }
-      : {
-          name: `billing`,
-          label: t("billing.title"),
-          items: [
-            {
-              id: "stripe-products",
-              icon: Package,
-              label: t("billing.admin.products.title"),
-              container: <ProductsAdminContainer />,
-              module: Modules.StripeProduct,
-              requiredRole: getRoleId().Administrator,
-            },
-          ],
-        }
-    : null;
+  const isAdministrator = hasRole(RoleId.Administrator);
 
-  const companySection = !hasRole(getRoleId().Administrator)
-    ? {
-        name: `company`,
-        label: t(`common.settings_sidebar`, { item: "company" }),
-        items: [
-          {
-            id: "company",
-            icon: Modules.Company.icon,
-            container: (
-              <CompanyContent
-                company={company}
-                actions={
-                  hasPermissionToModule({ module: Modules.Company, action: Action.Update }) ? (
-                    <>
-                      <CompanyEditor company={company} propagateChanges={handleCompanyUpdate} />
-                    </>
-                  ) : undefined
-                }
-              />
-            ),
-            module: Modules.Company,
-            singleItem: true,
-          },
-          { id: "user", icon: Modules.User.icon, container: <AllUsersListContainer />, module: Modules.User },
-        ],
-      }
-    : null;
+  const companyGroup = t(`common.settings_sidebar`, { item: "company" });
+  const billingGroup = t(`billing.title`);
+  const developerGroup = t(`common.developer`);
 
-  const sidebars: {
-    name: string;
-    label?: string;
-    items: SidebarItem[];
-  }[] = [...(companySection ? [companySection] : []), ...(billingSection ? [billingSection] : [])];
+  const items: SettingsItem[] = [
+    {
+      section: Modules.Company.name,
+      key: Modules.Company,
+      group: companyGroup,
+      label: t(`entities.${Modules.Company.name}`, { count: 1 }),
+      visible: !isAdministrator && hasPermissionToModule({ module: Modules.Company, action: Action.Read }),
+      content: (
+        <CompanyContent
+          company={company}
+          actions={
+            hasPermissionToModule({ module: Modules.Company, action: Action.Update }) ? (
+              <CompanyEditor company={company} propagateChanges={handleCompanyUpdate} />
+            ) : undefined
+          }
+        />
+      ),
+    },
+    {
+      section: Modules.User.name,
+      key: Modules.User,
+      group: companyGroup,
+      label: t(`entities.${Modules.User.name}`, { count: 2 }),
+      visible: !isAdministrator && hasPermissionToModule({ module: Modules.User, action: Action.Read }),
+      content: <AllUsersListContainer />,
+    },
+    {
+      section: Modules.Billing.name,
+      key: Modules.Billing,
+      group: billingGroup,
+      label: t(`billing.title`),
+      visible:
+        isStripeConfigured() &&
+        !isAdministrator &&
+        hasPermissionToModule({ module: Modules.Billing, action: Action.Read }),
+      content: <BillingDashboardContainer />,
+    },
+    {
+      section: Modules.StripeProduct.name,
+      key: Modules.StripeProduct,
+      group: billingGroup,
+      label: t(`billing.admin.products.title`),
+      visible:
+        isStripeConfigured() &&
+        isAdministrator &&
+        hasPermissionToModule({ module: Modules.StripeProduct, action: Action.Read }),
+      // `ProductProvider publishChrome={false}` + `ProductsList`, NOT the
+      // package's `ProductsListContainer`: that container wraps itself in its own
+      // RoundPageContainer, which inside the rail nests a second header,
+      // breadcrumb bar and title row on top of this pane's own — and its
+      // ProductProvider would publish its own chrome, which SharedProvider
+      // REPLACES rather than merges, blanking this page's title.
+      content: (
+        <ProductProvider publishChrome={false}>
+          <ProductsList fullWidth />
+        </ProductProvider>
+      ),
+    },
+    {
+      section: Modules.OAuth.name,
+      key: Modules.OAuth,
+      group: developerGroup,
+      label: t(`common.oauth_applications`),
+      // Role-only, matching the pre-rail Developer link, which carried no module
+      // and therefore no permission check.
+      visible: isAdministrator,
+      content: <OAuthClientListContainer />,
+    },
+  ];
 
-  // Developer section with external link to OAuth pages
-  const developerSection = hasRole(getRoleId().Administrator)
-    ? {
-        name: "developer",
-        label: t("common.developer"),
-        items: [
-          {
-            id: "oauth",
-            icon: Code2,
-            label: t("common.oauth_applications"),
-            href: generateUrl({ page: "/settings/oauth" }),
-          },
-        ],
-      }
-    : null;
+  const visibleItems = items.filter((item) => item.visible);
+  const profileLabel = t(`common.my_profile`);
 
-  const selectItem = (item: SidebarItem) => {
-    if (children) {
-      router.push(generateUrl({ page: `/settings`, id: item.module.name }));
-      return;
-    }
-    setModule(item.module);
-    setSelectedComponent(item);
-    window.history.replaceState(null, "", generateUrl({ page: `/settings`, id: item.module.name }));
-  };
+  const tabs: Tab[] = [
+    { sectionKey: PROFILE_SECTION, label: profileLabel, content: <UserProfileContainer /> },
+    ...visibleItems.map((item) => ({
+      key: item.key,
+      sectionKey: item.section,
+      label: item.label,
+      content: item.content,
+      group: item.group,
+    })),
+  ];
 
-  useEffect(() => {
-    const found = sidebars
-      .map((sidebar) => sidebar.items.find((item) => item.module.name === module.name))
-      .find((item) => item !== undefined);
-    if (found) {
-      setSelectedComponent(found);
-    } else {
-      setSelectedComponent(null);
-      setModule(undefined);
-    }
-  }, [module, currentUser?.id, company]);
+  const activeItem = visibleItems.find((item) => item.section === section);
+  const activeLabel = section === PROFILE_SECTION ? profileLabel : activeItem?.label;
 
-  const sidebar = (
-    <div className="space-y-6">
-      {sidebars.map((section) => (
-        <SettingsNavSection
-          key={section.name}
-          label={section.label || t(`common.settings_sidebar`, { item: section.name })}
-        >
-          {section.items.map((item) => {
-            if (item.hidden) return null;
-            if (item.requiredPermission) {
-              if (!hasPermissionToModule({ module: item.module, action: item.requiredPermission })) return null;
-            } else if (!hasPermissionToModule({ module: item.module, action: Action.Read })) {
-              return null;
-            }
-            if (item.requiredRole && !hasRole(item.requiredRole)) return null;
+  const breadcrumbs: BreadcrumbItemData[] = [{ name: t(`common.settings`), href: generateUrl({ page: `/settings` }) }];
+  if (activeLabel)
+    breadcrumbs.push({
+      name: activeLabel,
+      href: generateUrl({ page: `/settings`, additionalParameters: { section } }),
+    });
 
-            return (
-              <SettingsNavButton
-                key={item.id}
-                icon={item.icon}
-                label={item.label || t(`entities.${item.module.name}`, { count: item.singleItem ? 1 : 2 })}
-                isActive={selectedComponent?.id === item.id}
-                onClick={() => selectItem(item)}
-              />
-            );
-          })}
-        </SettingsNavSection>
-      ))}
-
-      {developerSection && (
-        <SettingsNavSection label={developerSection.label}>
-          {developerSection.items.map((item) => (
-            <SettingsNavLink key={item.id} icon={item.icon} label={item.label} href={item.href} />
-          ))}
-        </SettingsNavSection>
-      )}
-    </div>
-  );
-
+  // No page title is rendered here: the pane's breadcrumb and RoundPageContainer
+  // title strip already name the section, and a role-1 title on a settings
+  // sub-page triples up with them.
   return (
-    <RoundPageContainer fullWidth module={module} forceHeader>
-      <SettingsPageLayout
-        sidebar={sidebar}
-        content={children ?? (selectedComponent ? selectedComponent.container : null)}
-        fullWidth={children ? true : selectedComponent?.fullWidth}
-      />
-    </RoundPageContainer>
+    <SettingsSectionActionsProvider value={sectionActionsValue}>
+      <SharedProvider
+        value={{
+          breadcrumbs,
+          title: { type: t(`common.settings`), element: activeLabel, functions: actionsBySection[section] },
+        }}
+      >
+        <RoundPageContainer layout="rail" tabs={tabs} onSectionChange={setSection} />
+      </SharedProvider>
+    </SettingsSectionActionsProvider>
   );
 }

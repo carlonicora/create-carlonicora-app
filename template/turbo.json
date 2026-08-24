@@ -59,6 +59,9 @@
       "persistent": true
     },
     "start:worker:dev": {
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false,
       "persistent": true
     },
@@ -82,7 +85,12 @@
       ],
       "env": [
         "NODE_ENV",
-        "PORT"
+        "PORT",
+        "E2E_*",
+        "NEO4J_URI",
+        "NEO4J_USER",
+        "NEO4J_PASSWORD",
+        "PUBLIC_HOSTNAME"
       ],
       "cache": false
     },

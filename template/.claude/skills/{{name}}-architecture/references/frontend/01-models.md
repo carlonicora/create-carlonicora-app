@@ -36,7 +36,7 @@ Read this file when:
 3. **Use `_readIncluded()` for simple relationships** - Single or array relationships without edge properties.
 4. **Use `_readIncludedWithMeta()` ONLY for edge properties** - When relationship has metadata (position, code, etc.).
 5. **Create dedicated methods for relationship operations** - Instead of using `overridesJsonApiCreation` in services.
-6. **Date/datetime fields:** in `rehydrate()`, parse wire strings with `new Date(...)`. In `createJsonApi()`, emit dates with `formatLocalDate(d)` (`YYYY-MM-DD`) and datetimes with `d.toISOString()`. **Never pass a raw `Date` to a JSON:API attribute** - `JSON.stringify` UTC-shifts and can lose a day. See [../date-handling.md](../date-handling.md).
+6. **Date/datetime fields:** in `rehydrate()`, parse wire strings with `new Date(...)`. In `createJsonApi()`, emit dates with `formatLocalDate(d)` (`YYYY-MM-DD`) and datetimes with `d.toISOString()`. **Never pass a raw `Date` to a JSON:API attribute** — `JSON.stringify` UTC-shifts and can lose a day. See [../date-handling.md](../date-handling.md).
 
 ---
 
@@ -65,7 +65,7 @@ Read this file when:
 - Using `overridesJsonApiCreation` in service instead of dedicated model method
 - Forgetting to call `super.rehydrate(data)` at start of rehydrate()
 - Forgetting to return `this` from rehydrate()
-- Passing a raw `Date` through `createJsonApi()` for a `"date"` field - `JSON.stringify` UTC-shifts. Wrap in `formatLocalDate(d)`. See [../date-handling.md](../date-handling.md).
+- Passing a raw `Date` through `createJsonApi()` for a `"date"` field — `JSON.stringify` UTC-shifts. Wrap in `formatLocalDate(d)`. See [../date-handling.md](../date-handling.md).
 
 ---
 
@@ -86,24 +86,29 @@ Read this file when:
 import { AbstractApiData } from "@carlonicora/nextjs-jsonapi";
 import { JsonApiHydratedDataInterface } from "@carlonicora/nextjs-jsonapi";
 import { ExampleInput } from "./ExampleInput";
-import { ExampleInterface, ItemRelationshipMeta } from "./ExampleInterface";
+import { ExampleInterface, PersonRelationshipMeta } from "./ExampleInterface";
 import { Modules } from "@/core/registry/Modules";
-import { ItemInterface } from "../../<domain>/data/ItemInterface";
+import { PersonInterface } from "../../person/data/PersonInterface";
+import { ItemInterface } from "../../item/data/ItemInterface";
 import { UserInterface } from "../../user/data/UserInterface";
 
 export class Example extends AbstractApiData implements ExampleInterface {
   private _name?: string;
   private _description?: string;
+  private _sampleItems?: string[];
   private _itemCount?: number;
   private _owner?: UserInterface;
-  private _items?: (ItemInterface & ItemRelationshipMeta)[];
+  private _items?: ItemInterface[];
+  private _persons?: (PersonInterface & PersonRelationshipMeta)[];
 
   // Getters
   get name(): string { return this._name ?? ""; }
   get description(): string | undefined { return this._description; }
+  get sampleItems(): string[] { return this._sampleItems ?? []; }
   get itemCount(): number { return this._itemCount ?? 0; }
   get owner(): UserInterface | undefined { return this._owner; }
-  get items(): (ItemInterface & ItemRelationshipMeta)[] { return this._items ?? []; }
+  get items(): ItemInterface[] { return this._items ?? []; }
+  get persons(): (PersonInterface & PersonRelationshipMeta)[] { return this._persons ?? []; }
 
   /**
    * Deserialize JSON:API response into typed object
@@ -114,17 +119,25 @@ export class Example extends AbstractApiData implements ExampleInterface {
     // Simple attributes
     this._name = data.jsonApi.attributes.name;
     this._description = data.jsonApi.attributes.description;
+    this._sampleItems = data.jsonApi.attributes.sampleItems;
     this._itemCount = data.jsonApi.meta?.itemCount;
 
     // Single relationship - use _readIncluded
     this._owner = this._readIncluded(data, "owner", Modules.User) as UserInterface;
 
-    // Relationship WITH edge metadata - use _readIncludedWithMeta
-    this._items = this._readIncludedWithMeta<ItemInterface, ItemRelationshipMeta>(
+    // Array relationship - use _readIncluded
+    this._items = this._readIncluded(
       data,
       "items",
-      Modules.Item,
-    ) as (ItemInterface & ItemRelationshipMeta)[];
+      Modules.Item
+    ) as ItemInterface[];
+
+    // Relationship WITH edge metadata - use _readIncludedWithMeta
+    this._persons = this._readIncludedWithMeta<PersonInterface, PersonRelationshipMeta>(
+      data,
+      "persons",
+      Modules.Person,
+    ) as (PersonInterface & PersonRelationshipMeta)[];
 
     return this;  // ALWAYS return this
   }
@@ -143,15 +156,27 @@ export class Example extends AbstractApiData implements ExampleInterface {
       included: [],
     };
 
+    // Set attributes
     if (data.name !== undefined) response.data.attributes.name = data.name;
     if (data.description !== undefined) response.data.attributes.description = data.description;
 
+    // Set single relationship
     if (data.ownerId) {
       response.data.relationships.owner = {
         data: {
           type: Modules.User.name,
           id: data.ownerId,
         },
+      };
+    }
+
+    // Set array relationship
+    if (data.itemIds && data.itemIds.length > 0) {
+      response.data.relationships.item = {
+        data: data.itemIds.map((id) => ({
+          type: Modules.Item.name,
+          id,
+        })),
       };
     }
 
@@ -173,6 +198,23 @@ export class Example extends AbstractApiData implements ExampleInterface {
       },
     };
   }
+
+  /**
+   * Dedicated method for adding person with access code (edge properties)
+   */
+  createAddPersonJsonApi(params: { personId: string; code: string; expiresAt?: string }) {
+    return {
+      data: {
+        type: Modules.Person.name,
+        id: params.personId,
+        meta: {
+          code: params.code,
+          completed: false,
+          expiresAt: params.expiresAt,
+        },
+      },
+    };
+  }
 }
 ```
 
@@ -186,35 +228,64 @@ export class Example extends AbstractApiData implements ExampleInterface {
 rehydrate(data: JsonApiHydratedDataInterface): this {
   super.rehydrate(data);
 
+  // String attribute
   this._name = data.jsonApi.attributes.name;
+
+  // Optional string attribute
   this._description = data.jsonApi.attributes.description;
+
+  // Number from meta
   this._itemCount = data.jsonApi.meta?.itemCount;
+
+  // Array attribute
   this._tags = data.jsonApi.attributes.tags ?? [];
 
   return this;
 }
 ```
 
-### Single Relationship (no edge properties)
+### Single Relationship
 
 ```typescript
+// No edge properties - use _readIncluded
 this._owner = this._readIncluded(data, "owner", Modules.User) as UserInterface;
 ```
 
-### Array Relationship (no edge properties)
+### Array Relationship
 
 ```typescript
-this._items = this._readIncluded(data, "items", Modules.Item) as ItemInterface[];
+// No edge properties - use _readIncluded
+this._items = this._readIncluded(
+  data,
+  "items",
+  Modules.Item
+) as ItemInterface[];
 ```
 
 ### Relationship with Edge Properties
 
 ```typescript
-this._items = this._readIncludedWithMeta<ItemInterface, ItemRelationshipMeta>(
+// HAS edge properties - use _readIncludedWithMeta
+this._persons = this._readIncludedWithMeta<PersonInterface, PersonRelationshipMeta>(
   data,
-  "items",
-  Modules.Item,
-) as (ItemInterface & ItemRelationshipMeta)[];
+  "persons",
+  Modules.Person,
+) as (PersonInterface & PersonRelationshipMeta)[];
+```
+
+---
+
+## Error Handling
+
+Models handle deserialization errors gracefully:
+- Missing attributes return `undefined` or default values
+- Missing relationships return `undefined` or empty arrays
+- Edge properties are merged into entity when present
+
+```typescript
+get name(): string { return this._name ?? ""; }  // Default to empty string
+get description(): string | undefined { return this._description; }  // Return undefined if missing
+get items(): ItemInterface[] { return this._items ?? []; }  // Default to empty array
 ```
 
 ---

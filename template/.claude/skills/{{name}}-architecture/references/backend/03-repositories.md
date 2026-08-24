@@ -36,17 +36,17 @@ Read this file when:
 3. **ALWAYS use `{CURSOR}`** for paginated queries.
 4. **Company filtering is automatic** via `buildDefaultMatch()`.
 5. **ALWAYS extend `AbstractRepository`** - Get company filtering and typed mapping for free.
-6. **Custom Cypher writes to a `"date"` / `"datetime"` field MUST cast the value** - `date(left($v, 10))` or `datetime($v)`. The framework only auto-casts the standard `create`/`put`/`patch` path; ad-hoc `executeInTransaction` blocks bypass it. See [../date-handling.md](../date-handling.md).
+6. **Custom Cypher writes to a `"date"` / `"datetime"` field MUST cast the value** — `date(left($v, 10))` or `datetime($v)`. The framework only auto-casts the standard `create`/`put`/`patch` path; ad-hoc `executeInTransaction` blocks bypass it. See [../date-handling.md](../date-handling.md).
 
 ---
 
 ## ENFORCEMENT CHECKPOINT
 
-> **STOP - Before committing repository code, verify:**
-> 1. Does every query use `buildDefaultMatch()` or explicitly join to Company? If no, **STOP** - security vulnerability.
+> **STOP — Before committing repository code, verify:**
+> 1. Does every query use `buildDefaultMatch()` or explicitly join to Company? If no, **STOP** — security vulnerability.
 > 2. Are you returning typed objects via `readOne`/`readMany`? If returning `result.records`, **STOP**.
 > 3. Do paginated queries have `{CURSOR}` placeholder? If using manual SKIP/LIMIT, **STOP**.
-> 4. Did you pass `serialiser` to `initQuery()`? If no, **STOP** - type mapping will fail.
+> 4. Did you pass `serialiser` to `initQuery()`? If no, **STOP** — type mapping will fail.
 > 5. Does every custom write to a date/datetime property cast with `date(left($v, 10))` or `datetime($v)`? If you wrote `SET n.foo = $foo` for a temporal field, **STOP**.
 
 ---
@@ -94,7 +94,7 @@ Read this file when:
 ## Repository Pattern
 
 ```typescript
-// <entity>.repository.ts
+// example.repository.ts
 import {
   AbstractRepository,
   companyMeta,
@@ -107,6 +107,7 @@ import { Injectable } from "@nestjs/common";
 import { ClsService } from "nestjs-cls";
 import { Example, ExampleDescriptor } from "../entities/example";
 import { exampleMeta } from "../entities/example.meta";
+import { itemMeta } from "../../item/entities/item.meta";
 
 @Injectable()
 export class ExampleRepository extends AbstractRepository<Example, typeof ExampleDescriptor.relationships> {
@@ -122,7 +123,7 @@ export class ExampleRepository extends AbstractRepository<Example, typeof Exampl
 
   /**
    * Override to customize the RETURN statement for all queries
-   * Add when computed fields (counts, samples) need to be included
+   * This adds computed fields like sample items and counts
    */
   protected buildReturnStatement(): string {
     return `
@@ -130,36 +131,40 @@ export class ExampleRepository extends AbstractRepository<Example, typeof Exampl
       MATCH (${exampleMeta.nodeName})<-[:CREATED]-(${exampleMeta.nodeName}_${ownerMeta.nodeName}:${ownerMeta.labelName})
       CALL {
         WITH ${exampleMeta.nodeName}
-        OPTIONAL MATCH (${exampleMeta.nodeName})-[:CONTAINS]->(item:Item)
+        OPTIONAL MATCH (${exampleMeta.nodeName})-[:CONTAINS]->(item:${itemMeta.labelName})
         WITH ${exampleMeta.nodeName}, count(item) as itemCount
-        RETURN itemCount
+        OPTIONAL MATCH (${exampleMeta.nodeName})-[:CONTAINS]->(topItem:${itemMeta.labelName})
+        WITH ${exampleMeta.nodeName}, itemCount, topItem ORDER BY topItem.position
+        WITH ${exampleMeta.nodeName}, itemCount, collect(topItem)[0..4] as sampleItems
+        RETURN sampleItems, itemCount
       }
       RETURN ${exampleMeta.nodeName},
         ${exampleMeta.nodeName}_${companyMeta.nodeName},
         ${exampleMeta.nodeName}_${ownerMeta.nodeName},
+        sampleItems,
         itemCount
     `;
   }
 
   /**
-   * Custom query: Find examples with a specific status
+   * Custom query: Find examples with pending reviews
    */
-  async findByStatus(params: { status: string; cursor: JsonApiCursorInterface }): Promise<Example[]> {
+  async findPendingReviews(params: { cursor: JsonApiCursorInterface }): Promise<Example[]> {
     const query = this.neo4j.initQuery({
       serialiser: ExampleDescriptor.model,
       cursor: params.cursor,
     });
 
-    query.queryParams = { ...query.queryParams, status: params.status };
     query.query = `
       ${this.buildDefaultMatch()}
-      WHERE ${exampleMeta.nodeName}.status = $status
+      MATCH (${exampleMeta.nodeName})<-[access:HAS_ACCESS_TO]-(person:Person)
+      WHERE access.completed = false
       ORDER BY ${exampleMeta.nodeName}.createdAt DESC
       {CURSOR}
       ${this.buildReturnStatement()}
     `;
 
-    return this.neo4j.readMany(query);  // Returns typed array, not Neo4j records!
+    return this.neo4j.readMany(query);  // Returns Example[], not Neo4j records!
   }
 }
 ```
@@ -171,7 +176,7 @@ export class ExampleRepository extends AbstractRepository<Example, typeof Exampl
 ### Raw Records vs Typed Objects
 
 ```typescript
-// WRONG - Returning raw Neo4j records
+// ❌ WRONG - Returning raw Neo4j records
 async findById(id: string) {
   const result = await this.neo4j.read(
     `MATCH (n:Example {id: $id}) RETURN n`,
@@ -180,7 +185,7 @@ async findById(id: string) {
   return result.records[0];  // RAW RECORD - WRONG!
 }
 
-// CORRECT - Using readOne with serialiser
+// ✅ CORRECT - Using readOne with serialiser
 async findById(params: { id: string }): Promise<Example> {
   const query = this.neo4j.initQuery({ serialiser: ExampleDescriptor.model });
   query.queryParams = { ...query.queryParams, searchValue: params.id };
@@ -195,7 +200,7 @@ async findById(params: { id: string }): Promise<Example> {
 ### Manual vs Automatic Company Filtering
 
 ```typescript
-// WRONG - Manual company filtering
+// ❌ WRONG - Manual company filtering
 async find() {
   const companyId = this.clsService.get("companyId");
   return this.neo4j.read(
@@ -204,7 +209,7 @@ async find() {
   );
 }
 
-// CORRECT - buildDefaultMatch() auto-injects company
+// ✅ CORRECT - buildDefaultMatch() auto-injects company
 async find(params: { cursor: JsonApiCursorInterface }): Promise<Example[]> {
   const query = this.neo4j.initQuery({
     serialiser: ExampleDescriptor.model,
@@ -223,10 +228,10 @@ async find(params: { cursor: JsonApiCursorInterface }): Promise<Example[]> {
 ### Manual vs Automatic Pagination
 
 ```typescript
-// WRONG - Manual pagination
+// ❌ WRONG - Manual pagination
 query.query = `MATCH (n) RETURN n SKIP ${offset} LIMIT ${limit}`;
 
-// CORRECT - Using {CURSOR} placeholder
+// ✅ CORRECT - Using {CURSOR} placeholder
 query.query = `
   MATCH (n:Example)
   ORDER BY n.name

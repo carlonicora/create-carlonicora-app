@@ -24,6 +24,14 @@ const imageSources = process.env.IMAGE_SOURCES
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The e2e stack (scripts/e2e.sh) runs a PRODUCTION build of this app while a
+  // `next dev` server may still be running against the same worktree. `next
+  // build` and `next dev` share `.next`, so a build performed underneath a live
+  // dev server clobbers it and that dev server then 404s every route. Giving
+  // the e2e build its own directory keeps the two independent. E2E_BUILD must
+  // be set for `next build` AND for `next start`, or `start` looks in `.next`
+  // and serves someone else's output.
+  ...(process.env.E2E_BUILD === "true" ? { distDir: ".next-e2e" } : {}),
   experimental: {
     useCache: true,
     serverActions: {
@@ -96,8 +104,16 @@ const nextConfig = {
       "object-src 'none'",
       // Worker sources: self and blob (for Web Workers with dynamic imports)
       "worker-src 'self' blob:",
-      // Upgrade insecure requests in production
-      process.env.NODE_ENV === "production" ? "upgrade-insecure-requests" : "",
+      // Upgrade insecure requests in production.
+      //
+      // NOT under E2E_BUILD: the e2e harness runs a PRODUCTION build (for speed)
+      // and serves it over plain http on a custom hostname. With this directive
+      // the browser rewrites every /_next/static asset to https, which nothing is
+      // listening on — every chunk fails with ERR_SSL_PROTOCOL_ERROR, the page
+      // never hydrates, and each spec sees only server-rendered markup.
+      process.env.NODE_ENV === "production" && process.env.E2E_BUILD !== "true"
+        ? "upgrade-insecure-requests"
+        : "",
     ]
       .filter(Boolean)
       .join("; ");
@@ -122,11 +138,18 @@ const nextConfig = {
             key: "X-Content-Type-Options",
             value: "nosniff",
           },
-          // Strict-Transport-Security - enforces HTTPS (1 year, include subdomains)
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=31536000; includeSubDomains",
-          },
+          // Strict-Transport-Security - enforces HTTPS (1 year, include subdomains).
+          // Omitted under E2E_BUILD for the same reason as upgrade-insecure-requests:
+          // the suite speaks plain http, and an HSTS pin would force https on every
+          // later request to this host from the same browser profile.
+          ...(process.env.E2E_BUILD === "true"
+            ? []
+            : [
+                {
+                  key: "Strict-Transport-Security",
+                  value: "max-age=31536000; includeSubDomains",
+                },
+              ]),
           // Referrer-Policy - controls referrer information
           {
             key: "Referrer-Policy",

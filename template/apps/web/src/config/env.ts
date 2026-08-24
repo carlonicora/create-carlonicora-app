@@ -64,6 +64,5 @@ configureLogin({
   discordClientId: ENV.DISCORD_CLIENT_ID,
   googleClientId: ENV.GOOGLE_CLIENT_ID,
   useInternalAuth: true,
-  allowRegistration: ENV.ALLOW_REGISTRATION,
   registrationMode: ENV.REGISTRATION_MODE,
 });

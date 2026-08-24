@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>Reset your {{display}} password</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f4f4f4; font-family:Arial, sans-serif;">
+    <div style="width:100%; padding:20px; background-color:#f4f4f4;">
+      <div style="max-width:600px; margin:0 auto; background-color:#ffffff; padding:40px; border-radius:8px;">
+        {{> header}}
+        <h2 style="font-size:20px; font-weight:600; margin:24px 0 12px 0;">Reset your password</h2>
+        <p style="font-size:14px; line-height:1.6; margin:0 0 24px 0;">
+          We received a request to reset the password for your {{display}} account.
+          If you did not ask for it, ignore this email — your password will not change.
+        </p>
+        <p style="font-size:14px; line-height:1.6; margin:0 0 24px 0;">
+          This link is valid until {{expirationDate}} at {{expirationTime}}.
+        </p>
+        <p style="margin:0 0 24px 0;">
+          <a href="{{resetLink}}"
+             style="display:inline-block; padding:12px 24px; border-radius:6px; background-color:#1a1a1a; color:#ffffff; text-decoration:none; font-size:14px;">
+            Choose a new password
+          </a>
+        </p>
+        <p style="font-size:12px; color:#666666; line-height:1.6; margin:0;">
+          If the button does not work, paste this link into your browser:<br>
+          {{resetLink}}
+        </p>
+        {{> footer}}
+      </div>
+    </div>
+  </body>
+</html>

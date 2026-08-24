@@ -45,14 +45,14 @@ Read this file when:
 | `{ data: { type: ..., attributes: ... } }` (manual) | Manual JSON:API construction |
 | `fetch('/api/...')` | Using fetch() directly |
 | `overridesJsonApiCreation: true` | Bypassing model validation |
-| `asChild`, `<DialogContent>` as single component, `<Sub>` | Using Radix API - this project uses Base UI |
-| `<PopoverTrigger><Button>` or trigger wrapping Button | Nested button - hydration error |
-| `someDate: { type: "string" }` for a calendar field | Storing a date as a String - Cypher temporal ops break (see date-handling.md) |
-| `SET n.due_date = $due_date` in custom Cypher | Bypasses framework cast - stores a String (use date(left($v, 10))) |
-| `SET n.processed_at = $processed_at` in custom Cypher | Same, datetime variant (use datetime($v)) |
-| `response.data.attributes.date = data.date` with `data.date: Date` | JSON.stringify UTC-shifts and can lose a day (use formatLocalDate) |
-| `get date(): string` on a frontend interface | Type lie - wire is a string but in-memory must be Date |
-| `@IsString()` for a date attribute on a DTO | Accepts garbage like "yesterday" (use @IsDateString()) |
+| `asChild`, `<DialogContent>` as single component, `<Sub>` | Using Radix API — this project uses Base UI |
+| `<PopoverTrigger><Button>` or trigger wrapping Button | Nested `<button>` — hydration error |
+| `someDate: { type: "string" }` for a calendar field | Storing a date as a String — Cypher temporal ops break (see [date-handling.md](date-handling.md)) |
+| `SET n.due_date = $due_date` in custom Cypher | Bypasses framework cast — stores a String (use `date(left($v, 10))`) |
+| `SET n.processed_at = $processed_at` in custom Cypher | Same, datetime variant (use `datetime($v)`) |
+| `response.data.attributes.date = data.date` with `data.date: Date` | `JSON.stringify` UTC-shifts and can lose a day (use `formatLocalDate`) |
+| `get date(): string` on a frontend interface | Type lie — wire is a string but in-memory must be `Date` |
+| `@IsString()` for a date attribute on a DTO | Accepts garbage like `"yesterday"` (use `@IsDateString()`) |
 
 ---
 
@@ -85,14 +85,14 @@ Read this file when:
 | Manual JSON:API construction | Breaks spec compliance | Use `JsonApiService.buildSingle/buildList` |
 | Not extending AbstractRepository | Loses company filtering, typed mapping | Always extend `AbstractRepository` |
 | Not extending AbstractService | Loses DTO handling, JSON:API building | Always extend `AbstractService` |
-| `type: "string"` for a calendar field in the descriptor | Cypher temporal operators break on String | `type: "date"` (or `"datetime"`) - see date-handling.md |
-| Custom Cypher `SET n.foo = $foo` for a date/datetime field | Bypasses framework auto-cast, stores a String | Cast in the query: `date(left($foo, 10))` or `datetime($foo)` |
+| `type: "string"` for a calendar field in the descriptor | Cypher temporal operators (`<`, `duration.between`) break on String | `type: "date"` (or `"datetime"`) — see [date-handling.md](date-handling.md) |
+| Custom Cypher `SET n.foo = $foo` for a date/datetime field | Bypasses framework auto-cast, stores a String | Cast in the query: `SET n.foo = date(left($foo, 10))` or `datetime($foo)` |
 | DTO uses `@IsString()` for a date/datetime attribute | Accepts non-date input, no validation | `@IsDateString()` |
 
 ### Backend Examples
 
 ```typescript
-// WRONG - Returning raw Neo4j records
+// ❌ WRONG - Returning raw Neo4j records
 async findById(id: string) {
   const result = await this.neo4j.read(
     `MATCH (n:Example {id: $id}) RETURN n`,
@@ -101,7 +101,7 @@ async findById(id: string) {
   return result.records[0];  // RAW RECORD - WRONG!
 }
 
-// CORRECT - Using readOne with serialiser
+// ✅ CORRECT - Using readOne with serialiser
 async findById(params: { id: string }): Promise<Example> {
   const query = this.neo4j.initQuery({ serialiser: ExampleDescriptor.model });
   query.queryParams = { ...query.queryParams, searchValue: params.id };
@@ -114,7 +114,7 @@ async findById(params: { id: string }): Promise<Example> {
 ```
 
 ```typescript
-// WRONG - Manual company filtering
+// ❌ WRONG - Manual company filtering
 async find() {
   const companyId = this.clsService.get("companyId");
   return this.neo4j.read(
@@ -123,7 +123,7 @@ async find() {
   );
 }
 
-// CORRECT - buildDefaultMatch() auto-injects company
+// ✅ CORRECT - buildDefaultMatch() auto-injects company
 async find(params: { cursor: JsonApiCursorInterface }): Promise<Example[]> {
   const query = this.neo4j.initQuery({
     serialiser: ExampleDescriptor.model,
@@ -151,23 +151,23 @@ async find(params: { cursor: JsonApiCursorInterface }): Promise<Example[]> {
 | Not implementing `rehydrate()` | Breaks deserialization | Always implement `rehydrate()` |
 | Not implementing `createJsonApi()` | Breaks serialization | Always implement `createJsonApi()` |
 | Accessing `data.jsonApi.data.*` directly | Bypasses type system | Use typed getters after rehydrate |
-| Using Radix patterns (`asChild`, Radix naming) | Base UI uses different API | See frontend/04-components.md |
-| Wrapping `<Button>` inside trigger components | Nested button - invalid HTML | Use `render` prop or styled `<div>` inside trigger |
-| Passing raw `Date` to `createJsonApi()` for a `"date"` field | JSON.stringify calls `.toISOString()` - UTC shift loses a day west of UTC | Wrap in `formatLocalDate(d)` - see date-handling.md |
-| Returning the wire string from a `Date` getter (no `new Date(...)` in rehydrate) | Type lie - getter signature is `Date` but value is `string` | `new Date(data.jsonApi.attributes.foo)` in `rehydrate()` |
-| Typing a date getter as `string` in the interface | Loses temporal semantics; consumers cannot compare or format | `get foo(): Date or undefined` |
+| Using Radix patterns (`asChild`, Radix naming) | Base UI uses different API | See [frontend/04-components.md](frontend/04-components.md) |
+| Wrapping `<Button>` inside trigger components | Nested `<button>` — invalid HTML | Use `render` prop or styled `<div>` inside trigger |
+| Passing raw `Date` to `createJsonApi()` for a `"date"` field | `JSON.stringify` calls `.toISOString()` — UTC shift loses a day west of UTC | Wrap in `formatLocalDate(d)` — see [date-handling.md](date-handling.md) |
+| Returning the wire string from a `Date` getter (no `new Date(...)` in rehydrate) | Type lie — getter signature is `Date` but value is `string` | `new Date(data.jsonApi.attributes.foo)` in `rehydrate()` |
+| Typing a date getter as `string` in the interface | Loses temporal semantics; consumers can't compare or format | `get foo(): Date \| undefined` |
 
 ### Frontend Examples
 
 ```typescript
-// WRONG - Using fetch directly
+// ❌ WRONG - Using fetch directly
 static async findOne(id: string) {
-  const response = await fetch(`/api/<domain>/<entity>s/${id}`);
+  const response = await fetch(`/api/examples/${id}`);
   const json = await response.json();
   return json.data;  // Raw JSON:API, not typed!
 }
 
-// CORRECT - Using callApi
+// ✅ CORRECT - Using callApi
 static async findOne(params: { id: string }): Promise<ExampleInterface> {
   return this.callApi<ExampleInterface>({
     type: Modules.Example,
@@ -181,8 +181,8 @@ static async findOne(params: { id: string }): Promise<ExampleInterface> {
 ```
 
 ```typescript
-// WRONG - Using overridesJsonApiCreation for edge properties
-static async addItem(params: { parentId: string; itemId: string; position: number }) {
+// ❌ WRONG - Using overridesJsonApiCreation for edge properties
+static async addItem(params: { exampleId: string; itemId: string; position: number }) {
   return this.callApi({
     endpoint: ...,
     input: {
@@ -192,7 +192,7 @@ static async addItem(params: { parentId: string; itemId: string; position: numbe
   });
 }
 
-// CORRECT - Create dedicated model method
+// ✅ CORRECT - Create dedicated model method
 // In Example.ts model:
 createAddItemJsonApi(params: { itemId: string; position: number }) {
   return {
@@ -205,14 +205,14 @@ createAddItemJsonApi(params: { itemId: string; position: number }) {
 }
 
 // In ExampleService.ts:
-static async addItem(params: { parentId: string; itemId: string; position: number }) {
+static async addItem(params: { exampleId: string; itemId: string; position: number }) {
   const model = new Example();
   return this.callApi({
     type: Modules.Example,
     method: HttpMethod.POST,
     endpoint: new EndpointCreator({
       endpoint: Modules.Example,
-      id: params.parentId,
+      id: params.exampleId,
       childEndpoint: Modules.Item,
       childId: params.itemId,
     }).generate(),
@@ -229,7 +229,7 @@ static async addItem(params: { parentId: string; itemId: string; position: numbe
 **Follow these patterns exactly. Deviating creates broken, inconsistent code.**
 
 The architecture provides:
-1. **Type Safety**: TypeScript types from descriptor to DTO to response
+1. **Type Safety**: TypeScript types from descriptor → DTO → response
 2. **Security**: Automatic company filtering via ClsService
 3. **Consistency**: JSON:API compliance without manual work
 4. **Simplicity**: Inherit from abstract classes, get CRUD for free

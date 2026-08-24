@@ -1,7 +1,6 @@
-import { AdminIndexContainer } from "@/features/common/components/containers/AdminIndexContainer";
 import IndexContainer from "@/features/common/components/containers/IndexContainer";
 import { generateSpecificMetadata } from "@/utils/metadata";
-import { AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { AdminIndexContainer, AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { CommonProvider, CompanyProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";

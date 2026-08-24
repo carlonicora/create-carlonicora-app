@@ -1,6 +1,6 @@
 import { FeatureIds } from "@/enums/feature.ids";
 import { ModuleWithPermissions } from "@carlonicora/nextjs-jsonapi";
-import { BuildingIcon, HomeIcon, LucideIcon } from "lucide-react";
+import { HomeIcon, LucideIcon } from "lucide-react";
 
 export type NavigationItem = {
   title: string;
@@ -22,21 +22,20 @@ export type FeatureSidebarItem = {
 
 export const getFeatureSidebarItems = (): FeatureSidebarItem[] => [];
 
+/**
+ * Extension point: a scaffolded app adds ITS OWN navigation items here.
+ *
+ * Deliberately empty. Administration links (companies, users, token-usage,
+ * ai-connections, products) are owned by CommonSidebar's administration group,
+ * which gates them on RoleId.Administrator. Pushing an admin link here as well
+ * renders it twice and duplicates its testId, which breaks strict-mode locators.
+ */
 export const addSidebarItems = (
-  response: Map<string, { hasTitle: boolean; items: NavigationItem[] }>,
-  t: any,
-  generateUrl: any,
-  isAdministrator: boolean,
-): void => {
-  if (isAdministrator) {
-    response.get("/").items.push({
-      title: t(`entities.companies`, { count: 2 }),
-      url: generateUrl({ page: `/administration/companies` }),
-      icon: BuildingIcon,
-      testId: "sidebar-companies-link",
-    });
-  }
-};
+  _response: Map<string, { hasTitle: boolean; items: NavigationItem[] }>,
+  _t: any,
+  _generateUrl: any,
+  _isAdministrator: boolean,
+): void => {};
 
 export const sidebarItems = (
   t: any,
