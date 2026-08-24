@@ -53,8 +53,14 @@ const DOTFILE_RENAMES: Record<string, string> = {
   releaserc: '.releaserc',
   swcrc: '.swcrc',
   'env.example': '.env.example',
+  'env.e2e.example': '.env.e2e.example',
   'pnpmfile.cjs': '.pnpmfile.cjs',
 };
+
+// Never copy OS/editor junk into a generated project, regardless of what is
+// sitting in template/ on the packaging machine. The integrity check keeps
+// template/ clean; this is the second line of defence at scaffold time.
+const NEVER_COPY = new Set(['.DS_Store', 'Thumbs.db']);
 
 export async function copyTemplate(
   srcDir: string,
@@ -64,6 +70,7 @@ export async function copyTemplate(
   const entries = await fs.readdir(srcDir, { withFileTypes: true });
 
   for (const entry of entries) {
+    if (NEVER_COPY.has(entry.name)) continue;
     const srcPath = path.join(srcDir, entry.name);
     // Rename dotfiles back to their proper names, then apply project-name substitution
     const destName = applyReplacements(DOTFILE_RENAMES[entry.name] || entry.name, config);

@@ -1,0 +1,6 @@
+{
+  "libraries": {
+    "@carlonicora/nestjs-neo4jsonapi": "../wyrdli/packages/nestjs-neo4jsonapi",
+    "@carlonicora/nextjs-jsonapi": "../wyrdli/packages/nextjs-jsonapi"
+  }
+}

@@ -15,8 +15,10 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "sync-template": "node scripts/sync-template.js",
-    "compare-template": "tsx scripts/compare-template.ts",
+    "test": "node --test \"scripts/**/*.test.js\"",
+    "compare:template": "node scripts/compare/index.js",
+    "template:apply": "node scripts/compare/apply.js",
+    "check:template": "node scripts/integrity/index.js",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -36,7 +38,7 @@
     "url": "https://github.com/carlonicora/create-carlonicora-app"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",

@@ -43,7 +43,7 @@ export async function scaffold(options: ScaffoldOptions): Promise<void> {
       spinner.fail('Template directory not found');
       throw new Error(
         `Template directory not found at ${templateDir}. ` +
-          'Please run "npm run sync-template" first.'
+          'The template/ directory ships with this package; a missing one means a broken install.'
       );
     }
 
