@@ -17,7 +17,6 @@ export interface UsePWAReturn {
   updateAvailable: boolean;
   install: () => Promise<void>;
   dismissInstallPrompt: () => void;
-  cacheGallery: (imageUrls: string[]) => Promise<void>;
   refreshApp: () => void;
 }
 
@@ -80,6 +79,14 @@ export function usePWA(): UsePWAReturn {
 
     const registerSW = async () => {
       try {
+        // RELATIVE, not an absolute URL: service-worker registration is
+        // same-origin only, so an absolute URL registers on exactly one origin
+        // and silently fails on every other (a preview domain, an IP, localhost).
+        //
+        // /sw.js is a REWRITE (next.config.js): in production it serves the
+        // Serwist worker built from src/app/sw.ts; in development it serves the
+        // push-only public/sw-dev.js, which has no fetch handler and therefore
+        // cannot serve stale Turbopack chunks.
         const registration = await navigator.serviceWorker.register("/sw.js");
         swRegistrationRef.current = registration;
 
@@ -156,20 +163,19 @@ export function usePWA(): UsePWAReturn {
     localStorage.setItem(INSTALL_PROMPT_DISMISSED_KEY, "true");
   }, []);
 
-  const cacheGallery = useCallback(async (imageUrls: string[]) => {
-    if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller) return;
-
-    navigator.serviceWorker.controller.postMessage({
-      type: "CACHE_GALLERY",
-      imageUrls,
-    });
-  }, []);
-
   const refreshApp = useCallback(() => {
     if (!swRegistrationRef.current?.waiting) return;
 
+    // Reload only once the new worker has taken control. An immediate reload can
+    // beat activation and serve the OLD assets again, so the update toast comes
+    // straight back and the app looks stuck on the previous version.
+    //
+    // The SKIP_WAITING message is handled by Serwist itself: src/app/sw.ts
+    // constructs it with `skipWaiting: false`, which registers exactly this
+    // listener. (The former public/sw.js handled no messages at all, so this
+    // whole path was dead.)
+    navigator.serviceWorker.addEventListener("controllerchange", () => window.location.reload(), { once: true });
     swRegistrationRef.current.waiting.postMessage({ type: "SKIP_WAITING" });
-    window.location.reload();
   }, []);
 
   return {
@@ -182,7 +188,6 @@ export function usePWA(): UsePWAReturn {
     updateAvailable,
     install,
     dismissInstallPrompt,
-    cacheGallery,
     refreshApp,
   };
 }

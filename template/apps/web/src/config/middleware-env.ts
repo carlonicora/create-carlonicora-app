@@ -15,4 +15,15 @@ export const ENV = {
   REGISTRATION_MODE: (process.env.NEXT_PUBLIC_REGISTRATION_MODE as "open" | "closed" | "waitlist") || "open",
   DISCORD_CLIENT_ID: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
   GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+  /**
+   * The API URL WITHOUT the server-side API_INTERNAL_URL override.
+   *
+   * Use this for any URL the browser itself will fetch or follow. `API_URL`
+   * may resolve to a private docker-network host only the server can reach.
+   */
+  PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? "",
+  /** NODE_ENV === "production" — set by the Next build, not by `.env`. */
+  IS_PRODUCTION: process.env.NODE_ENV === "production",
+  /** NODE_ENV === "development" — gates dev-only diagnostics and unoptimised images. */
+  IS_DEVELOPMENT: process.env.NODE_ENV === "development",
 } as const;

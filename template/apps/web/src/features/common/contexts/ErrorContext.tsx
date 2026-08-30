@@ -47,7 +47,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
     if (error.status === 401) return <Logout />;
 
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center">
+      <div className="flex min-h-svh w-full flex-col items-center justify-center">
         <ErrorDetails
           code={error.status}
           title={errorMessages?.title || `Error ${error.status}`}

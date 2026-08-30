@@ -5,7 +5,7 @@ export default async function MainLayout(props: { children: React.ReactNode; par
 
   return (
     <CurrentUserProvider>
-      <div data-wrapper className="flex h-screen w-full items-center justify-center">
+      <div data-wrapper className="flex h-svh w-full items-center justify-center">
         {children}
       </div>
     </CurrentUserProvider>

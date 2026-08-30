@@ -52,12 +52,50 @@ const nextConfig = {
     NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
   },
-  webpack: (config, { isServer }) => {
-    // Force single Yjs instance to prevent "Yjs was already imported" error
-    // Note: This only works with webpack builds (production). For Turbopack (dev),
-    // we rely on pnpm.overrides in root package.json
+  // Inlined replacement for @serwist/turbopack's withSerwist wrapper, which
+  // does nothing but append these two entries. Requiring the package here
+  // instead CRASHES production: it is a devDependency, next.config.js is loaded
+  // at RUNTIME by `next start`, and the web-production image installs with
+  // --prod. Do not re-add a require of any devDependency to this file.
+  serverExternalPackages: ["esbuild", "esbuild-wasm"],
+  // Turbopack configuration. Next 16 builds AND serves dev with Turbopack, so
+  // this — not the webpack() below — is what actually pins yjs to a single
+  // instance in both modes.
+  turbopack: {
+    resolveAlias: {
+      yjs: "./node_modules/yjs",
+    },
+  },
+  // Retained only for a hypothetical webpack build. Under Next 16 `next build`
+  // uses Turbopack and never calls this function. (The previous comment here
+  // claimed Turbopack was covered by a pnpm.overrides block in the root
+  // package.json — no such block exists, so yjs had no alias at all.)
+  webpack: (config) => {
     config.resolve.alias["yjs"] = path.resolve(__dirname, "node_modules/yjs");
     return config;
+  },
+  async rewrites() {
+    // createSerwistRoute must live under a [path] dynamic segment, but the
+    // PUBLIC worker URL must stay /sw.js — push subscriptions and the
+    // registration in usePWA depend on it.
+    //
+    // Development gets the push-only public/sw-dev.js instead. A caching worker
+    // in dev stores Turbopack dev chunks via its CacheFirst rule for
+    // /_next/static/*.js; that graph is rebuilt on every HMR pass, so the worker
+    // then serves a stale sibling chunk and Turbopack throws "module factory is
+    // not available" during module evaluation — before React renders.
+    //
+    // beforeFiles, not afterFiles: it runs ahead of the filesystem, so the dev
+    // destination resolves to public/sw-dev.js rather than 404ing.
+    const isDev = process.env.NODE_ENV !== "production";
+    return {
+      beforeFiles: isDev
+        ? [{ source: "/sw.js", destination: "/sw-dev.js" }]
+        : [
+            { source: "/sw.js", destination: "/serwist/sw.js" },
+            { source: "/sw.js.map", destination: "/serwist/sw.js.map" },
+          ],
+    };
   },
   async headers() {
     // Build CSP directives
