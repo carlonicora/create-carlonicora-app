@@ -1,3 +1,13 @@
+## [1.15.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.14.0...v1.15.0) (2026-08-31)
+
+### 🚀 Features
+
+* add E2E dashboard and unit tests for parsers ([b4f4c6c](https://github.com/carlonicora/create-carlonicora-app/commit/b4f4c6c574d635e60d1fe1727c4059296ae6911f))
+
+### 📚 Documentation
+
+* e2e dashboard template port design spec ([5bbb26a](https://github.com/carlonicora/create-carlonicora-app/commit/5bbb26ae79a4a42f1040198221b1d5b2a5f1b022))
+
 ## [1.14.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.13.1...v1.14.0) (2026-08-31)
 
 ### 🚀 Features
