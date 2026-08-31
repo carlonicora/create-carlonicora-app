@@ -157,29 +157,56 @@ running ESLint directly against a TS file before bumping the whole repo.
 (nestjs-neo4jsonapi, nextjs-jsonapi) pin their own copies inside the
 submodule package.jsons.
 
-### 3.2 `typescript` — keep at `^5.9.x`
+### 3.2 `typescript` — on `^6.0.x` (migration done)
 
-**Why:** TS 6 turns previously-deprecated `baseUrl` and
-`moduleResolution: node` (aka `node10`) into hard errors (TS5101,
-TS5107). `tsup` and `tsc` both fail.
+**Status:** the template is on TypeScript 6 with **no**
+`ignoreDeprecations` hatch. The three deprecations TS 6 turned into hard
+errors were each fixed at the source:
 
-**Why "proper migration" is hard:** the frontend (`apps/web`, the
-`nextjs-jsonapi` library) can migrate cleanly to
-`moduleResolution: bundler` and remove `baseUrl`. The backend
-(`apps/api`, `packages/shared` via `tsconfig.base.json`) uses
-`module: commonjs` for ts-node/NestJS, which forbids
-`moduleResolution: bundler` (TS5095: "Option 'bundler' can only be used
-when 'module' is set to 'preserve' or to 'es2015' or later"). The only
-"proper" path for backend is `module: node16` + `.js` extensions on
-every relative import — hundreds of files.
+- **`alwaysStrict`** — the explicit `true`/`false` settings were removed.
+  `alwaysStrict` defaults to the value of `strict`, so every config now
+  inherits it and resolves exactly as before. Note the order matters: if
+  the base sets `alwaysStrict: true`, deleting only an app's `false`
+  override silently flips that app to `true`. Remove the base's first, and
+  confirm with `tsc --showConfig`.
+- **`baseUrl`** — gone from every config. Each `paths` target now starts
+  with `./` and resolves relative to the tsconfig that declares it.
+  Re-verify against the EMITTED `dist`, not just `--noEmit`: `nest build`
+  rewrites path aliases, so a mistake here shows up as an unrewritten
+  `require("src/…")` in the output rather than as a type error.
+- **`moduleResolution: node10`** — the base is now `module: nodenext` +
+  `moduleResolution: nodenext`.
 
-**Realistic short-term path** (if user demands TS 6): add
-`"ignoreDeprecations": "6.0"` to `tsconfig.base.json`. This silences the
-errors but defers the actual migration to TS 7.
+**A correction to earlier guidance in this file:** the backend does *not*
+need `.js` extensions on every relative import. `apps/api` stays
+CommonJS (no `"type": "module"`), and `nodenext` models Node's
+`require(esm)` — so it imports the ESM-only `@nestjs/*` v12 packages with
+zero `TS1479`. The real cost of the migration was `import type` on a
+handful of type-only symbols used in decorated method signatures
+(`TS1272`), not a whole-tree rewrite.
+
+`nodenext` also honours each package's `exports` map, which is why the
+deep-subpath `paths` mappings that `node10` needed (`@langchain/*`) are
+gone. Deep imports that remain are declared inside the ambient shim at
+`apps/api/src/types/langchain.d.ts`, which needs no resolution.
+
+**Watch out for `TS5011`:** TS 6 requires `rootDir` to be explicit
+whenever `outDir` is set. Without it `tsc` emits `dist/src/main.js`
+instead of a flat `dist/main.js` — and it still **emits** despite the
+diagnostic, so a broken layout is left behind silently and
+`node dist/main` fails at runtime.
 
 **Pinned in:** root `devDependencies` and **the
 `pnpm-workspace.yaml` `overrides` block** (overrides are necessary
 because transitives like `tsup` resolve typescript independently).
+
+**TypeScript 7 is not yet possible** — and not because of this codebase.
+`typescript@7` deleted the JavaScript compiler API, so `@typescript-eslint`
+(peer `<6.1.0`, tracking issue open and "blocked by external API") and
+`tsup`'s `--dts` cannot load it. The unblock is TypeScript **7.1**, which
+is to ship the stable programmatic API. Microsoft publishes
+`@typescript/typescript6` as a compat shim for tools that need the old API
+in the meantime.
 
 ### 3.3 `class-validator` — keep at `^0.14.x`
 
@@ -711,7 +738,7 @@ chore(deps): May 2026 update sweep
 Bulk-updated dependencies. Three majors held back:
 - pnpm: kept at ^10.28.2 (turn-everything-into-errors regression)
 - eslint: kept at ^9.39.2 (@typescript-eslint v8 not ESLint-10-ready)
-- typescript: kept at ^5.9.3 (tsconfig migration required for TS 6)
+- typescript: on ^6.0.3 (TS 6 migration complete — see §3.2)
 
 class-validator pinned to ^0.14.3 to keep @nestjs/common single-resolution.
 
@@ -756,12 +783,10 @@ Worked example:
 #     Unblock: wait for typescript-eslint to ship a release whose
 #          runtime (not just peer ranges) supports ESLint 10.
 #
-# - typescript  ^5.9.3  (pnpm-workspace.yaml overrides.typescript)
-#     Why: tsup dts build errors on TS 6 because tsconfigs use
-#          deprecated baseUrl + moduleResolution=node10. Backend
-#          (commonjs + ts-node) can't use bundler.
-#     Unblock: either add ignoreDeprecations: "6.0" to tsconfig.base
-#          (short-term), or do the node16 / .js-extension refactor.
+# - typescript 7 (typescript is on ^6.0.3; 6 is done, see §3.2)
+#     Why: typescript@7 removed the JS compiler API, so @typescript-eslint
+#          and tsup's --dts cannot load it.
+#     Unblock: TypeScript 7.1 (stable programmatic API).
 #
 # Sanity-check current latest before retry:
 #   pnpm view eslint version
@@ -865,9 +890,9 @@ If staying on pnpm 10, the same data lives in `package.json` under
 
 ## 13. What this guide deliberately does NOT cover
 
-- **The TS 6 backend migration** (`module: node16` + `.js` extensions).
-  When you're ready to tackle this, it's a dedicated effort, not a
-  drop-in step inside a dep sweep.
+- **The TypeScript 7 migration.** TS 6 is already done (§3.2). TS 7 is
+  blocked on `@typescript-eslint` and `tsup`, not on this codebase, and
+  will be a dedicated effort rather than a step inside a dep sweep.
 - **Replacing the libraries.** This guide assumes you're staying on
   `@carlonicora/nestjs-neo4jsonapi` and `@carlonicora/nextjs-jsonapi`.
   If you're migrating off, the peer-fingerprint pins become moot.

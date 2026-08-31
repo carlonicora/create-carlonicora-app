@@ -1,5 +1,9 @@
 import { Controller, Get, Query, Res, UseGuards } from "@nestjs/common";
-import { FastifyReply } from "fastify";
+// `import type`: FastifyReply is an interface used in a decorated method
+// signature. Under TS 6 with isolatedModules + emitDecoratorMetadata a value
+// import is TS1272. Safe here because nothing injects it — it arrives via
+// @Res(), so erasing the runtime binding costs nothing.
+import type { FastifyReply } from "fastify";
 import { JwtAuthGuard } from "@carlonicora/nestjs-neo4jsonapi";
 import { SearchService } from "../services/search.service";
 import { searchMeta } from "../entities/search.meta";

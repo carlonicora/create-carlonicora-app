@@ -13,7 +13,6 @@ catalog:
   '@typescript-eslint/parser': ^8.65.0
   eslint-config-prettier: ^10.1.8
   eslint-plugin-prettier: ^5.5.6
-  ts-node: ^10.9.2
   vitest: ^4.1.10
   '@vitest/coverage-v8': ^4.1.10
   zod: ^4.4.3
@@ -29,12 +28,12 @@ catalog:
   # the declared range AND the forced resolution together. An override carrying
   # its own literal can silently undercut the manifests' floors — pnpm
   # overrides REPLACE declared ranges rather than intersecting them.
-  '@nestjs/common': ^11.1.28
-  '@nestjs/core': ^11.1.28
-  '@nestjs/config': ^4.0.4
-  '@nestjs/platform-fastify': ^11.1.28
-  '@nestjs/platform-socket.io': ^11.1.28
-  '@nestjs/websockets': ^11.1.28
+  '@nestjs/common': ^12.0.1
+  '@nestjs/core': ^12.0.1
+  '@nestjs/config': ^12.0.0
+  '@nestjs/platform-fastify': ^12.0.1
+  '@nestjs/platform-socket.io': ^12.0.1
+  '@nestjs/websockets': ^12.0.1
 
 # pnpm 11 changed this setting's default to `install`: every `pnpm run` / `pnpm exec`
 # checks whether node_modules is up to date and, if it thinks it is not, shells out to
@@ -79,7 +78,7 @@ overrides:
   '@nestjs/platform-fastify': 'catalog:'
   '@nestjs/platform-socket.io': 'catalog:'
   '@nestjs/websockets': 'catalog:'
-  typescript: ^5.9.3
+  typescript: ^6.0.3
   # Yjs must be a single copy (two instances silently corrupt shared docs and
   # print "Yjs was already imported"). Keep this at or above apps/web's
   # declared floor.

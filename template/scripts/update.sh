@@ -10,19 +10,21 @@
 #          runtime (not just peer ranges) supports ESLint 10, then
 #          bump both in lockstep.
 #
-# - typescript  ^5.9.3  (pnpm-workspace.yaml overrides.typescript)
-#     Why: tsup's dts build errors on TS 6 because shared tsconfigs use
-#          deprecated `baseUrl` and `moduleResolution=node10`. The
-#          frontend (web, nextjs-jsonapi) can migrate cleanly to
-#          `moduleResolution: bundler` without baseUrl, but the backend
-#          (apps/api, packages/shared via tsconfig.base) needs
-#          `module: commonjs` for ts-node/NestJS, which forbids
-#          `moduleResolution: bundler`. The "proper" migration there is
-#          `module: node16` + `.js` extensions in every relative import
-#          — hundreds of source files. Realistic short-term path is
-#          `"ignoreDeprecations": "6.0"` in tsconfig.base.json.
-#     Unblock: either add ignoreDeprecations to silence and accept the
-#          deferred refactor, or do the node16/.js-extension pass.
+# - typescript is on ^6.0.3 — NO LONGER DEFERRED, and no ignoreDeprecations
+#     hatch. baseUrl is gone (paths are ./-relative), alwaysStrict is
+#     inherited from strict, and the base is module/moduleResolution
+#     nodenext. apps/api stays CommonJS: nodenext models Node's
+#     require(esm), so it consumes the ESM-only @nestjs v12 packages with
+#     zero TS1479 — the `.js`-extensions-everywhere rewrite this entry used
+#     to predict was never required. See DEPENDENCY_UPGRADE_GUIDE.md §3.2.
+#     NOTE: TS 6 needs an explicit `rootDir` wherever `outDir` is set
+#     (TS5011) or tsc silently emits dist/src/main.js and breaks
+#     `node dist/main`.
+#
+# - typescript 7 IS deferred, on third parties rather than on this repo.
+#     Why: typescript@7 removed the JS compiler API, so @typescript-eslint
+#          (peer <6.1.0) and tsup's --dts cannot load it.
+#     Unblock: TypeScript 7.1, which ships the stable programmatic API.
 #
 # - class-validator  ^0.14.3  (pnpm-workspace.yaml overrides + apps/api +
 #                              packages/nestjs-neo4jsonapi)

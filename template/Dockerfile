@@ -85,8 +85,8 @@ FROM shared-builder AS api-development
 # Mirrors the install in the api-production stage so dev parity is preserved.
 RUN apk add --no-cache libreoffice ttf-liberation ttf-dejavu
 
-# Expose port (set via build arg; defaults to 3400 for local compose)
-ARG API_PORT=3400
+# Expose port (set via build arg; defaults to 4050 for local compose)
+ARG API_PORT=4050
 EXPOSE ${API_PORT}
 
 # Development command (hot reload) - stay in /app to access tsconfig.json
@@ -97,8 +97,8 @@ CMD ["pnpm", "--filter", "{{name}}-api", "run", "dev"]
 # =============================================================================
 FROM shared-builder AS web-development
 
-# Expose port (set via build arg; defaults to 3401 for local compose)
-ARG PORT=3401
+# Expose port (set via build arg; defaults to 4051 for local compose)
+ARG PORT=4051
 EXPOSE ${PORT}
 
 # Development command (hot reload with Turbopack) - stay in /app to access node_modules
@@ -196,8 +196,8 @@ WORKDIR /app/apps/api
 ENV MODELS_CACHE_DIR=/app/.cache/models
 ENV MODEL_CONFIG_PATH=/app/config/models.config.yaml
 
-# Expose port (set via build arg; defaults to 3400 for local compose)
-ARG API_PORT=3400
+# Expose port (set via build arg; defaults to 4050 for local compose)
+ARG API_PORT=4050
 EXPOSE ${API_PORT}
 
 # Production command (can be overridden for worker mode)
@@ -296,8 +296,8 @@ RUN pnpm install --no-frozen-lockfile --prod --ignore-scripts
 
 WORKDIR /app/apps/web
 
-# Expose port (set via build arg; defaults to 3401 for local compose)
-ARG PORT=3401
+# Expose port (set via build arg; defaults to 4051 for local compose)
+ARG PORT=4051
 EXPOSE ${PORT}
 
 # Production command

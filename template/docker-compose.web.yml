@@ -40,9 +40,9 @@ services:
 
         # Build configuration
         - WEB_NODE_OPTIONS=${WEB_NODE_OPTIONS:-"--max-old-space-size=4096"}
-        - PORT=${PORT:-3401}
+        - PORT=${PORT:-4051}
     ports:
-      - "${PORT:-3401}:${PORT:-3401}"
+      - "${PORT:-4051}:${PORT:-4051}"
     env_file:
       - .env
     extra_hosts:
@@ -51,7 +51,7 @@ services:
       # gateway, bypassing the external reverse proxy / CDN.
       - "${PUBLIC_HOSTNAME:-{{name}}.test}:host-gateway"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.PORT||3401,path:'/'},(r)=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))"]
+      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.PORT||4051,path:'/'},(r)=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))"]
       interval: 10s
       timeout: 5s
       retries: 3

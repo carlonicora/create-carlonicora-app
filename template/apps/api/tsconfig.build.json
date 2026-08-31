@@ -1,4 +1,12 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // TypeScript 6 requires rootDir to be explicit whenever outDir is set
+    // (TS5011). Without it tsc emits to dist/src/main.js instead of the flat
+    // dist/main.js that `start:prod` and the Docker CMD (`node dist/main`)
+    // expect — and tsc still EMITS despite the diagnostic, so a wrong-layout
+    // dist is left behind silently.
+    "rootDir": "./src"
+  },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

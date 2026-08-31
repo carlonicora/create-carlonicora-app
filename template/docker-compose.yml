@@ -114,15 +114,15 @@ services:
       dockerfile: Dockerfile
       target: api-production
       args:
-        - API_PORT=${API_PORT:-3400}
+        - API_PORT=${API_PORT:-4050}
     ports:
-      - "${API_PORT:-3400}:${API_PORT:-3400}"
+      - "${API_PORT:-4050}:${API_PORT:-4050}"
     environment:
       <<: *api_worker_shared_env
       # Build & Application Mode
-      PORT: ${API_PORT:-3400}
+      PORT: ${API_PORT:-4050}
       API_URL: ${API_URL}
-      API_PORT: ${API_PORT:-3400}
+      API_PORT: ${API_PORT:-4050}
       NODE_OPTIONS: ${API_NODE_OPTIONS:-"--max-old-space-size=6144"}
 
       # Cache Configuration
@@ -147,7 +147,7 @@ services:
       CORS_OPTIONS_SUCCESS_STATUS: ${CORS_OPTIONS_SUCCESS_STATUS}
       CORS_LOG_VIOLATIONS: ${CORS_LOG_VIOLATIONS}
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.API_PORT||3400,path:'/health/ready'},(r)=>process.exit(r.statusCode===200?0:1))"]
+      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.API_PORT||4050,path:'/health/ready'},(r)=>process.exit(r.statusCode===200?0:1))"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -188,7 +188,7 @@ services:
         # API_URL: External production API URL (used by server-side code)
         # API_INTERNAL_URL: Internal API URL for docker-compose networking
         API_URL: ${API_URL}
-        API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:3400/}
+        API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:4050/}
 
         # Client-side variables (embedded into browser bundle at build time)
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
@@ -201,9 +201,9 @@ services:
 
         # Build configuration
         WEB_NODE_OPTIONS: ${WEB_NODE_OPTIONS:-"--max-old-space-size=4096"}
-        PORT: ${PORT:-3401}
+        PORT: ${PORT:-4051}
     ports:
-      - "${PORT:-3401}:${PORT:-3401}"
+      - "${PORT:-4051}:${PORT:-4051}"
     environment:
       # Runtime Configuration
       # NOTE: NEXT_PUBLIC_* variables below are included for consistency but are
@@ -211,12 +211,12 @@ services:
       # They're kept here to avoid confusion when comparing with build args.
 
       # Application Configuration
-      - PORT=${PORT:-3401}
+      - PORT=${PORT:-4051}
       - APP_URL=${APP_URL}
       - NODE_OPTIONS=${WEB_NODE_OPTIONS:-"--max-old-space-size=4096"}
 
       # API Connection (server-side only)
-      - API_INTERNAL_URL=${API_INTERNAL_URL:-http://api:3400/}
+      - API_INTERNAL_URL=${API_INTERNAL_URL:-http://api:4050/}
 
       # Client-side variables (already embedded in bundle, included for reference)
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
@@ -232,7 +232,7 @@ services:
       # gateway, bypassing the external reverse proxy / CDN.
       - "${PUBLIC_HOSTNAME:-{{name}}.test}:host-gateway"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.PORT||3401,path:'/'},(r)=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))"]
+      test: ["CMD", "node", "-e", "require('http').get({host:'localhost',port:process.env.PORT||4051,path:'/'},(r)=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))"]
       interval: 10s
       timeout: 5s
       retries: 3

@@ -1,8 +1,8 @@
-import * as dotenv from "dotenv";
-import * as path from "path";
+// MUST stay the first import: it populates process.env for everything below.
+// See src/load-env.ts for why this is an import and not an inline statement.
+import "./load-env";
 
-// Load environment variables FIRST (before any library imports)
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+import * as path from "path";
 
 import { bootstrap } from "@carlonicora/nestjs-neo4jsonapi";
 

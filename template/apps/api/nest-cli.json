@@ -7,12 +7,10 @@
     "assets": [
       {
         "include": "i18n/**/*.json",
-        "outDir": "./dist",
         "watchAssets": true
       },
       {
-        "include": "assets/**/*",
-        "outDir": "./dist",
+        "include": "**/*.opus",
         "watchAssets": true
       }
     ]
