@@ -1,3 +1,10 @@
+## [1.14.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.13.1...v1.14.0) (2026-08-31)
+
+### 🚀 Features
+
+* **template:** scaffold NestJS 12 + TypeScript 6 apps, drop ts-node ([01a1bef](https://github.com/carlonicora/create-carlonicora-app/commit/01a1befdf142d22376ac9b6b44b5325cf41ec29b))
+* update service worker implementation and add development-only push worker ([4a15f12](https://github.com/carlonicora/create-carlonicora-app/commit/4a15f12586ba68b2c17c40bae30702b3bc08f19d))
+
 ## [1.13.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.13.0...v1.13.1) (2026-08-24)
 
 ### 🐛 Bug Fixes
