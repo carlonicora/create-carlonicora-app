@@ -86,9 +86,9 @@ logic changes.
 |---|---|
 | `unauthenticated/auth-api-contract.spec.ts` | `POST /auth/login` DTO contract (400 on bad email / wrong `data.type` / missing fields; 401 on wrong password). Near-verbatim port. |
 | `unauthenticated/auth-guards.spec.ts` | unauth `/administration` and `/` redirect to login; `/logout` lands on `/`; `/register`, `/reset`, `/activation` render without crashing. |
-| `unauthenticated/users-api-contract.spec.ts` | `/users/me` 401 without token; admin token cannot read `E2E.member` (other company) → 404/403; unknown id → 404. |
-| `smoke/admin.smoke.spec.ts` | walks every `/administration/*` route (users, rbac, companies, products, prices, ai-connections, token-usage, howtos, waitlist) as admin: 200, heading visible, no console errors outside the allowlist. |
-| `authenticated/users-management.spec.ts` | users list shows seeded users; search filters rows; unknown user id renders the error page; logout clears session cookies. |
+| `unauthenticated/users-api-contract.spec.ts` | `/users/me/full` 403 without token; admin token cannot read `E2E.member` (other company) → 404/403; unknown id → 404. |
+| `smoke/admin.smoke.spec.ts` | walks every `/administration/*` route (users, rbac, companies, products, ai-connections, token-usage, howtos, waitlist) as admin: 200, heading visible, no console errors outside the allowlist (no `prices` index route exists — only `prices/[id]`). |
+| `authenticated/users-management.spec.ts` | users list shows seeded users; search filters rows (currently `test.fixme` — library defect in `UserRepository.findMany`); logout clears session cookies. |
 | `pwa/service-worker.spec.ts` | via `E2E.webBaseLocalhost`: service worker registers, a failed navigation serves `/offline`. Needs a second storageState with `cookieDomain: "localhost"` saved by `setup/seed.setup.ts` (the template's `e2e.env.ts` already documents this). |
 | `support/actions.ts` | `gotoWithRetry` (ported). |
 | `support/smoke.ts` | `smokeTest(route)` + `GLOBAL_CONSOLE_ALLOWLIST` (ported, allowlist trimmed to what the template emits). |

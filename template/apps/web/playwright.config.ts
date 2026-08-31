@@ -1,5 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
+import type { ReporterDescription } from "@playwright/test";
 import { E2E } from "./tests/e2e.env";
+
+// The e2e dashboard (`scripts/e2e-dashboard.mjs`) drives the run and sets
+// E2E_DASH_EVENTS to the NDJSON file its reporter appends to. The dashboard
+// owns the UI, so the HTML report is still WRITTEN (the dashboard serves it at
+// /report when the run ends) but never auto-opened. Configured here rather
+// than as a CLI `--reporter=` flag because the CLI form REPLACES the config's
+// reporter list and cannot carry the html options.
+const dashboardEvents = process.env.E2E_DASH_EVENTS;
+const reporter: ReporterDescription[] = dashboardEvents
+  ? [
+      ["html", { open: "never" }],
+      ["./tests/reporters/dashboard-reporter.ts"],
+    ]
+  : [["html", { open: "never" }]];
 
 export default defineConfig({
   testDir: "./tests",
@@ -13,7 +28,7 @@ export default defineConfig({
   workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  reporter: [["html", { open: "never" }]],
+  reporter,
   // The stack (database + worker + api + web) is owned by scripts/e2e.sh.
   // Playwright NEVER starts servers — there is no webServer block, on purpose.
   // Adding one boots a second, unmigrated stack on top of the real one.
@@ -38,6 +53,29 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/admin.json" },
       dependencies: ["setup"],
       testDir: "./tests/smoke",
+    },
+    // Service-worker tests only. `navigator.serviceWorker` exists ONLY in a
+    // secure context — HTTPS, or the literal hostname localhost — and this
+    // stack serves plain HTTP on the custom host, so the API is absent there.
+    // The same server is reached as http://localhost:<port> instead. Scoped to
+    // its own project because sw.ts is a CACHING worker that intercepts
+    // fetches; enabling it under every other test would change navigation
+    // behaviour they were all verified without.
+    {
+      name: "chromium-pwa",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: E2E.webBaseLocalhost,
+        storageState: "playwright/.auth/admin-localhost.json",
+      },
+      dependencies: ["setup"],
+      testDir: "./tests/pwa",
+    },
+    {
+      name: "chromium-auth",
+      use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/admin.json" },
+      dependencies: ["setup"],
+      testDir: "./tests/authenticated",
     },
   ],
 });

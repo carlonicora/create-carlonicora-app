@@ -2,7 +2,7 @@
 #
 # Full-stack e2e runner (see apps/web/tests/README.md).
 #   1. recreate the test database, empty
-#   2. boot worker + api + web against it on dedicated ports (3980-3982)
+#   2. boot worker + api + web against it on dedicated ports (4080-4082)
 #   3. wait for migrations, then for every process to answer
 #   4. run Playwright (which seeds and logs in via its `setup` project)
 #
@@ -29,9 +29,9 @@ fi
 # Defaults are assigned to their own variables first: a literal "{{name}}" holds
 # a brace pair, and nesting one inside a ${VAR:-default} expansion is asking a
 # shell parser for trouble. Two lines, no ambiguity.
-DEFAULT_API_PORT=3980
-DEFAULT_WEB_PORT=3981
-DEFAULT_WORKER_HEALTH_PORT=3982
+DEFAULT_API_PORT=4080
+DEFAULT_WEB_PORT=4081
+DEFAULT_WORKER_HEALTH_PORT=4082
 DEFAULT_TEST_DB="{{name}}test"
 DEFAULT_QUEUE_PREFIX="{{name}}e2e"
 DEFAULT_PUBLIC_HOSTNAME="{{name}}.test"

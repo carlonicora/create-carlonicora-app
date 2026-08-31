@@ -135,6 +135,9 @@
     "apps/api/src/openapi",
     "apps/api/scripts",
     "packages/nestjs-neo4jsonapi/.gitkeep",
-    "packages/nextjs-jsonapi/.gitkeep"
+    "packages/nextjs-jsonapi/.gitkeep",
+    "scripts/e2e-dashboard.mjs",
+    "scripts/e2e-dashboard.html",
+    "scripts/e2e-dashboard.test.mjs"
   ]
 }

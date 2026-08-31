@@ -20,7 +20,7 @@ pnpm test:e2e
 That runs `scripts/e2e.sh`, which is the whole runtime. It:
 
 1. Sources `.env.e2e` if present (see `env.e2e.example`) and frees the dedicated
-   ports — **3980** api, **3981** web, **3982** worker health.
+   ports — **4080** api, **4081** web, **4082** worker health.
 2. Builds the workspace packages (turbo-cached, a no-op after the first run).
 3. Recreates the test database `{{name}}test`, empty.
 4. Boots the **worker alone** and waits for its migrator to finish.
@@ -43,6 +43,11 @@ run still seeds the database and logs in.
 **Prerequisites:** Neo4j and Redis running locally, and `/etc/hosts` entries
 pointing `{{name}}.test` and `api.{{name}}.test` at `127.0.0.1`.
 
+**Watching a run:** `pnpm e2e:dash` (root) serves a control page on
+`http://127.0.0.1:4084`. Press **Run** and it lists every test first
+(`playwright test --list`, a few seconds, no stack needed), then starts
+`scripts/e2e.sh` and colours each row as its result arrives. See §8.
+
 ---
 
 ## 2. How it fits together
@@ -54,12 +59,15 @@ scripts/e2e.sh ──boots──► worker (migrates) + api + web ──► Play
                      ▼
   project "setup"  → tests/setup/seed.setup.ts
                        ├─ createNonAdministratorUser()   (tests/support/db.ts)
-                       └─ loginAndSaveState() ×2         (tests/support/auth.ts)
+                       └─ loginAndSaveState() ×3         (tests/support/auth.ts)
                           → playwright/.auth/admin.json
                           → playwright/.auth/member.json
+                          → playwright/.auth/admin-localhost.json  (same admin, cookie domain localhost)
                      ▼
   project "chromium-unauth" → tests/unauthenticated/*   (no storageState)
   project "chromium-smoke"  → tests/smoke/*             (admin storageState)
+  project "chromium-auth"   → tests/authenticated/*     (admin storageState)
+  project "chromium-pwa"    → tests/pwa/*               (admin-localhost storageState, baseURL http://localhost:4081)
 ```
 
 | File | Role |
@@ -105,7 +113,7 @@ repeatedly from `127.0.0.1` otherwise starts collecting 429s.
 
 **`CORS_ORIGINS` includes `localhost`.** `navigator.serviceWorker` only exists in
 a secure context, and a custom `/etc/hosts` name over plain http is not one — so
-a PWA test has to load the same server through `http://localhost:3981`, and its
+a PWA test has to load the same server through `http://localhost:4081`, and its
 client-side api calls need that origin allowed. `E2E.webBaseLocalhost` is there
 for exactly that.
 
@@ -139,7 +147,7 @@ response, so a test that depends on a role is testing the role the api actually
 granted.
 
 Cookies are domain-scoped. A `storageState` saved for `{{name}}.test` does not
-authenticate `http://localhost:3981`; pass `webBase` and `cookieDomain` to
+authenticate `http://localhost:4081`; pass `webBase` and `cookieDomain` to
 `loginAndSaveState` to build a second state for that origin.
 
 ---
@@ -193,3 +201,34 @@ change that migration's e-mail or password hash, override `E2E_ADMIN_EMAIL` and
 must stay that way — never commit it and never attach it to a bug report.
 `.next-e2e/` (the e2e build output) and `.env.e2e` are gitignored for the same
 family of reasons.
+
+---
+
+## 8. The dashboard
+
+`scripts/e2e-dashboard.mjs` is a dependency-free Node server. It does not run
+tests itself — it spawns `scripts/e2e.sh` and reads two things from it:
+
+- the `==> [e2e] …` progress lines the runner prints, which drive the boot strip
+  (free test ports → build packages → reset database → worker → migrations →
+  api → web build → web start → health → Playwright → teardown);
+- an NDJSON file that `tests/reporters/dashboard-reporter.ts` appends to.
+  `playwright.config.ts` attaches that reporter **only** when the dashboard sets
+  `E2E_DASH_EVENTS`, so a plain `pnpm test:e2e` is unaffected.
+
+Pressing **Run** makes two passes: `playwright test --list` (with
+`E2E_DASH_LIST=1`, so the reporter enumerates without ending the run) paints
+every test as pending in seconds, then the real run starts. **Stop** signals the
+process group the dashboard created — the script *and* the Playwright it is
+waiting on — and the runner's own `trap` frees ports 4080–4082. Nothing is
+ever killed by name. The HTML report is served at `/report` when a run ends.
+
+Optional: if a `e2e-coverage.md` exists at the repo root with entries shaped
+`#### ID-01 · summary — ✅ …`, and test titles carry those ids, the dashboard
+shows the description next to each row. Absent, it just says so once at start.
+
+`pnpm e2e:dash:test` runs the parser tests, which are pinned against the real
+`scripts/e2e.sh` and `playwright.config.ts` — add a phase there and the test
+tells you to teach the dashboard about it.
+
+Automation must call `scripts/e2e.sh` directly; the dashboard waits for a human.

@@ -11,15 +11,15 @@ const repoRoot = path.resolve(__dirname, "..", "..", "..");
 dotenv.config({ path: path.join(repoRoot, ".env.e2e") });
 dotenv.config({ path: path.join(repoRoot, ".env") });
 
-const apiPort = Number(process.env.E2E_API_PORT ?? 3980);
-const webPort = Number(process.env.E2E_WEB_PORT ?? 3981);
+const apiPort = Number(process.env.E2E_API_PORT ?? 4080);
+const webPort = Number(process.env.E2E_WEB_PORT ?? 4081);
 const webHost = process.env.E2E_PUBLIC_HOSTNAME ?? process.env.PUBLIC_HOSTNAME ?? "{{name}}.test";
 const apiHost = `api.${webHost}`;
 
 export const E2E = {
   apiPort,
   webPort,
-  workerHealthPort: Number(process.env.E2E_WORKER_HEALTH_PORT ?? 3982),
+  workerHealthPort: Number(process.env.E2E_WORKER_HEALTH_PORT ?? 4082),
   apiBase: `http://${apiHost}:${apiPort}`,
   webBase: `http://${webHost}:${webPort}`,
   // The SAME web server, reached as the literal "localhost" — which Chromium

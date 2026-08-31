@@ -131,7 +131,8 @@ This starts:
 | `pnpm test` | Run all tests |
 | `pnpm test:verbose` | Run tests with full output |
 | `pnpm test:watch` | Run tests in watch mode |
-| `pnpm test:e2e` | Run end-to-end tests |
+| `pnpm test:e2e` | Run the full-stack end-to-end suite headless (`scripts/e2e.sh`) |
+| `pnpm e2e:dash` | Interactive e2e dashboard on http://127.0.0.1:4084 — live per-test status, Run/Stop, HTML report |
 | `pnpm test:cov` | Run tests with coverage |
 
 ### Code Quality

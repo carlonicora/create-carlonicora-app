@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{display}} · e2e</title>
+    <link rel="icon" href="/assets/favicon.ico" />
+    <style>
+      :root {
+        color-scheme: dark light;
+        --bg: #0e1116;
+        --panel: #161b22;
+        --panel-2: #1c232c;
+        --line: #2a323d;
+        --text: #e6edf3;
+        --dim: #8b97a5;
+        --dimmer: #5f6b7a;
+        --accent: #3b82f6;
+        --pass: #2ea043;
+        --fail: #f85149;
+        --flaky: #d29922;
+        --skip: #6e7681;
+        --radius: 8px;
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f6f8fa;
+          --panel: #ffffff;
+          --panel-2: #f0f3f6;
+          --line: #d8dee4;
+          --text: #1f2328;
+          --dim: #59636e;
+          --dimmer: #818b98;
+          --skip: #9aa4af;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+        padding: 10px 16px 0;
+      }
+      .bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+      .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .logo { height: 30px; width: auto; display: block; }
+      .brandtext { display: flex; flex-direction: column; line-height: 1.25; }
+      .brandname { font-weight: 650; font-size: 15px; letter-spacing: -0.015em; }
+      .brandsub { color: var(--dim); font-size: 11.5px; }
+
+      /* The run controls read as one unit, set apart from the read-only counters. */
+      .controls {
+        display: flex; align-items: center; gap: 6px;
+        background: var(--panel-2); border: 1px solid var(--line);
+        border-radius: 10px; padding: 5px;
+      }
+      .controls input[type="text"] { min-width: 280px; border-color: transparent; background: var(--panel); }
+
+      .readout { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+      .clock { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--dim); }
+      .reportlink {
+        color: var(--dim); text-decoration: none; border: 1px solid var(--line);
+        border-radius: var(--radius); padding: 5px 12px; white-space: nowrap;
+      }
+      .reportlink:hover { color: var(--text); border-color: var(--dim); }
+      input[type="text"] {
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        color: var(--text);
+        padding: 6px 10px;
+        font: inherit;
+        min-width: 260px;
+      }
+      input[type="text"]:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+      select {
+        background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+        color: var(--text); padding: 6px 10px; font: inherit; cursor: pointer;
+      }
+      button {
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        color: var(--text);
+        padding: 6px 14px;
+        font: inherit;
+        font-weight: 550;
+        cursor: pointer;
+      }
+      button:hover:not(:disabled) { border-color: var(--dim); }
+      button:disabled { opacity: 0.4; cursor: default; }
+      button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+      button.danger { background: var(--fail); border-color: var(--fail); color: #fff; }
+      .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+      .chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: var(--panel-2); border: 1px solid var(--line);
+        border-radius: 999px; padding: 2px 10px; font-variant-numeric: tabular-nums;
+      }
+      .chip b { font-weight: 650; }
+      .chip.passed b { color: var(--pass); }
+      .chip.failed b { color: var(--fail); }
+      .chip.flaky b { color: var(--flaky); }
+      .chip.skipped b { color: var(--skip); }
+      progress { width: 100%; height: 4px; margin: 8px 0 0; display: block; appearance: none; border: 0; }
+      progress::-webkit-progress-bar { background: var(--panel-2); }
+      progress::-webkit-progress-value { background: var(--accent); }
+      progress.done::-webkit-progress-value { background: var(--pass); }
+      progress.broken::-webkit-progress-value { background: var(--fail); }
+
+      /* boot phases */
+      .phases { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 0 12px; }
+      .phase {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--panel-2); border: 1px solid var(--line);
+        border-radius: 999px; padding: 3px 11px 3px 8px; color: var(--dim);
+      }
+      .phase.running { color: var(--text); border-color: var(--accent); }
+      .phase.ok { color: var(--text); }
+      .phase.failed { color: var(--fail); border-color: var(--fail); }
+      .phase em { font-style: normal; color: var(--dimmer); font-variant-numeric: tabular-nums; }
+
+      /* semaphore */
+      .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+      .dot.pending { border: 1.5px solid var(--dimmer); }
+      .dot.notrun { border: 1.5px dashed var(--dimmer); }
+      .dot.skipped { border: 1.5px solid var(--skip); background: repeating-linear-gradient(45deg, var(--skip) 0 2px, transparent 2px 4px); }
+      .dot.passed { background: var(--pass); }
+      .dot.failed { background: var(--fail); box-shadow: 0 0 0 3px color-mix(in srgb, var(--fail) 25%, transparent); }
+      .dot.flaky { background: var(--flaky); }
+      .dot.ok { background: var(--pass); }
+      .dot.running {
+        border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
+        border-top-color: var(--accent);
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      main { padding: 12px 16px 40px; }
+      /* Lives in the sticky header: with 'follow' on, the page keeps jumping to the
+         running test, so a toolbar that scrolled away would be unreachable — there
+         would be no way to turn follow back off. */
+      .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-bottom: 10px; }
+      label.toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--dim); cursor: pointer; }
+      .hint { color: var(--accent); }
+
+      .group { border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; background: var(--panel); }
+      .group.hidden, .row.hidden { display: none; }
+      .group > summary {
+        list-style: none; cursor: pointer; padding: 8px 12px; display: flex; gap: 10px;
+        align-items: center; background: var(--panel-2); user-select: none;
+      }
+      .group > summary::-webkit-details-marker { display: none; }
+      .group .gname { display: flex; flex-direction: column; min-width: 0; }
+      .group .gtitle { font-weight: 600; }
+      /* The raw project id and path stay visible underneath — the readable title
+         is a label for them, never a replacement that hides where a test lives. */
+      .group .gpath { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+      .group .mini { margin-left: auto; display: flex; gap: 5px; color: var(--dim); font-variant-numeric: tabular-nums; }
+      .group .mini i { font-style: normal; }
+      .group .mini i.p { color: var(--pass); }
+      .group .mini i.f { color: var(--fail); }
+      .group .mini i.sep { color: var(--dimmer); }
+
+      .row { display: flex; gap: 10px; align-items: baseline; padding: 6px 12px; border-top: 1px solid var(--line); cursor: pointer; }
+      .row:hover { background: var(--panel-2); }
+      .row .dot { align-self: center; }
+      .row .name { flex: 1; min-width: 0; }
+      .titleline { display: block; }
+      .row .title { }
+      .row .crumb { color: var(--dimmer); }
+      .row .crumb::after { content: " › "; }
+      .row .desc { display: block; color: var(--dim); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .row.failed .title { color: var(--fail); }
+      /* :empty matters — a bordered span with no text collapses into a stray dash. */
+      .row .badge { font-family: var(--mono); font-size: 11px; color: var(--dimmer); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; flex: none; }
+      .row .badge:empty { display: none; }
+      .row .ms { color: var(--dimmer); font-variant-numeric: tabular-nums; flex: none; min-width: 56px; text-align: right; }
+      .detail { padding: 4px 12px 12px 34px; border-top: 1px solid var(--line); background: var(--bg); }
+      .detail.hidden { display: none; }
+      .detail ul { margin: 6px 0; padding-left: 16px; }
+      .detail li { color: var(--dim); }
+      .detail code { font-family: var(--mono); font-size: 12px; background: var(--panel-2); padding: 0 4px; border-radius: 4px; }
+      .detail .meta { color: var(--dimmer); font-family: var(--mono); font-size: 11px; }
+      pre.err {
+        margin: 8px 0 0; padding: 10px; background: color-mix(in srgb, var(--fail) 10%, var(--panel));
+        border: 1px solid color-mix(in srgb, var(--fail) 40%, transparent); border-radius: var(--radius);
+        font-family: var(--mono); font-size: 12px; white-space: pre-wrap; word-break: break-word; color: var(--text);
+        max-height: 320px; overflow: auto;
+      }
+      .empty { color: var(--dim); padding: 40px 0; text-align: center; }
+
+      /* log drawer */
+      .logs { position: sticky; bottom: 0; background: var(--panel); border-top: 1px solid var(--line); }
+      .logs > summary { cursor: pointer; padding: 6px 16px; color: var(--dim); user-select: none; }
+      .logs pre {
+        margin: 0; padding: 10px 16px; height: 240px; overflow: auto; background: var(--bg);
+        font-family: var(--mono); font-size: 11.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; color: var(--dim);
+      }
+      .msg { color: var(--fail); padding: 0 0 8px; }
+      .msg.info { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <!-- The web app's own mark, served from apps/web/public. -->
+          <img class="logo" src="/assets/logo.webp" alt="{{display}}" />
+          <span class="brandtext">
+            <span class="brandname">End-to-end tests</span>
+            <span class="brandsub">{{display}} · <span id="scopeLabel">everything</span></span>
+          </span>
+        </div>
+
+        <div class="controls">
+          <input
+            id="scope"
+            type="text"
+            placeholder="scope, e.g. --project=chromium-smoke or --grep accounts"
+            autocomplete="off"
+          />
+          <button id="run" class="primary">Run</button>
+          <button id="stop" class="danger" disabled>Stop</button>
+        </div>
+
+        <div class="readout">
+          <span class="chips" id="chips"></span>
+          <span class="clock" id="elapsed">—</span>
+          <a class="reportlink" href="/report" target="_blank" rel="noreferrer">Report ↗</a>
+        </div>
+      </div>
+      <div class="phases" id="phases"></div>
+      <div class="toolbar">
+        <input id="filter" type="text" placeholder="filter by title, id, file…" autocomplete="off" />
+        <label class="toggle"><input type="checkbox" id="onlyFailures" /> only failures</label>
+        <label class="toggle"><input type="checkbox" id="follow" checked /> follow running test</label>
+        <span class="hint" id="followHint" hidden>follow released — re-check to resume</span>
+        <button id="expandAll">Expand all</button>
+        <button id="collapseAll">Collapse all</button>
+      </div>
+      <progress id="progress" value="0" max="1"></progress>
+    </header>
+
+    <main>
+      <div class="msg" id="message" hidden></div>
+      <div id="tree"><div class="empty">Press <b>Run</b> to boot the stack and start the suite.</div></div>
+    </main>
+
+    <details class="logs" id="logDrawer">
+      <summary>stack log</summary>
+      <pre id="log"></pre>
+    </details>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const tests = new Map(); // id -> data
+      const rows = new Map(); // id -> { row, detail, group }
+      const groups = new Map(); // key -> { el, ids: [] }
+      let run = { running: false };
+      let phases = [];
+
+      const esc = (s) =>
+        String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const md = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+      const ms = (n) => (!n ? "" : n < 1000 ? n + "ms" : (n / 1000).toFixed(1) + "s");
+      const clock = (from, to) => {
+        const s = Math.max(0, Math.round(((to ?? Date.now()) - from) / 1000));
+        return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+      };
+
+      // ---- rendering ----------------------------------------------------
+
+      function renderPhases() {
+        $("phases").innerHTML = phases
+          .map((p) => {
+            const took = p.startedAt ? ms(( p.endedAt ?? Date.now()) - p.startedAt) : "";
+            const cls = p.status === "running" ? "running" : p.status;
+            return `<span class="phase ${cls}" title="${esc(p.detail || "")}"><span class="dot ${
+              p.status === "running" ? "running" : p.status === "ok" ? "ok" : p.status === "failed" ? "failed" : "pending"
+            }"></span>${esc(p.label)}${took ? ` <em>${took}</em>` : ""}</span>`;
+          })
+          .join("");
+      }
+
+      function groupKey(t) {
+        return `${t.project}::${t.file}`;
+      }
+
+      function buildTree() {
+        const tree = $("tree");
+        tree.innerHTML = "";
+        rows.clear();
+        groups.clear();
+        if (!tests.size) {
+          tree.innerHTML = `<div class="empty">Press <b>Run</b> to boot the stack and start the suite.</div>`;
+          return;
+        }
+        for (const t of tests.values()) {
+          const key = groupKey(t);
+          let g = groups.get(key);
+          if (!g) {
+            const el = document.createElement("details");
+            el.className = "group";
+            el.open = true;
+            el.innerHTML =
+              `<summary><span class="dot pending"></span>` +
+              `<span class="gname"><span class="gtitle">${esc(t.fileTitle ?? t.file)}</span>` +
+              `<span class="gpath">${esc(t.projectLabel ?? t.project)} · ${esc(t.file)}</span></span>` +
+              `<span class="mini"></span></summary>`;
+            tree.appendChild(el);
+            g = { el, ids: [], summary: el.querySelector("summary") };
+            groups.set(key, g);
+          }
+          g.ids.push(t.id);
+
+          const row = document.createElement("div");
+          row.className = "row";
+          row.innerHTML =
+            `<span class="dot pending"></span>` +
+            `<span class="name"><span class="titleline"><span class="crumb"></span><span class="title"></span></span>` +
+            `<span class="desc"></span></span>` +
+            `<span class="ms"></span>`;
+          const detail = document.createElement("div");
+          detail.className = "detail hidden";
+          row.addEventListener("click", () => {
+            detail.classList.toggle("hidden");
+            if (!detail.classList.contains("hidden")) fillDetail(t.id, detail);
+          });
+          g.el.appendChild(row);
+          g.el.appendChild(detail);
+          rows.set(t.id, { row, detail });
+          paintRow(t.id);
+        }
+        for (const key of groups.keys()) paintGroup(key);
+        applyFilter();
+      }
+
+      function paintRow(id) {
+        const t = tests.get(id);
+        const r = rows.get(id);
+        if (!t || !r) return;
+        const { row } = r;
+        row.className = `row ${t.status}${row.classList.contains("hidden") ? " hidden" : ""}`;
+        row.querySelector(".dot").className = `dot ${t.status}`;
+        // The describe block is a GROUP name, not a description — putting it in
+        // the description slot made four sibling rows all read "Account lifecycle".
+        // It belongs in front of the title, as a scope crumb.
+        const crumb = row.querySelector(".crumb");
+        const scope = t.describes?.join(" › ") ?? "";
+        crumb.textContent = scope;
+        crumb.style.display = scope ? "" : "none";
+        row.querySelector(".title").textContent = t.title;
+        row.querySelector(".desc").textContent = t.summary ?? "";
+        row.querySelector(".desc").style.display = t.summary ? "" : "none";
+        row.querySelector(".ms").textContent = ms(t.duration);
+        if (!r.detail.classList.contains("hidden")) fillDetail(id, r.detail);
+      }
+
+      function fillDetail(id, el) {
+        const t = tests.get(id);
+        if (!t) return;
+        const parts = [];
+        parts.push(
+          `<div class="meta">${esc(t.projectLabel ?? t.project)} · ${esc(t.file)}:${t.line}${
+            t.coverageStatus ? ` · coverage ${esc(t.coverageStatus)}` : ""
+          }${t.retry ? ` · retry ${t.retry}` : ""}</div>`,
+        );
+        if (t.detail?.length) parts.push(`<ul>${t.detail.map((d) => `<li>${md(d)}</li>`).join("")}</ul>`);
+        else if (t.describes?.length) parts.push(`<div class="meta">${esc(t.describes.join(" › "))}</div>`);
+        for (const err of t.errors ?? []) parts.push(`<pre class="err">${esc(err)}</pre>`);
+        el.innerHTML = parts.join("");
+      }
+
+      function paintGroup(key) {
+        const g = groups.get(key);
+        if (!g) return;
+        let passed = 0,
+          failed = 0,
+          done = 0,
+          running = false;
+        for (const id of g.ids) {
+          const t = tests.get(id);
+          if (!t) continue;
+          if (t.status === "passed") passed++;
+          if (t.status === "failed") failed++;
+          if (t.status === "running") running = true;
+          if (["passed", "failed", "flaky", "skipped", "notrun"].includes(t.status)) done++;
+        }
+        const dot = g.summary.querySelector(".dot");
+        // "Everything finished" is NOT the same as "everything passed" — a group
+        // whose tests were all skipped or never ran must not read as green.
+        dot.className = `dot ${
+          failed
+            ? "failed"
+            : running
+              ? "running"
+              : passed === g.ids.length
+                ? "passed"
+                : done === g.ids.length
+                  ? "notrun"
+                  : "pending"
+        }`;
+        g.summary.querySelector(".mini").innerHTML = [
+          passed ? `<i class="p">${passed} passed</i>` : "",
+          failed ? `<i class="f">${failed} failed</i>` : "",
+          `<i>${done} / ${g.ids.length}</i>`,
+        ]
+          .filter(Boolean)
+          .join(`<i class="sep">·</i>`);
+      }
+
+      function renderTotals() {
+        const counts = { passed: 0, failed: 0, flaky: 0, skipped: 0, running: 0, pending: 0, notrun: 0 };
+        for (const t of tests.values()) counts[t.status] = (counts[t.status] ?? 0) + 1;
+        const total = tests.size;
+        const done = counts.passed + counts.failed + counts.flaky + counts.skipped + counts.notrun;
+        // passed/failed always show (a zero there is information); the rest only
+        // when non-zero, so the header stays on one line in the common case.
+        $("chips").innerHTML = [
+          `<span class="chip passed">passed <b>${counts.passed}</b></span>`,
+          `<span class="chip failed">failed <b>${counts.failed}</b></span>`,
+          counts.flaky ? `<span class="chip flaky">flaky <b>${counts.flaky}</b></span>` : "",
+          counts.skipped ? `<span class="chip skipped">skipped <b>${counts.skipped}</b></span>` : "",
+          // Counted separately: these never executed (stopped, or the stack
+          // failed to boot). Folding them into "done" would read as a pass.
+          counts.notrun ? `<span class="chip skipped">not run <b>${counts.notrun}</b></span>` : "",
+          `<span class="chip">${counts.passed + counts.failed + counts.flaky + counts.skipped} / ${total}</span>`,
+        ].join("");
+        const p = $("progress");
+        p.max = total || 1;
+        p.value = done;
+        p.className = counts.failed || counts.notrun ? "broken" : !run.running && done && done === total ? "done" : "";
+      }
+
+      // ---- filtering ----------------------------------------------------
+
+      function applyFilter() {
+        const q = $("filter").value.trim().toLowerCase();
+        const onlyFailures = $("onlyFailures").checked;
+        for (const [key, g] of groups) {
+          let visible = 0;
+          for (const id of g.ids) {
+            const t = tests.get(id);
+            const r = rows.get(id);
+            if (!t || !r) continue;
+            const hay = `${t.title} ${t.rawTitle ?? ""} ${t.summary ?? ""} ${t.file} ${t.project} ${t.fileTitle ?? ""} ${
+              t.projectLabel ?? ""
+            } ${(t.ids ?? []).join(" ")}`.toLowerCase();
+            const show = (!q || hay.includes(q)) && (!onlyFailures || t.status === "failed" || t.status === "flaky");
+            r.row.classList.toggle("hidden", !show);
+            if (!show) r.detail.classList.add("hidden");
+            if (show) visible++;
+          }
+          g.el.classList.toggle("hidden", visible === 0);
+        }
+      }
+
+      // ---- events -------------------------------------------------------
+
+      function onSnapshot(s) {
+        for (const p of s.projects ?? []) projectNames.set(p.id, p.label);
+        run = s.run;
+        phases = s.phases;
+        tests.clear();
+        for (const t of s.tests) tests.set(t.id, t);
+        $("log").textContent = s.logs.join("\n");
+        scrollLog();
+        renderPhases();
+        buildTree();
+        renderTotals();
+        renderRun();
+      }
+
+      function renderRun() {
+        const stopping = run.running && run.message.startsWith("stopping");
+        $("run").disabled = run.running;
+        $("stop").disabled = !run.running || stopping;
+        $("stop").textContent = stopping ? "Stopping…" : "Stop";
+        $("scope").disabled = run.running;
+        // Echo what was run in the same words the picker uses, not the raw flag.
+        $("scopeLabel").textContent = run.args
+          ? run.args.replace(/--project=(\S+)/g, (whole, id) => projectNames.get(id) ?? whole).trim()
+          : "everything";
+        const message = $("message");
+        message.hidden = !run.message;
+        message.textContent = run.message ?? "";
+        message.className = `msg${run.message.startsWith("stopp") ? " info" : ""}`;
+        document.title = run.running ? "▶ e2e — running" : "{{display}} · e2e";
+      }
+
+      function scrollLog() {
+        const pre = $("log");
+        pre.scrollTop = pre.scrollHeight;
+      }
+
+      // Only used to say what a run covered in words; nothing here changes what runs.
+      const projectNames = new Map();
+
+
+
+      const source = new EventSource("/api/stream");
+      source.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.t === "snapshot") return onSnapshot(msg);
+        if (msg.t === "run") {
+          run = msg.run;
+          renderRun();
+          renderTotals();
+          return;
+        }
+        if (msg.t === "phase") {
+          const i = phases.findIndex((p) => p.key === msg.phase.key);
+          if (i === -1) phases.push(msg.phase);
+          else phases[i] = msg.phase;
+          renderPhases();
+          return;
+        }
+        if (msg.t === "catalogue") {
+          tests.clear();
+          for (const t of msg.tests) tests.set(t.id, t);
+          buildTree();
+          renderTotals();
+          return;
+        }
+        if (msg.t === "test") {
+          tests.set(msg.test.id, msg.test);
+          paintRow(msg.test.id);
+          paintGroup(groupKey(msg.test));
+          renderTotals();
+          if (msg.test.status === "running" && $("follow").checked) {
+            const r = rows.get(msg.test.id);
+            if (r && !r.row.classList.contains("hidden")) r.row.scrollIntoView({ block: "center", behavior: "smooth" });
+          }
+          return;
+        }
+        if (msg.t === "log") {
+          const pre = $("log");
+          const stuck = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 24;
+          pre.textContent += (pre.textContent ? "\n" : "") + msg.lines.join("\n");
+          if (stuck) scrollLog();
+        }
+      };
+
+      setInterval(() => {
+        $("elapsed").textContent = run.startedAt ? clock(run.startedAt, run.endedAt) : "—";
+        if (run.running) renderPhases();
+      }, 1000);
+
+      $("run").addEventListener("click", async () => {
+        $("run").disabled = true;
+        const response = await fetch("/api/run", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ scope: $("scope").value }),
+        });
+        if (!response.ok) {
+          $("run").disabled = false;
+          alert((await response.json()).error ?? "could not start");
+        }
+      });
+      // Any deliberate scroll releases follow. Without this the page fights the
+      // user: every test start yanks the view back, so there is no way to reach
+      // anything else — including the checkbox that turns it off. Only real input
+      // events count, never the smooth scrollIntoView above.
+      const releaseFollow = () => {
+        if (!$("follow").checked) return;
+        $("follow").checked = false;
+        $("followHint").hidden = false;
+        setTimeout(() => ($("followHint").hidden = true), 4000);
+      };
+      for (const type of ["wheel", "touchmove"]) window.addEventListener(type, releaseFollow, { passive: true });
+      window.addEventListener("keydown", (event) => {
+        if (["PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"].includes(event.key)) releaseFollow();
+      });
+
+      $("stop").addEventListener("click", () => {
+        // Teardown takes ~10-30s. Acknowledge the click immediately, otherwise
+        // the button looks inert for half a minute and reads as broken.
+        $("stop").disabled = true;
+        $("stop").textContent = "Stopping…";
+        fetch("/api/stop", { method: "POST" });
+      });
+      $("filter").addEventListener("input", applyFilter);
+      $("onlyFailures").addEventListener("change", applyFilter);
+      $("expandAll").addEventListener("click", () => groups.forEach((g) => (g.el.open = true)));
+      $("collapseAll").addEventListener("click", () => groups.forEach((g) => (g.el.open = false)));
+      $("scope").addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !run.running) $("run").click();
+      });
+    </script>
+  </body>
+</html>

@@ -124,6 +124,14 @@
     "processing": {
       "loading": "Loading queue...",
       "count": "{count, plural, one {# item} other {# items}} processing"
+    },
+    "labels": {
+      "pick_a_date": "Pick a date",
+      "images": "Images",
+      "accepted_file_types": "Accepted file types"
+    },
+    "empty_states": {
+      "no_results": "No results."
     }
   },
   "filters": {
@@ -1117,6 +1125,14 @@
             "suggested_questions": "Suggested questions"
           }
         }
+      },
+      "send": "Send",
+      "operator_mode": "Operator mode",
+      "approval": {
+        "title": "Approval required",
+        "error": "The action could not be completed.",
+        "approve": "Approve",
+        "deny": "Deny"
       }
     },
     "dashboard": {
@@ -7430,6 +7446,12 @@
     }
   },
   "howto": {
+    "howToType": {
+      "tutorial": "Tutorial",
+      "how-to": "How-to guide",
+      "reference": "Reference",
+      "explanation": "Explanation"
+    },
     "fields": {
       "name": {
         "label": "Name",

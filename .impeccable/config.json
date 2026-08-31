@@ -1,0 +1,9 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [
+      "template/scripts/e2e-dashboard.html"
+    ],
+    "ignoreValues": []
+  }
+}

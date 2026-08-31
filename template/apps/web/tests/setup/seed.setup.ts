@@ -32,6 +32,19 @@ setup("seed fixtures and authenticate", async ({ browser }) => {
     );
   }
 
+  // The same administrator, bound to the literal "localhost" origin — the only
+  // origin Chromium treats as a secure context over plain HTTP, which the
+  // service worker needs. Cookies are domain-scoped, so the state above does
+  // not authenticate localhost; this one does. Consumed by the chromium-pwa project.
+  await loginAndSaveState({
+    browser,
+    email: E2E.administrator.email,
+    password: E2E.administrator.password,
+    authFile: "playwright/.auth/admin-localhost.json",
+    webBase: E2E.webBaseLocalhost,
+    cookieDomain: "localhost",
+  });
+
   // The ordinary user. Consumed by tests that assert a REFUSAL, so its session
   // must be real and it must genuinely lack the Administrator role. Its
   // password hash is copied from the administrator node by

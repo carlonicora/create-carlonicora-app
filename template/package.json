@@ -24,6 +24,8 @@
     "test:watch": "turbo run test:watch",
     "test:e2e": "bash scripts/e2e.sh",
     "test:e2e:api": "turbo run test:e2e",
+    "e2e:dash": "node scripts/e2e-dashboard.mjs",
+    "e2e:dash:test": "node --test scripts/e2e-dashboard.test.mjs",
     "test:cov": "turbo run test:cov",
     "lint": "turbo run lint && node scripts/check-dep-drift.js",
     "format": "turbo run format",
