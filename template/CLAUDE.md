@@ -19,14 +19,14 @@ This is a monorepo with component-specific instructions. Read the relevant CLAUD
 ## Architecture Reference
 
 Architecture rules and detailed patterns live in the
-**`{{name}}-architecture` skill** at
-`.claude/skills/{{name}}-architecture/`. Invoke that skill BEFORE
-editing any TypeScript file under `apps/api/src/features`,
+**`nja-architecture` skill**, provided by the globally-installed
+`nja` plugin (invoke it as `nja:nja-architecture`). Invoke that skill
+BEFORE editing any TypeScript file under `apps/api/src/features`,
 `apps/web/src/features`, or `packages/*/src`.
 
 The skill's `SKILL.md` contains the full routing table (file pattern →
-references). Detailed reference docs live under
-`.claude/skills/{{name}}-architecture/references/`.
+references). Detailed reference docs ship inside the plugin under the
+skill's `references/` directory.
 
 ## Architecture Guardrails
 
@@ -57,11 +57,11 @@ This system uses {json:api} as its ONLY communication protocol between frontend 
 - ALWAYS pass `type: Modules.X` in every `callApi()` call — without it, rehydration fails
 - NEVER use `overridesJsonApiCreation` without a dedicated model method
 - NEVER construct JSON:API payloads manually — the model handles serialization
-- This project uses **Base UI** (not Radix) for UI components — NEVER use `asChild`, NEVER wrap `<Button>` inside trigger components. Use the `render` prop for composition. See `.claude/skills/{{name}}-architecture/references/frontend/04-components.md`
+- This project uses **Base UI** (not Radix) for UI components — NEVER use `asChild`, NEVER wrap `<Button>` inside trigger components. Use the `render` prop for composition. See the `nja:nja-architecture` skill's frontend components reference
 
 ### Before Writing Code
 
-Invoke the `{{name}}-architecture` skill — its routing table tells
+Invoke the `nja:nja-architecture` skill — its routing table tells
 you which references to read for the file you are about to edit.
 
 ## Build & Test

@@ -1,6 +1,6 @@
 # Frontend (Next.js) - CLAUDE.md
 
-> **Architecture rules:** invoke the `{{name}}-architecture` skill before
+> **Architecture rules:** invoke the `nja:nja-architecture` skill before
 > editing files under `src/features/`. The skill's routing table directs
 > you to the right reference for the file you are editing.
 
@@ -34,9 +34,8 @@ src/features/{domain}/
 
 ## Key Patterns (by example)
 
-Consult the `{{name}}-architecture` skill's reference docs under
-`.claude/skills/{{name}}-architecture/references/frontend/` for canonical
-examples of:
+Consult the `nja:nja-architecture` skill's frontend reference docs for
+canonical examples of:
 
 - **Model class** — `src/features/<domain>/<entity>/data/<Entity>.ts`
 - **Service** — `src/features/<domain>/<entity>/data/<Entity>Service.ts`
