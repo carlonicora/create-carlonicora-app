@@ -1,5 +1,5 @@
 import { generateSpecificMetadata } from "@/utils/metadata";
-import { PageContainer, UserContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { UserContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { CompanyProvider, UserProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { Action, Modules, UserInterface, UserService } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
@@ -32,12 +32,12 @@ export default async function UserPage(props: {
 
   const user: UserInterface = await getCachedUser(params.id);
 
+  // No PageContainer here: UserContainer renders a RoundPageContainer, which owns the page
+  // header. Wrapping it in PageContainer stacked a second header bar above it.
   return (
     <CompanyProvider dehydratedCompany={user.company?.dehydrate()}>
       <UserProvider dehydratedUser={user.dehydrate()}>
-        <PageContainer>
-          <UserContainer />
-        </PageContainer>
+        <UserContainer />
       </UserProvider>
     </CompanyProvider>
   );
