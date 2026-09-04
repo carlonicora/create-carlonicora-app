@@ -1,3 +1,17 @@
+## [1.15.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.15.0...v1.15.1) (2026-09-02)
+
+### 🐛 Bug Fixes
+
+* **template:** drop the duplicate header on the user detail page ([8605a68](https://github.com/carlonicora/create-carlonicora-app/commit/8605a682b6b3a4aead244a516c520a598825c32d))
+
+### 📦 Code Refactoring
+
+* **template:** drop the bundled {{name}}-architecture skill ([7d0da89](https://github.com/carlonicora/create-carlonicora-app/commit/7d0da8943cca2fa5bb925ac26de2515a4015af41))
+
+### ♻️ Chores
+
+* **template:** add sync:versions and align deps with wyrdli/a360ai ([9fbbe1b](https://github.com/carlonicora/create-carlonicora-app/commit/9fbbe1bb616739efd970be2f98ee8f44fba1638c))
+
 ## [1.15.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.14.0...v1.15.0) (2026-08-31)
 
 ### 🚀 Features
