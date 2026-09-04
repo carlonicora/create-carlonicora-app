@@ -15,6 +15,15 @@
       "Skill(nja:nja-generate)",
       "Skill(nja:nja-verify)",
       "Skill(nja:nja-writing-plan)",
+      "Skill(nja:nja-create-verifier)",
+      "Skill(nja:nja-maintain-verifier)",
+      "Skill(nja:nja-blast-radius)",
+      "Skill(nja:nja-interrogate)",
+      "Skill(nja:nja-reflect)",
+      "Skill(nja:nja-automate-me)",
+      "Skill(nja:nja-pre-release)",
+      "Skill(nja:nja-e2e)",
+      "Skill(nja:nja-unslop)",
       "Skill(superpowers:brainstorming)",
       "Skill(superpowers:writing-plans)",
       "Skill(superpowers:subagent-driven-development)",
@@ -30,11 +39,7 @@
       "Bash(gh pr edit*)",
       "Bash(gh pr merge*)"
     ],
-    "ask": [
-      "Bash(rm *)",
-      "Bash(git commit*)",
-      "Bash(git push*)"
-    ]
+    "ask": ["Bash(rm *)", "Bash(git commit*)", "Bash(git push*)"]
   },
   "hooks": {
     "WorktreeCreate": [
