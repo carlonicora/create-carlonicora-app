@@ -1,3 +1,9 @@
+## [1.16.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.15.1...v1.16.0) (2026-09-04)
+
+### 🚀 Features
+
+* **settings:** add new skills for enhanced configuration capabilities ([4ccd5b9](https://github.com/carlonicora/create-carlonicora-app/commit/4ccd5b9c20a3a1d2f34b82c0e5ab8d6cdf3aafcb))
+
 ## [1.15.1](https://github.com/carlonicora/create-carlonicora-app/compare/v1.15.0...v1.15.1) (2026-09-02)
 
 ### 🐛 Bug Fixes
