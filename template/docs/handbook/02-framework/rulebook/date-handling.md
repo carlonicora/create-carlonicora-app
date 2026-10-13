@@ -3,7 +3,7 @@ title: Date and DateTime Handling (cross-cutting)
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: date-handling
@@ -32,6 +32,16 @@ last_updated: "2026-05-17"
 ---
 
 # Date and DateTime Handling
+
+## Contents
+
+- WHEN TO USE
+- THE NON-NEGOTIABLE RULES
+- HOW IT WORKS (the full lifecycle)
+- DECISION MATRIX — date vs datetime vs string
+- ANTI-PATTERNS (DO NOT DO)
+- VERIFYING A FIELD IS STORED CORRECTLY
+- CHECKPOINT — before merging a change that touches a date field
 
 > A single rule, end-to-end: **dates and datetimes are stored as native Neo4j
 > temporal types — never as strings**. The framework guarantees this only if

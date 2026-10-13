@@ -3,7 +3,7 @@ title: Anti-Patterns Detection Guide
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: anti-patterns
@@ -21,6 +21,17 @@ last_updated: "2026-08-26"
 ---
 
 # Anti-Patterns (DON'T DO THIS)
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- DETECTION GUIDE
+- COMMON MISTAKES
+- RELATED FILES
+- Backend Anti-Patterns
+- Frontend Anti-Patterns
+- Summary
 
 ---
 
@@ -55,7 +66,14 @@ Read this file when:
 | `asChild`, `<DialogContent>` as single component, `<Sub>` | Using Radix API — this project uses Base UI |
 | `blocksToText(...)`, `paragraphBlocks(...)`, any blocks↔text converter | Duplicates the BlockNote editor — display with `BlockNoteEditorContainer`, test emptiness with `onEmptyChange` (see [frontend/06-blocknote.md](frontend/06-blocknote.md)) |
 | A plain `<Input>` feeding a rich-text (`description`/`content`/`notes`) field | The blocks array is the only representation — collect it with an editor |
+| `<FormBlockNote>` inside an `EditorSheet` with no `onEmptyChange` / `isFormDirty` | BlockNote's mount-time change marks the form dirty; the discard dialog fires on an untouched editor (see [frontend/06-blocknote.md](frontend/06-blocknote.md) § "Dirty state inside `EditorSheet`") |
 | `<PopoverTrigger><Button>` or trigger wrapping Button | Nested `<button>` — hydration error |
+| `export default async function …Layout` that awaits the session, `cookies()` or `headers()` | Drops every page below it from the static shell — pass `ServerSession.read()` as a promise (see [frontend/07-routes-and-cache-components.md](frontend/07-routes-and-cache-components.md)) |
+| `export const dynamic` / `revalidate` / `fetchCache` / `dynamicParams` / `runtime` in `apps/web/src/app/**` | Errors under Cache Components — declare caching on the module with `cache` |
+| An API read on a prerendered page or in a `route.ts` with no `await connection()` before it | `next build` calls the API; with none reachable the prerender fails, even inside `try/catch` |
+| A page under `(admin)` whose first statement is not `await requireAdministrator(locale)` | The `(admin)` layout gates nothing — the page is open to any logged-in user |
+| `` `/${locale}/…` `` or a literal `"/en/…"` in a link, redirect, canonical URL or sitemap | The as-needed proxy redirect breaks client navigation — `Link` / `getPathname` from `@/i18n/navigation` |
+| `next/dynamic(…, { ssr: false })` for a layout | The layout renders nothing on the server; every page under it leaves the shell |
 | `someDate: { type: "string" }` for a calendar field | Storing a date as a String — Cypher temporal ops break (see [date-handling.md](date-handling.md)) |
 | `SET n.due_date = $due_date` in custom Cypher | Bypasses framework cast — stores a String (use `date(left($v, 10))`) |
 | `SET n.processed_at = $processed_at` in custom Cypher | Same, datetime variant (use `datetime($v)`) |
@@ -169,6 +187,8 @@ async find(params: { cursor: JsonApiCursorInterface }): Promise<Gallery[]> {
 | Using Radix patterns (`asChild`, Radix naming) | Base UI uses different API | See [frontend/04-components.md](frontend/04-components.md) |
 | Wrapping `<Button>` inside trigger components | Nested `<button>` — invalid HTML | Use `render` prop or styled `<div>` inside trigger |
 | Converting a BlockNote value to/from a string in app code | The editor already does it; the string form exists only on the wire | `BlockNoteEditorContainer` to display, `onEmptyChange` for emptiness — see [frontend/06-blocknote.md](frontend/06-blocknote.md) |
+| A data-fetching segment with no `loading.tsx` of its own | A client navigation between siblings has no boundary; the validator reports uncached data | One `loading.tsx` per segment — see [frontend/07-routes-and-cache-components.md](frontend/07-routes-and-cache-components.md) |
+| Checking the session in a layout to render a logged-out tree | The proxy is the login gate; the branch forces the layout to await | Delete the branch; add the path to `PUBLIC_PATHS` if it must be public |
 | Writing a new component that already exists in the package or a named reference repo | Visual/structural drift across the fleet the user must later reconcile | Grep first; copy a named reference verbatim and propose any deviation before writing it |
 | Passing raw `Date` to `createJsonApi()` for a `"date"` field | `JSON.stringify` calls `.toISOString()` — UTC shift loses a day west of UTC | Wrap in `formatLocalDate(d)` — see [date-handling.md](date-handling.md) |
 | Returning the wire string from a `Date` getter (no `new Date(...)` in rehydrate) | Type lie — getter signature is `Date` but value is `string` | `new Date(data.jsonApi.attributes.foo)` in `rehydrate()` |

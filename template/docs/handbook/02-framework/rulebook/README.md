@@ -3,7 +3,7 @@ title: Architecture rulebook
 section: 02-framework
 ---
 
-The twenty files beside this one are **verbatim copies** of the `nja` plugin's
+The twenty-one files beside this one are **verbatim copies** of the `nja` plugin's
 `nja-architecture` skill references. They are reproduced here so the handbook is
 complete offline — a reader with the repository but without the plugin installed
 still has the full architecture rulebook — and so a future reader can see which
@@ -15,7 +15,7 @@ Three rules govern them:
    and an HTML comment naming the plugin, the skill, the version and the date it
    was taken from. An edit made here is lost on the next sync.
 2. **They are re-copied when the plugin updates.** The copies in this repository
-   were taken from `nja` version 1.20.0.
+   were taken from `nja` version 1.21.0.
 3. **The handbook path checker skips them.** Their inline path citations point at
    the plugin's own tree, not at this repository, so validating them here would
    fail on every line.
@@ -69,6 +69,7 @@ listed order, before writing code**.
 | `apps/web/src/features/*/data/*Service.ts` | [Frontend: Services](frontend/03-services.md) → [Anti-Patterns Detection Guide](anti-patterns.md) |
 | `apps/web/src/features/*/data/*.ts` — anything else in `data/` | [Frontend: Models](frontend/01-models.md) → [Date and DateTime Handling](date-handling.md) if `rehydrate()` or `createJsonApi()` touches a date or datetime |
 | `apps/web/src/features/*/components/**`, or any `.tsx` under a feature | [UI Components (Base UI)](frontend/04-components.md) → [Typography Roles](frontend/05-typography.md) if the edit styles text → [BlockNote rich-text fields](frontend/06-blocknote.md) if the file touches a rich-text field |
+| `apps/web/src/app/**` — pages, layouts, `loading.tsx`, route handlers — and `apps/web/src/proxy.ts` | [Routes, layouts and the proxy under Cache Components](frontend/07-routes-and-cache-components.md) → [Frontend: Services](frontend/03-services.md) if the edit adds a cached read |
 | A **new** frontend entity, full chain | [Core principles](core-principles.md) → [Interfaces](frontend/02-interfaces.md) → [Models](frontend/01-models.md) → [Services](frontend/03-services.md) → [Components](frontend/04-components.md) → [Typography](frontend/05-typography.md) → [Frontend: New Entity Template](frontend/template.md) → [Date and DateTime Handling](date-handling.md) if any field is a date or datetime → [BlockNote](frontend/06-blocknote.md) if any field is rich text |
 
 ### Shared packages
@@ -128,6 +129,7 @@ If no row matches, read [Core principles](core-principles.md) and ask.
 | [UI Components (Base UI)](frontend/04-components.md) | Base UI patterns, the `render` prop, trigger composition |
 | [Typography Roles](frontend/05-typography.md) | one Tailwind recipe per text role, colour tokens, header markup |
 | [BlockNote rich-text fields](frontend/06-blocknote.md) | model conversion, display, editing, emptiness — and the converters never to write |
+| [Routes, layouts and the proxy under Cache Components](frontend/07-routes-and-cache-components.md) | the session shell, loading files, caching on the data, a build without the API, the admin and login gates, locale-safe links |
 | [Frontend: New Entity Template](frontend/template.md) | the copy-paste template |
 
 ## The non-negotiable rules
@@ -190,7 +192,7 @@ Three layers, and they are not interchangeable.
 | Layer | What it is | Authority |
 |---|---|---|
 | Root [`CLAUDE.md`](../../../../CLAUDE.md) | the guardrails, always in context | canonical — wins every conflict |
-| The `nja-architecture` skill | the routing table plus the twenty references, loaded on demand | the working detail behind the guardrails |
+| The `nja-architecture` skill | the routing table plus the twenty-one references, loaded on demand | the working detail behind the guardrails |
 | This directory | a point-in-time copy of those references | a snapshot; never edit |
 
 The plugin also ships a **PreToolUse hook**. It fires on `Edit`, `Write` and
@@ -208,7 +210,7 @@ directory, which is the point of reproducing it.
 
 When the `nja` plugin updates:
 
-1. Re-copy all twenty files from the plugin's `nja-architecture` skill
+1. Re-copy all twenty-one files from the plugin's `nja-architecture` skill
    `references/` tree, byte for byte.
 2. Restore each file's two-key front matter and the HTML comment recording the
    plugin name, skill, version and date.
@@ -238,8 +240,10 @@ the plugin first.
 
 ## Gaps and drift
 
-- The copies are a snapshot of plugin version 1.20.0. Nothing in this repository
-  detects that the plugin has moved on; the sync is manual and unenforced.
+- The copies are a snapshot of plugin version 1.21.0. Nothing in this repository
+  detects that the plugin has moved on. The template generator's `rulebook-sync`
+  integrity check does, before a template release, but an app scaffolded earlier
+  keeps the copies it was given.
 - The copies' own inline path citations point at the plugin's tree rather than at
   this repository, which is why the handbook checker skips them. A path named
   inside a copy is therefore not guaranteed to exist here.
@@ -249,6 +253,6 @@ the plugin first.
 - The routing table's `apps/api/src/features/*/agent/**` row has no counterpart
   in a freshly scaffolded app: the template ships no agent directory under
   `apps/api/src/features`.
-- Not examined: the contents of the twenty copies themselves — this page
+- Not examined: the contents of the twenty-one copies themselves — this page
   describes their provenance and routing, not their rules. The plugin's hook
   script and its pattern list were read only to describe what the hook does.

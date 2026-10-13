@@ -62,6 +62,7 @@ README.md
 02-framework/rulebook/frontend/04-components.md
 02-framework/rulebook/frontend/05-typography.md
 02-framework/rulebook/frontend/06-blocknote.md
+02-framework/rulebook/frontend/07-routes-and-cache-components.md
 02-framework/rulebook/frontend/template.md
 03-backend/bootstrap.md
 03-backend/module-anatomy.md

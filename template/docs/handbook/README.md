@@ -91,9 +91,10 @@ Three routes through the handbook, with time estimates, are in
 - [Frontend: components](02-framework/rulebook/frontend/04-components.md) — rulebook copy.
 - [Frontend: typography](02-framework/rulebook/frontend/05-typography.md) — rulebook copy.
 - [Frontend: BlockNote](02-framework/rulebook/frontend/06-blocknote.md) — rulebook copy.
+- [Frontend: routes and Cache Components](02-framework/rulebook/frontend/07-routes-and-cache-components.md) — rulebook copy.
 - [Frontend: template](02-framework/rulebook/frontend/template.md) — rulebook copy.
 
-The twenty rulebook pages are byte-for-byte copies of the `nja` plugin's
+The twenty-one rulebook pages are byte-for-byte copies of the `nja` plugin's
 architecture references. Edit them in the plugin and re-copy; an edit made here
 is lost on the next sync, and the checker skips their citations because those
 point at the plugin's own tree.
@@ -181,7 +182,7 @@ point at the plugin's own tree.
 
 - The index lists pages, not headings. Anchors inside a page are not validated
   against this file, so a renamed heading breaks nothing here.
-- The twenty rulebook pages are excluded from path and link checking. Their
+- The twenty-one rulebook pages are excluded from path and link checking. Their
   citations point at the `nja` plugin's tree, which a generated app does not
   contain, so a broken citation inside one of them is invisible to
   `pnpm check:handbook`.

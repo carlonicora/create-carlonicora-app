@@ -3,7 +3,7 @@ title: Backend: DTOs
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: backend-02-dtos
@@ -22,6 +22,20 @@ last_updated: "2026-03-01"
 ---
 
 # Backend: DTOs (Data Transfer Objects)
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- DECISION MATRIX
+- COMMON MISTAKES
+- RELATED FILES
+- JSON:API Request Structure
+- Reference DTO (for relationship references)
+- POST DTO (Create)
+- PUT DTO (Full Update)
+- Relationship DTOs (for Edge Properties)
+- Error Handling
 
 ---
 

@@ -3,7 +3,7 @@ title: Frontend: Services
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: frontend-03-services
@@ -23,6 +23,18 @@ last_updated: "2026-03-01"
 ---
 
 # Frontend: Services
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- ENFORCEMENT CHECKPOINT
+- DECISION MATRIX
+- COMMON MISTAKES
+- RELATED FILES
+- Service Pattern
+- WRONG vs RIGHT Examples
+- Error Handling
 
 ---
 

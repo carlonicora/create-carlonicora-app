@@ -3,7 +3,7 @@ title: Backend: New Entity Template
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: backend-template
@@ -23,6 +23,26 @@ last_updated: "2026-03-01"
 ---
 
 # Backend: New Entity Template (Copy-Paste Ready)
+
+## Contents
+
+- WHEN TO USE
+- COMPLEXITY TIERS
+- DECISION MATRIX
+- Directory Structure
+- Step 1: Metadata
+- Step 2: Entity & Descriptor
+- Step 3: DTOs
+- Step 4: Repository (Simple)
+- Step 5: Service (Simple)
+- Step 6: Controller (Simple)
+- Step 7: Module
+- Entity & Descriptor (Medium) - Add computed
+- Repository (Medium) - Add buildReturnStatement
+- Repository (Complex) - Add custom query
+- Service (Complex) - Add custom method
+- Controller (Complex) - Add custom endpoint
+- Checklist
 
 ---
 

@@ -3,7 +3,7 @@ title: Frontend: Interfaces
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: frontend-02-interfaces
@@ -22,6 +22,18 @@ last_updated: "2026-03-01"
 ---
 
 # Frontend: Interfaces
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- DECISION MATRIX
+- COMMON MISTAKES
+- RELATED FILES
+- Interface Pattern
+- Input Type Pattern
+- Edge Property Interface Pattern
+- Relationship Input for Edge Properties
 
 ---
 

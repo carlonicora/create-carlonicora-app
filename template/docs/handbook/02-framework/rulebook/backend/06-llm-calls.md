@@ -3,7 +3,7 @@ title: Backend: LLM Calls
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: backend-06-llm-calls
@@ -25,6 +25,17 @@ last_updated: "2026-08-26"
 ---
 
 # Backend: LLM Calls
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- ENFORCEMENT CHECKPOINT
+- DECISION MATRIX
+- Retries — failures yes, quality never
+- COMMON MISTAKES
+- RELATED FILES
+- The canonical call
 
 ---
 

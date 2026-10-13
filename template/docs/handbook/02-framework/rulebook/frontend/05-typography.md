@@ -3,7 +3,7 @@ title: Typography Roles (text styling)
 section: 02-framework
 ---
 
-<!-- Copied from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11, with one redaction: the reference-values line cited another product's stylesheet and a docs/UI.md that does not exist here, so the citation was reduced to this repository's own stylesheet. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14, with one redaction: the reference-values line cited another product's stylesheet and a docs/UI.md that does not exist here, so the citation was reduced to this repository's own stylesheet. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: frontend-05-typography
@@ -22,6 +22,15 @@ last_updated: "2026-07-14"
 ---
 
 # Typography Roles — one recipe per text role
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- THE 17 ROLES
+- TEXT-COLOR TOKENS
+- COMMON MISTAKES
+- RELATED FILES
 
 ---
 

@@ -53,13 +53,13 @@ holds the per-layer rules.
 
 That plugin is installed globally, outside this repository — so the handbook
 ships a **verbatim copy of the same rulebook** at
-`docs/handbook/02-framework/rulebook/`, twenty files reproduced byte for byte:
+`docs/handbook/02-framework/rulebook/`, twenty-one files reproduced byte for byte:
 
 | Group | Pages |
 |---|---|
 | Cross-cutting | `docs/handbook/02-framework/rulebook/core-principles.md`, `docs/handbook/02-framework/rulebook/anti-patterns.md`, `docs/handbook/02-framework/rulebook/discipline.md`, `docs/handbook/02-framework/rulebook/date-handling.md`, `docs/handbook/02-framework/rulebook/decisions.md`, `docs/handbook/02-framework/rulebook/feature-template.md` |
 | Backend | entity basics, DTOs, repositories, services, controllers, LLM calls, and a feature template |
-| Frontend | models, interfaces, services, components, typography, BlockNote, and a feature template |
+| Frontend | models, interfaces, services, components, typography, BlockNote, routes and Cache Components, and a feature template |
 
 Each copy carries an HTML comment recording the plugin, skill and version it
 came from, and the instruction not to edit it in place: re-copy it when the

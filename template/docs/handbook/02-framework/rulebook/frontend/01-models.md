@@ -3,7 +3,7 @@ title: Frontend: Models
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: frontend-01-models
@@ -24,6 +24,17 @@ last_updated: "2026-03-01"
 ---
 
 # Frontend: Models
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- DECISION MATRIX
+- COMMON MISTAKES
+- RELATED FILES
+- Model Pattern
+- Rehydration Patterns
+- Error Handling
 
 ---
 

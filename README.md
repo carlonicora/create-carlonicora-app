@@ -203,9 +203,11 @@ pnpm check:template --strict # also fail if any check had to skip
 | `email-templates` | an auth flow that mails with no template behind it |
 | `admin-gate` | the `(admin)` subtree losing its Administrator role check |
 | `orphan-modules` | dead modules under `features/common` |
+| `rulebook-sync` | a handbook rulebook copy drifting from the nja plugin's `nja-architecture` references — body, header version, or a reference added or removed (redactions declared in `integrity.config.json`) |
 
-`bootstrapper-modules` needs the library checked out; `integrity.config.json` says
-where. Without it, it `SKIP`s, as `production-versions` does without the network,
+`bootstrapper-modules` needs the library checked out and `rulebook-sync` needs the
+nja plugin checked out; `integrity.config.json` says where. Without them they
+`SKIP`, as `production-versions` does without the network,
 and `--strict` turns a skip into a failure so CI cannot pass on a check that never
 ran.
 

@@ -3,7 +3,7 @@ title: Feature Handbook Template
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: feature-template
@@ -19,6 +19,11 @@ last_updated: "2026-03-01"
 ---
 
 # Feature Handbook Template
+
+## Contents
+
+- How to Use This Template
+- Template Starts Here
 
 > Copy this template to `docs/features/<module-name>.md` when documenting a feature or module.
 > Update the frontmatter `id` and `title` fields for each new handbook.

@@ -135,9 +135,9 @@ test("findPlaceholders is case-sensitive so the todos module is not flagged", ()
   assert.equal(findPlaceholders("Lorem Ipsum").length, 1);
 });
 
-test("manifest has 97 unique entries, all markdown, none localised or product-specific", () => {
-  assert.equal(EN_MANIFEST.length, 97);
-  assert.equal(new Set(EN_MANIFEST).size, 97);
+test("manifest has 98 unique entries, all markdown, none localised or product-specific", () => {
+  assert.equal(EN_MANIFEST.length, 98);
+  assert.equal(new Set(EN_MANIFEST).size, 98);
   for (const entry of EN_MANIFEST) {
     assert.ok(entry.endsWith(".md"), `${entry} is not markdown`);
     assert.ok(!entry.startsWith("/"), `${entry} is not relative`);
@@ -149,7 +149,7 @@ test("manifest has 97 unique entries, all markdown, none localised or product-sp
   assert.ok(EN_MANIFEST.includes("03-backend/token-usage-and-credits.md"));
   assert.ok(!EN_MANIFEST.includes("04-frontend/marketing-site.md"));
   assert.equal(EN_MANIFEST.filter((e) => e.startsWith("05-foundations/")).length, 12);
-  assert.equal(EN_MANIFEST.filter((e) => e.startsWith("02-framework/rulebook/")).length, 21);
+  assert.equal(EN_MANIFEST.filter((e) => e.startsWith("02-framework/rulebook/")).length, 22);
 });
 
 test("isRulebookCopy exempts verbatim copies but not the rulebook README", () => {

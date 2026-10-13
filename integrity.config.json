@@ -2,5 +2,14 @@
   "libraries": {
     "@carlonicora/nestjs-neo4jsonapi": "../wyrdli/packages/nestjs-neo4jsonapi",
     "@carlonicora/nextjs-jsonapi": "../wyrdli/packages/nextjs-jsonapi"
+  },
+  "nja": "../nja",
+  "rulebookRedactions": {
+    "frontend/05-typography.md": [
+      {
+        "from": "Reference values (a360ai `apps/web/src/app/globals.css`; per-app values may differ — check the app's `docs/UI.md`):",
+        "to": "Reference values (`apps/web/src/app/globals.css`; per-app values may differ):"
+      }
+    ]
   }
 }

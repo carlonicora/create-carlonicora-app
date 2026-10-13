@@ -3,7 +3,7 @@ title: UI Components (Base UI)
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.20.0, on 2026-09-11. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: frontend-04-components
@@ -21,6 +21,19 @@ last_updated: "2026-03-30"
 ---
 
 # UI Components — Base UI (NOT Radix)
+
+## Contents
+
+- WHEN TO USE
+- CRITICAL RULES
+- ENFORCEMENT CHECKPOINT
+- THE `render` PROP
+- TRIGGER COMPOSITION
+- FLOATING ELEMENT STRUCTURE
+- DATA ATTRIBUTES FOR STYLING
+- COMPONENT PRIMITIVE MAPPING
+- RADIX → BASE UI NAMING DIFFERENCES
+- RELATED FILES
 
 ---
 
