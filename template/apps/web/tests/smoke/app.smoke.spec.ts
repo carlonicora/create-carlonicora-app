@@ -30,9 +30,9 @@ test.describe("authenticated shell", () => {
  * The (admin) route group's role gate.
  *
  * This is the highest-value test in the template. The routes inside (admin)
- * carry no authorisation code of their own: the layout's
- * `ServerSession.hasRole(RoleId.Administrator)` check is the ONLY thing between
- * an ordinary authenticated user and every administration page. The api
+ * carry their own gate: each page awaits `requireAdministrator(locale)` as its
+ * first statement, and that call is the ONLY thing between an ordinary
+ * authenticated user and the page. The (admin) layout reads no session. The api
  * separately refuses the underlying requests, so a regression here is a UI
  * exposure rather than a data leak — but it is a regression that a route-level
  * smoke test can never catch, because for an administrator everything looks
@@ -46,23 +46,23 @@ test.describe("authenticated shell", () => {
 test.describe("the (admin) route group refuses a non-administrator", () => {
   test.use({ storageState: "playwright/.auth/member.json" });
 
-  test("a non-administrator gets the 403 instead of the administration pages", async ({ page }) => {
+  test("a non-administrator gets the 404 instead of the administration pages", async ({ page }) => {
     await page.goto("/administration");
 
-    // ErrorDetails code={403} — the card the (admin) layout renders in place of
-    // its children. Matching either half of the copy keeps the assertion alive
-    // through a rewording of one line.
-    await expect(page.getByText(/unauthoris(ed|zed)|not allowed to access/i).first()).toBeVisible();
+    // requireAdministrator calls notFound(); (admin)/not-found.tsx renders the
+    // errors.404 copy inside the app frame. Matching either half of the copy
+    // keeps the assertion alive through a rewording of one line.
+    await expect(page.getByText(/not found|could not be found/i).first()).toBeVisible();
 
     // And, decisively, none of the administration surface rendered.
     await expect(page.getByTestId("admin-index-companies")).toHaveCount(0);
     await expect(page.getByTestId("admin-index-users")).toHaveCount(0);
     await expect(page.getByTestId("admin-index-rbac")).toHaveCount(0);
 
-    // The gate is on the LAYOUT, so it must cover the children too, not just the
+    // The gate is per page, so a child route must refuse too, not just the
     // index route. A guard that only protects /administration is not a guard.
     await page.goto("/administration/companies");
-    await expect(page.getByText(/unauthoris(ed|zed)|not allowed to access/i).first()).toBeVisible();
+    await expect(page.getByText(/not found|could not be found/i).first()).toBeVisible();
 
     // Sanity: this user really is authenticated, so the refusal above is the
     // role gate and not a logged-out redirect to /login.

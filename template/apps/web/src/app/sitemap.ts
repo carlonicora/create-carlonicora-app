@@ -9,12 +9,12 @@ const BASE_URL = (ENV.APP_URL || "https://{{name}}.com").replace(/\/+$/, "");
 
 /**
  * Only the public routes this app actually ships:
- *  - "/"      the landing page, rendered by (main)/layout.tsx for signed-out visitors
+ *  - "/"      the landing page, (marketing)/home, which proxy.ts serves at "/" to signed-out visitors
  *  - "/help"  the public help reader, whose layout has no login gate
  *
  * Everything else the template ships is either behind authentication or auth
  * chrome, and robots.ts disallows it. The individual help articles come from
- * the database, so they are listed by /en/help/sitemap.xml instead.
+ * the database, so they are listed by /help/sitemap.xml instead.
  *
  * Add your own public routes here — a marketing page, pricing, legal pages —
  * as you build them.

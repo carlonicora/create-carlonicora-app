@@ -58,7 +58,7 @@ setup("seed fixtures and authenticate", async ({ browser }) => {
   if (member.roleIds.includes(E2E.roles.administrator)) {
     throw new Error(
       "the non-administrator fixture came back holding the Administrator role — " +
-        "the 403 assertions downstream would pass for the wrong reason",
+        "the refusal assertions downstream would pass for the wrong reason",
     );
   }
 });

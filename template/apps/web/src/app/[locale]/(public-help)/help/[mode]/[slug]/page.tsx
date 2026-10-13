@@ -7,8 +7,6 @@ import { HelpPageChrome } from "@/features/essentials/how-to/components/HelpPage
 import { HelpQuickLinks } from "@/features/essentials/how-to/components/HelpQuickLinks";
 import { fetchPublicHowTo, fetchPublicHowTos, fetchRelatedHowTos } from "../../_data/publicHowTo";
 
-export const revalidate = 3600;
-
 export async function generateMetadata({
   params,
 }: {
@@ -27,9 +25,9 @@ export async function generateMetadata({
 export default async function HelpArticlePage({
   params,
 }: {
-  params: Promise<{ locale: string; mode: string; slug: string }>;
+  params: Promise<{ mode: string; slug: string }>;
 }) {
-  const { locale, mode, slug } = await params;
+  const { mode, slug } = await params;
   const t = await getTranslations();
 
   const article = await fetchPublicHowTo({ howToType: mode, slug });
@@ -61,9 +59,9 @@ export default async function HelpArticlePage({
       titleType={t(`help.modes.${mode}`)}
       titleElement={article.name}
       breadcrumbs={[
-        { name: t("help.footerLink"), href: `/${locale}/help` },
-        { name: t(`help.modes.${mode}`), href: `/${locale}/help/${mode}` },
-        { name: article.name, href: `/${locale}/help/${mode}/${slug}` },
+        { name: t("help.footerLink"), href: `/help` },
+        { name: t(`help.modes.${mode}`), href: `/help/${mode}` },
+        { name: article.name, href: `/help/${mode}/${slug}` },
       ]}
       details={details}
     >

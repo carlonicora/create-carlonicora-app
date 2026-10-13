@@ -1,8 +1,7 @@
 import IndexContainer from "@/features/common/components/containers/IndexContainer";
 import { generateSpecificMetadata } from "@/utils/metadata";
-import { AdminIndexContainer, AuthContainer } from "@carlonicora/nextjs-jsonapi/components";
+import { AdminIndexContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { CommonProvider, CompanyProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { AuthComponent } from "@carlonicora/nextjs-jsonapi/core";
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import { RoleId } from "@{{name}}/shared";
 import { Metadata } from "next";
@@ -15,8 +14,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function IndexPage() {
-  if (!(await ServerSession.isLogged())) return <AuthContainer componentType={AuthComponent.Landing} />;
-
   if (await ServerSession.hasRole(RoleId.Administrator)) {
     return (
       <CompanyProvider>

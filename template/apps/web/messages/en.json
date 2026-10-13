@@ -535,7 +535,8 @@
           "status": "Status",
           "type": "Type",
           "billing": "Billing",
-          "stripeId": "Stripe price ID"
+          "stripeId": "Stripe price ID",
+          "actions": "Actions"
         },
         "placeholders": {
           "amount": "9.99",
@@ -580,9 +581,21 @@
           "title": "Stripe prices are immutable",
           "description": "Amount, currency and billing interval cannot change after a price is created. To change them, create a new price and archive this one."
         },
+        "import": {
+          "errors": {
+            "title": "Import failed",
+            "invalid": "That file is not a valid price export."
+          },
+          "warnings": {
+            "unknownFeatures": "Skipped platform features that do not exist here: {features}"
+          }
+        },
         "actions": {
           "addFeature": "Add feature",
-          "removeFeature": "Remove feature"
+          "removeFeature": "Remove feature",
+          "clone": "Clone",
+          "export": "Export",
+          "import": "Import"
         },
         "archive": {
           "title": "Archive price",
@@ -912,7 +925,11 @@
       "archive": "Archive Notification"
     },
     "empty": "No notifications available",
-    "inbox": "Inbox"
+    "inbox": "Inbox",
+    "all": "View all notifications",
+    "createdAt": "Created",
+    "description": "Notification",
+    "unread": "Unread"
   },
   "role": {
     "fields": {
@@ -1049,6 +1066,22 @@
       "delete_title": "Delete OAuth Application?",
       "delete_description": "This will permanently delete \"{name}\" and revoke all access tokens. This action cannot be undone.",
       "failed_to_load": "Failed to load OAuth application"
+    },
+    "consent": {
+      "agreement": "By authorising you accept the",
+      "and": "and",
+      "authorize": "Authorise",
+      "authorizing": "Authorising…",
+      "company_label": "Company",
+      "deny": "Deny",
+      "invalid_request": "Invalid authorisation request. Please try again.",
+      "loading": "Loading the authorisation request…",
+      "privacy": "Privacy Policy",
+      "redirect_notice": "After authorising you will be redirected to:",
+      "scopes_heading": "The application will be able to:",
+      "terms": "Terms of Service",
+      "title": "Authorise {client}",
+      "wants_access": "{client} wants to access your {appName} account"
     }
   },
   "pwa": {
@@ -1132,8 +1165,17 @@
         "title": "Approval required",
         "error": "The action could not be completed.",
         "approve": "Approve",
-        "deny": "Deny"
-      }
+        "deny": "Deny",
+        "proposal": {
+          "heading": "Proposed {entity}",
+          "no": "No",
+          "records": "Records",
+          "relationship": "Relationship",
+          "updateHeading": "Proposed changes to {entity}",
+          "yes": "Yes"
+        }
+      },
+      "list_title": "Assistants"
     },
     "dashboard": {
       "groups": {
@@ -7530,6 +7572,12 @@
     },
     "reading_time": {
       "label": "{minutes} min read"
+    },
+    "reindex": {
+      "action": "Reindex",
+      "done": "Guides reindexed",
+      "failed": "Reindexing failed",
+      "running": "Reindexing…"
     }
   },
   "navigation": {
@@ -7614,6 +7662,7 @@
         "cachedInputCostPer1MTokens": "Cached input cost per 1M tokens",
         "costPerMinute": "Cost per minute",
         "costPerPage": "Cost per page",
+        "costPerImage": "Cost per image",
         "directUrl": "Direct URL",
         "language": "Language",
         "directFormat": "Direct request format",
@@ -7722,5 +7771,113 @@
       "customer": "Customer",
       "platform": "Platform"
     }
+  },
+  "analytics": {
+    "admin": {
+      "anonymous": "Anonymous",
+      "columns": {
+        "device": "Device",
+        "gap": "Gap",
+        "key": "Value",
+        "landing": "Landing page",
+        "page_views": "Page views",
+        "pages": "Pages",
+        "path": "Path",
+        "sessions": "Sessions",
+        "source": "Source / medium",
+        "started": "Started",
+        "time": "Time",
+        "visitor": "Visitor",
+        "visitors": "Visitors"
+      },
+      "consented": "Consented",
+      "dimensions": {
+        "campaign": "Campaign",
+        "landing": "Landing pages",
+        "medium": "Medium",
+        "referrer": "Referrer",
+        "route": "Pages",
+        "source": "Source"
+      },
+      "filter": {
+        "granularity": "Granularity",
+        "granularity_day": "Day",
+        "granularity_month": "Month",
+        "granularity_week": "Week",
+        "section": "Section",
+        "section_all": "All",
+        "section_app": "Application",
+        "section_public": "Website"
+      },
+      "load_more": "Load more",
+      "no_data": "No analytics data for this period",
+      "not_consented": "Not consented",
+      "other": "Other",
+      "panels": {
+        "breakdown": "Breakdown",
+        "journey": "Journey",
+        "other_sessions": "Other sessions by this visitor",
+        "over_time": "Over time",
+        "sessions": "Sessions"
+      },
+      "series": {
+        "page_views": "Page views",
+        "visitors": "Visitors"
+      },
+      "tiles": {
+        "consent_share": "Consenting visitors",
+        "page_views": "Page views",
+        "pages_per_session": "Pages per session",
+        "sessions": "Sessions",
+        "summarised_note": "Data older than 13 months is summarised into daily totals, so visitor and session details are not available for it.",
+        "visitors": "Visitors",
+        "vs_previous": "vs previous period"
+      },
+      "title": "Analytics"
+    }
+  },
+  "handbook": {
+    "ask": {
+      "all": "All conversations",
+      "expand": "Open the conversation",
+      "open": "Ask the handbook",
+      "recent": "Recent",
+      "thisPageOnly": "This page only"
+    },
+    "chat": {
+      "ask": "Ask",
+      "empty_sidebar": "No conversations.",
+      "empty_state": {
+        "subtitle": "Ask a question about the product documentation.",
+        "title": "What do you want to know about the handbook?"
+      },
+      "failed": "The question could not be answered",
+      "list_title": "Conversations",
+      "new": "New question",
+      "pending": "Searching the documentation…",
+      "placeholder": "Ask a question about the documentation…",
+      "sources": "Sources",
+      "title": "Ask the handbook"
+    },
+    "contents": {
+      "failures": "{count} failed",
+      "status": "{count} pages · synced on {date}"
+    },
+    "empty": "No pages indexed",
+    "notFound": "Page not found",
+    "reader": {
+      "contents": "Handbook contents",
+      "next": "Next",
+      "onThisPage": "On this page",
+      "previous": "Previous"
+    },
+    "sections": {
+      "untitled": "Other pages"
+    },
+    "sync": "Sync",
+    "synced": "Sync complete",
+    "syncFailed": "Sync failed",
+    "syncing": "Syncing…",
+    "title": "Developer handbook"
   }
 }

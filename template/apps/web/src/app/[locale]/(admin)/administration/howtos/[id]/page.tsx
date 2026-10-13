@@ -1,3 +1,4 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { HowToContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { HowToProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { generateSpecificMetadata } from "@/utils/metadata";
@@ -26,11 +27,10 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
   return await generateSpecificMetadata({ title: title });
 }
 
-export default async function HowToPage(props: { params: Promise<{ id: string }> }) {
+export default async function HowToPage(props: { params: Promise<{ locale: string; id: string }> }) {
   const params = await props.params;
+  await requireAdministrator(params.locale);
   const howTo: HowToInterface = await getCachedHowTo(params.id);
-
-  await ServerSession.checkPermission({ module: Modules.HowTo, action: Action.Read, data: howTo });
 
   return (
     <HowToProvider dehydratedHowTo={howTo.dehydrate()}>

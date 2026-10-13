@@ -15,8 +15,12 @@ import packageJson from "../../../../../../package.json";
  * features/common/components/navigations/VersionDisplay.tsx. NOT git:
  * .dockerignore excludes .git/, so `git rev-parse` fails in every production
  * image build.
+ *
+ * Only generateStaticParams and GET are re-exported: the helper's `dynamic`,
+ * `dynamicParams` and `revalidate` segment exports fail the build under Cache
+ * Components.
  */
-export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } = createSerwistRoute({
+export const { generateStaticParams, GET } = createSerwistRoute({
   additionalPrecacheEntries: [{ url: "/offline", revision: packageJson.version }],
   swSrc: "src/app/sw.ts",
   useNativeEsbuild: true,

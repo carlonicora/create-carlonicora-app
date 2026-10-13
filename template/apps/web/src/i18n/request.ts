@@ -21,8 +21,29 @@ import { routing } from "./routing";
  */
 const MESSAGES = { en } satisfies Record<(typeof routing.locales)[number], unknown>;
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  const requested = await requestLocale;
+/**
+ * Locale resolution order: an explicit override (`getTranslations({ locale })`),
+ * then the `[locale]` root param, then the deprecated `requestLocale`, then the
+ * default. `next/root-params` throws in Server Actions and Route Handlers, so it
+ * is read inside a try/catch and those callers fall through to `requestLocale`.
+ *
+ * It is a namespace import, not `import { locale }`: Route Handlers load this
+ * file too, and there the module has no `locale` export, so a named import fails
+ * the build. Here `locale` is simply undefined.
+ */
+async function readRootLocale(): Promise<string | undefined> {
+  try {
+    const rootParams = await import("next/root-params");
+    return await (rootParams as { locale?: () => Promise<string> }).locale?.();
+  } catch {
+    return undefined;
+  }
+}
+
+export default getRequestConfig(async ({ locale: override, requestLocale }) => {
+  let requested: string | undefined = override;
+  if (!hasLocale(routing.locales, requested)) requested = await readRootLocale();
+  if (!hasLocale(routing.locales, requested)) requested = await requestLocale;
   const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
 
   return {

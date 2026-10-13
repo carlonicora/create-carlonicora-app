@@ -3,7 +3,7 @@
 import { CommandGroup, CommandItem, HowToCommand, SidebarMenuItem } from "@carlonicora/nextjs-jsonapi/components";
 import { useOnboarding } from "@carlonicora/nextjs-jsonapi/contexts";
 import { getTourForPath, getTourSteps } from "@/features/onboarding/config/tours.config";
-import { usePathname } from "@/i18n/routing";
+import { usePathname } from "@/i18n/navigation";
 import { Compass } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";

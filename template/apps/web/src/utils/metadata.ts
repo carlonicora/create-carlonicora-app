@@ -9,10 +9,13 @@ export async function generateSpecificMetadata(params: {
   title?: string;
   description?: string;
   url?: string;
+  path?: string;
 }): Promise<Metadata> {
   const t = await getTranslations();
 
-  const url = (await headers()).get("x-full-url") ?? ENV.APP_URL ?? "https://{{name}}.com";
+  const url = params.path
+    ? `${ENV.APP_URL ?? "https://{{name}}.com"}${params.path}`
+    : ((await headers()).get("x-full-url") ?? ENV.APP_URL ?? "https://{{name}}.com");
 
   const title: string = params.title ? `${params.title} | ${t(`common.title`)}` : t(`common.title`);
   const description = params.description ? params.description : t(`common.description`);

@@ -1,3 +1,4 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { ProductsListContainer } from "@carlonicora/nextjs-jsonapi/billing";
 import { Metadata } from "next";
@@ -14,6 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * Component cannot pass `Modules.StripeProduct` to a client component — the
  * registry entry carries an icon component and methods.
  */
-export default async function ProductsListPage() {
+export default async function ProductsListPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
+
   return <ProductsListContainer />;
 }

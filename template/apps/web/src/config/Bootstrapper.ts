@@ -1,6 +1,7 @@
 import { FeatureIds } from "@/enums/feature.ids";
 import {
   AiConnectionModule,
+  analyticsModules,
   AssistantActionModule,
   AssistantMessageModule,
   AssistantModule,
@@ -15,6 +16,10 @@ import {
   DataClassRegistry,
   FeatureModule,
   FieldSelector,
+  HandbookPageModule,
+  HandbookSectionModule,
+  HandbookThreadMessageModule,
+  HandbookThreadModule,
   HowToModule,
   ModuleModule,
   ModulePathsModule,
@@ -146,6 +151,17 @@ const allModules = {
   Search: SearchModule(moduleFactory),
   // How-to module
   HowTo: HowToModule(moduleFactory),
+  // Handbook lives in the package (like tokenUsageModules below, it must be
+  // imported from /core and not from the feature barrel, which tsup stamps
+  // "use client").
+  HandbookPage: HandbookPageModule(moduleFactory),
+  HandbookSection: HandbookSectionModule(moduleFactory),
+  // The handbook ask surface keeps its conversations, but not as Assistants:
+  // the package Assistant is company scoped and a platform administrator has
+  // no company. The handbook therefore owns its own thread and message
+  // resources.
+  HandbookThread: HandbookThreadModule(moduleFactory),
+  HandbookThreadMessage: HandbookThreadMessageModule(moduleFactory),
   // Assistant modules
   Assistant: AssistantModule(moduleFactory),
   AssistantMessage: AssistantMessageModule(moduleFactory),
@@ -154,6 +170,8 @@ const allModules = {
   // a forgotten name is not a compile error — FoundationModuleDefinitions
   // declares all six, so Modules.X typechecks and is undefined at runtime.
   ...tokenUsageModules(moduleFactory),
+  // Analytics modules
+  ...analyticsModules(moduleFactory),
 } satisfies Record<string, ModuleWithPermissions>;
 
 // Export type derived from the object - NO DUPLICATION

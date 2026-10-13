@@ -1,8 +1,7 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { ProductContainer, ProductProvider } from "@carlonicora/nextjs-jsonapi/billing";
 import { StripeProductInterface, StripeProductService } from "@carlonicora/nextjs-jsonapi/core";
-import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
-import { RoleId } from "@{{name}}/shared";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -26,10 +25,9 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
   return await generateSpecificMetadata({ title: `[${t("billing.admin.products.title")}] ${product.name}` });
 }
 
-export default async function ProductPage(props: { params: Promise<{ id: string }> }) {
+export default async function ProductPage(props: { params: Promise<{ locale: string; id: string }> }) {
   const params = await props.params;
-
-  if (!(await ServerSession.hasRole(RoleId.Administrator))) notFound();
+  await requireAdministrator(params.locale);
 
   const product = await getCachedProduct(params.id);
   if (!product) notFound();

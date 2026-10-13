@@ -17,17 +17,32 @@ import { HowToService } from "@carlonicora/nextjs-jsonapi";
 import type { HowToInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { HELP_MODES } from "@carlonicora/nextjs-jsonapi/help/server";
 import { UserSidebarFooter } from "@/features/common/components/navigations/UserSidebarFooter";
+import { useSession } from "@carlonicora/nextjs-jsonapi/contexts";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
-export function HelpSidebar({ showUserFooter = false }: { showUserFooter?: boolean }) {
+// useSession() suspends until the session resolves, so this sits behind its own
+// boundary and the help sidebar renders without waiting for it.
+function HelpUserFooter() {
+  const { isLogged } = useSession();
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+
+  if (!isLogged) return null;
+
+  return (
+    <SidebarFooter className="border-t">
+      <UserSidebarFooter notificationModalOpen={notificationModalOpen} setNotificationModalOpen={setNotificationModalOpen} />
+    </SidebarFooter>
+  );
+}
+
+export function HelpSidebar() {
   const t = useTranslations();
   const pathname = usePathname();
   const [articles, setArticles] = useState<HowToInterface[]>([]);
   const [query, setQuery] = useState("");
-  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -87,14 +102,9 @@ export function HelpSidebar({ showUserFooter = false }: { showUserFooter?: boole
           );
         })}
       </SidebarContent>
-      {showUserFooter && (
-        <SidebarFooter className="border-t">
-          <UserSidebarFooter
-            notificationModalOpen={notificationModalOpen}
-            setNotificationModalOpen={setNotificationModalOpen}
-          />
-        </SidebarFooter>
-      )}
+      <Suspense fallback={null}>
+        <HelpUserFooter />
+      </Suspense>
     </Sidebar>
   );
 }

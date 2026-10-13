@@ -1,50 +1,12 @@
-import { bootstrap } from "@/config/Bootstrapper";
-import { ENV } from "@/config/middleware-env";
-import { Link, usePathname, useRouter } from "@/i18n/routing";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useDateFnsLocale } from "@/i18n/useDateFnsLocale";
-import { removeToken, updateToken } from "@/server-actions/auth-cookies";
-import {
-  configureAuth,
-  configureI18n,
-  configureJsonApi,
-  configureLogin,
-  configureRoles,
-} from "@carlonicora/nextjs-jsonapi";
-import { Modules } from "@carlonicora/nextjs-jsonapi/core";
-import { RoleId } from "@{{name}}/shared";
+import { configureI18n } from "@carlonicora/nextjs-jsonapi";
 import { useLocale, useTranslations } from "next-intl";
-import "./waitlist.config";
+import { getLocale } from "next-intl/server";
+import { ENV } from "./instrumentation-env";
 
 // Re-export ENV for use by non-middleware code
 export { ENV };
-
-// Bootstrap modules immediately when this file is imported
-// This ensures modules are registered before any component accesses Modules
-bootstrap();
-
-// Validate required env vars
-if (!ENV.API_URL) {
-  throw new Error("NEXT_PUBLIC_API_URL is required but not set");
-}
-
-if (!ENV.APP_URL) {
-  throw new Error("NEXT_PUBLIC_ADDRESS is required but not set");
-}
-
-// Configure JSON:API client
-configureJsonApi({
-  apiUrl: ENV.API_URL,
-  appUrl: ENV.APP_URL,
-  trackablePages: [Modules.Notification, Modules.Company, Modules.User],
-  bootstrapper: bootstrap,
-  stripePublishableKey: ENV.STRIPE_PUBLISHABLE_KEY,
-});
-
-// Configure auth token handling (Server Actions for cookie management)
-configureAuth({
-  updateToken,
-  removeToken,
-});
 
 // Configure i18n (router, translations, link component, locale)
 configureI18n({
@@ -54,15 +16,7 @@ configureI18n({
   useDateFnsLocale,
   Link,
   usePathname,
-});
-
-// Configure role IDs for role-based access control
-configureRoles(RoleId);
-
-// Configure login providers (auto-detected from client IDs)
-configureLogin({
-  discordClientId: ENV.DISCORD_CLIENT_ID,
-  googleClientId: ENV.GOOGLE_CLIENT_ID,
-  useInternalAuth: true,
-  registrationMode: ENV.REGISTRATION_MODE,
+  // The library reads the server locale through this instead of importing next-intl,
+  // so instrumentation (which loads the library) never reaches i18n/request.ts.
+  getLocale,
 });

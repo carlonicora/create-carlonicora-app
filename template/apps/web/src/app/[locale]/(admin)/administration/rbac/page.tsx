@@ -1,11 +1,10 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { RbacContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { RbacProvider } from "@carlonicora/nextjs-jsonapi/contexts";
-import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
 import { ModuleId, RoleId } from "@{{name}}/shared";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
 
 // Invert UUID → PascalCase maps once. The backend serializer (matrix-to-ts)
 // uses these to emit `RoleId.X` / `ModuleId.X` references into
@@ -25,10 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function RbacPage() {
-  if (!(await ServerSession.hasRole(RoleId.Administrator))) {
-    redirect("/");
-  }
+export default async function RbacPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
 
   return (
     <RbacProvider

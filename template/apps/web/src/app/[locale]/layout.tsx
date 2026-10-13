@@ -9,7 +9,7 @@ import "react-horizontal-scrolling-menu/dist/styles.css";
 import { routing } from "@/i18n/routing";
 import type { Metadata, Viewport } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { getMessages } from "next-intl/server";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
@@ -63,6 +63,10 @@ export const metadata: Metadata = {
   },
 };
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 export default async function RootLayout(props: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const params = await props.params;
 
@@ -73,7 +77,6 @@ export default async function RootLayout(props: { children: React.ReactNode; par
     notFound();
   }
 
-  setRequestLocale(locale);
   const messages = await getMessages();
 
   return (

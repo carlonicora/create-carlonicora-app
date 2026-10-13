@@ -16,14 +16,6 @@ test.describe("users list", () => {
   });
 
   test("search narrows the list to the matching user", async ({ page }) => {
-    // KNOWN LIBRARY DEFECT — remove this fixme when it is fixed upstream.
-    // @carlonicora/nestjs-neo4jsonapi UserRepository.findMany, search branch:
-    //   WHERE (node)-[:BELONGS_TO]->(company)
-    // `company` is never bound, so Neo4j rejects the query (42001,
-    // "PatternExpressions are not allowed to introduce new variables") and
-    // GET /users?search=… answers 500. The list stays unfiltered.
-    test.fixme(true, "GET /users?search= 500s: unbound `company` in UserRepository.findMany (library defect)");
-
     await gotoWithRetry(page, "/administration/users", (p) => p.getByTestId("content-table-search-trigger"));
     await expect(page.getByRole("cell", { name: E2E.administrator.email })).toBeVisible();
 

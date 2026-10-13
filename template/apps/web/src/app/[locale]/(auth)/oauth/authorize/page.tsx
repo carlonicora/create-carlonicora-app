@@ -1,4 +1,5 @@
 import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
+import { getPathname } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { OAuthAuthorizeClient } from "./OAuthAuthorizeClient";
 
@@ -28,19 +29,20 @@ export default async function OAuthAuthorizePage(props: {
   const isLoggedIn = await ServerSession.isLogged();
 
   if (!isLoggedIn) {
-    // Build the current URL to redirect back after login
-    const currentUrl = new URL(`/${locale}/oauth/authorize`, "http://localhost");
-    if (searchParams.client_id) currentUrl.searchParams.set("client_id", searchParams.client_id);
-    if (searchParams.redirect_uri) currentUrl.searchParams.set("redirect_uri", searchParams.redirect_uri);
-    if (searchParams.scope) currentUrl.searchParams.set("scope", searchParams.scope);
-    if (searchParams.state) currentUrl.searchParams.set("state", searchParams.state);
-    if (searchParams.code_challenge) currentUrl.searchParams.set("code_challenge", searchParams.code_challenge);
-    if (searchParams.code_challenge_method)
-      currentUrl.searchParams.set("code_challenge_method", searchParams.code_challenge_method);
+    // Build the current URL to redirect back after login, carrying the whole
+    // incoming query string. Next.js hands a repeated key over as an array.
+    // Paths come from getPathname, never a hand-built `/${locale}/...`: with
+    // localePrefix "as-needed" the proxy redirects `/en/x` to `/x`, and the login
+    // form's client navigation to the callback cannot cross that redirect.
+    const currentUrl = new URL(getPathname({ href: "/oauth/authorize", locale }), "http://localhost");
+    for (const [key, value] of Object.entries(searchParams as Record<string, string | string[] | undefined>)) {
+      if (value === undefined) continue;
+      for (const item of Array.isArray(value) ? value : [value]) currentUrl.searchParams.append(key, item);
+    }
 
     // Redirect to login with callback URL
     const callbackUrl = encodeURIComponent(currentUrl.pathname + currentUrl.search);
-    redirect(`/${locale}/login?callbackUrl=${callbackUrl}`);
+    redirect(`${getPathname({ href: "/login", locale })}?callbackUrl=${callbackUrl}`);
   }
 
   return (

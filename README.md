@@ -197,16 +197,17 @@ pnpm check:template --strict # also fail if any check had to skip
 | `junk` | `.DS_Store` and friends shipped into generated apps |
 | `manifests` | `package.json` scripts pointing at files that don't exist; a nested `packageManager` contradicting the root |
 | `placeholder-urls` | `new URL("{{name}}.com")` — schemeless, throws `Invalid URL` at runtime |
-| `production-versions` | `versions.production.json` drifting from the libraries on disk |
+| `production-versions` | `versions.production.json` not pinning the latest published library releases (checked against the npm registry; `SKIP` offline) |
 | `bootstrapper-modules` | a `Modules.X` the library dereferences but the app never registers — **typechecks clean, `undefined` at runtime** |
 | `env-required` | required env keys missing, retired ones lingering |
 | `email-templates` | an auth flow that mails with no template behind it |
 | `admin-gate` | the `(admin)` subtree losing its Administrator role check |
 | `orphan-modules` | dead modules under `features/common` |
 
-Two checks need the library checked out; `integrity.config.json` says where.
-Without it they `SKIP`, and `--strict` turns a skip into a failure so CI cannot
-pass on a check that never ran.
+`bootstrapper-modules` needs the library checked out; `integrity.config.json` says
+where. Without it, it `SKIP`s, as `production-versions` does without the network,
+and `--strict` turns a skip into a failure so CI cannot pass on a check that never
+ran.
 
 ### Verifying a generated app
 

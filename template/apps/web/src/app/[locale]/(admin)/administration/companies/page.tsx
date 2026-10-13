@@ -1,3 +1,4 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 // Import env first to ensure bootstrap() runs before any Modules access
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { CompaniesListContainer } from "@carlonicora/nextjs-jsonapi/components";
@@ -17,6 +18,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * Component cannot pass `Modules.Company` to a client component — the registry
  * entry carries an icon component and methods.
  */
-export default async function CompaniesListPage() {
+export default async function CompaniesListPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
+
   return <CompaniesListContainer />;
 }

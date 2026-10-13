@@ -6,7 +6,7 @@ import {
   NavigationItem,
 } from "@/features/common/components/navigations/sidebar.items";
 import { UserSidebarFooter } from "@/features/common/components/navigations/UserSidebarFooter";
-import { useRouter } from "@/i18n/routing";
+import { useRouter } from "@/i18n/navigation";
 import { isStripeConfigured } from "@carlonicora/nextjs-jsonapi/billing";
 import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
@@ -175,9 +175,9 @@ export default function CommonSidebar() {
     }
 
     // Administration group. Gated on the Administrator role through
-    // useCurrentUserContext's hasRole — the same role the (admin) route group's
-    // layout checks on the server, so the rail never advertises a destination
-    // that would answer 403.
+    // useCurrentUserContext's hasRole — the same role requireAdministrator checks
+    // on every (admin) page, so the rail never advertises a destination that
+    // would answer 404.
     //
     // The entries mirror the platform group of the library's
     // AdminIndexContainer (the page an administrator lands on at `/`): same
@@ -242,7 +242,7 @@ export default function CommonSidebar() {
           <div className="flex w-full items-center justify-start gap-2 text-xl font-semibold">
             <Image src={`/logo.webp`} className="h-8 w-8 object-contain" height={32} width={32} alt={"Logo"} priority />
             <div className="flex flex-col">
-              <span>{state === "expanded" && <>{company.name}</>}</span>
+              <span>{state === "expanded" && <>{company?.name}</>}</span>
               <span className="text-muted-foreground text-xs font-light">
                 {state === "expanded" && <>{t(`common.title`)}</>}
               </span>

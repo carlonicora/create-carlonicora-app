@@ -1,3 +1,4 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { AdminIndexContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { Metadata } from "next";
@@ -14,6 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * included), so this route must NOT wrap it in PageContainer — two shells
  * render two headers.
  */
-export default async function AdministrationPage() {
+export default async function AdministrationPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
+
   return <AdminIndexContainer />;
 }

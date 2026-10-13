@@ -1,3 +1,4 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { HowToListContainer } from "@carlonicora/nextjs-jsonapi/components";
 import { HowToProvider } from "@carlonicora/nextjs-jsonapi/contexts";
@@ -10,7 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return await generateSpecificMetadata({ title: title });
 }
 
-export default async function HowTosListPage() {
+export default async function HowTosListPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
+
   return (
     <HowToProvider>
       <HowToListContainer />

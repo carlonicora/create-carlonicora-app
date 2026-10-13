@@ -51,7 +51,10 @@ export default {
       const rel = path.relative(webSrc, f).split(path.sep).join("/");
       return [...INTENTIONAL_STUBS].some((stub) => rel === stub || rel.endsWith(`/${stub}`));
     };
-    const isCandidate = (f) => f.includes(commonDir) && !ALLOWLIST.has(path.basename(f)) && !isIntentionalStub(f);
+    // A test is run by vitest, never imported: it is not a module and has no importer by design.
+    const isTest = (f) => /\.(test|spec)\.(ts|tsx)$/.test(f);
+    const isCandidate = (f) =>
+      f.includes(commonDir) && !ALLOWLIST.has(path.basename(f)) && !isIntentionalStub(f) && !isTest(f);
 
     const dead = new Set();
     let changed = true;

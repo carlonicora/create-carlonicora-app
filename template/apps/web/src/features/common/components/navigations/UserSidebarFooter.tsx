@@ -3,7 +3,7 @@
 import VersionDisplay from "@/features/common/components/navigations/VersionDisplay";
 import AppHowToCommand from "@/features/essentials/how-to/components/AppHowToCommand";
 import { OnboardingTrigger } from "@/features/onboarding";
-import { usePathname, useRouter } from "@/i18n/routing";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { usePageUrlGenerator } from "@carlonicora/nextjs-jsonapi/client";
 import {
   DropdownMenu,

@@ -1,3 +1,4 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 // Client subpath, NOT /core: the container is a client component, and the
 // package only stamps "use client" on the entries listed in tsup's
@@ -18,8 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Administrative editor for the AI connection fallback chains.
  *
- * The (admin) layout already returns 403 for anyone without the Administrator
- * role, so this route carries no auth code of its own.
+ * requireAdministrator() below is the only gate: the (admin) layout no longer
+ * reads the session.
  *
  * The route is deliberately thin: `AiConnectionsContainer` mounts its own
  * `AiConnectionsProvider` (which publishes the page chrome) and its own
@@ -32,7 +33,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * `AdministrationProvider` stays: the header breadcrumb and title bar read
  * `useSharedContext()` from far up the tree (see AdministrationContext.tsx).
  */
-export default async function AdministrationAiConnectionsPage() {
+export default async function AdministrationAiConnectionsPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
+
   return (
     <AdministrationProvider>
       <AiConnectionsContainer />

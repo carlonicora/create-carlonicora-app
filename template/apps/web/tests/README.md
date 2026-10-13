@@ -170,7 +170,7 @@ seeded administrator, so both personas share one plaintext and neither the
 suite nor the web app takes a bcrypt dependency.
 
 `seed.setup.ts` asserts both role memberships and fails the whole run if either
-is wrong, so a downstream 403 assertion can never pass for the wrong reason.
+is wrong, so a downstream refusal assertion can never pass for the wrong reason.
 
 The administrator's credentials come from migration `20250901_004`. If you
 change that migration's e-mail or password hash, override `E2E_ADMIN_EMAIL` and

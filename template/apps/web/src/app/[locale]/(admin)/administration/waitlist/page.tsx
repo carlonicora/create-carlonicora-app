@@ -1,10 +1,8 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { PageContainer, WaitlistList } from "@carlonicora/nextjs-jsonapi/components";
-import { ServerSession } from "@carlonicora/nextjs-jsonapi/server";
-import { RoleId } from "@{{name}}/shared";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -15,10 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function WaitlistAdminPage() {
-  if (!(await ServerSession.hasRole(RoleId.Administrator))) {
-    redirect("/");
-  }
+export default async function WaitlistAdminPage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
 
   return (
     <PageContainer className="pr-4">

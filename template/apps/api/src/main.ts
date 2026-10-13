@@ -21,5 +21,9 @@ bootstrap({
   contentExtension: {
     additionalRelationships: [],
   },
+  // The web app's (public-help) reader reads GET public/howtos/*, unauthenticated:
+  // without these routes every help page answers 404. Every guide not marked draft
+  // becomes world-readable.
+  howTo: { publicRoutes: true },
   openApi: getOpenApiConfig(),
 });

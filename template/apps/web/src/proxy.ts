@@ -7,30 +7,32 @@ import { ENV } from "@/config/middleware-env";
 const intlMiddleware = createMiddleware(routing);
 
 /**
- * Paths reachable without a session.
- *
- * "/" is matched EXACTLY; everything else by prefix. Prefix-matching "/" is what
- * made `isExempt` unconditionally true and turned the redirect below into dead
- * code — every pathname starts with "/".
+ * Paths a visitor without a session may reach. Mirrors the route groups under
+ * app/[locale]: keep it in step when a group gains a top-level segment.
  */
-const EXEMPT_EXACT = new Set(["/"]);
-const EXEMPT_PREFIXES = [
-  // the (auth) route group
+export const PUBLIC_PATHS = [
+  // Landing: `/` is rewritten to `/home` for visitors without a session.
+  "/",
+  "/home",
+  // (auth)
   "/activation",
   "/auth",
   "/invitation",
   "/login",
   "/logout",
+  // The API sends a visitor who is not logged in to /oauth/error after a
+  // refused social login (registration_closed, waitlist_required, ...);
+  // /oauth/authorize guards itself and /oauth/success only echoes a query parameter.
   "/oauth",
   "/register",
   "/reset",
-  // the (public-help) route group — deliberately unauthenticated
+  // (public-help): deliberately unauthenticated
   "/help",
-  // the PWA offline fallback. It has no dot, so the matcher below does NOT
-  // exempt it; an auth-gated /offline would precache a redirect and the offline
-  // page would never render.
+  // Precached PWA fallback. MUST stay exempt: the service worker fetches it
+  // unauthenticated at install time, and an auth redirect would be cached in
+  // its place.
   "/offline",
-];
+] as const;
 
 /**
  * Removes a leading locale segment.
@@ -45,9 +47,11 @@ export function stripLocalePrefix(pathname: string): string {
   return pathname.slice(segment.length + 1) || "/";
 }
 
-export function isExemptPath(normalizedPathname: string): boolean {
-  if (EXEMPT_EXACT.has(normalizedPathname)) return true;
-  return EXEMPT_PREFIXES.some((path) => normalizedPathname === path || normalizedPathname.startsWith(`${path}/`));
+/** `/` matches exactly; every other entry matches itself and anything below it. */
+export function isPublicPath(normalizedPathname: string): boolean {
+  return PUBLIC_PATHS.some((p) =>
+    p === "/" ? normalizedPathname === "/" : normalizedPathname === p || normalizedPathname.startsWith(p + "/"),
+  );
 }
 
 async function getNewToken(refreshToken: string): Promise<string | null> {
@@ -81,35 +85,77 @@ function isTokenCloseToExpiry(token: string): boolean {
   }
 }
 
+function buildLoginRedirect(request: NextRequest): URL {
+  const loginUrl = new URL(`/login`, request.url);
+  const returnUrl = request.nextUrl.pathname + request.nextUrl.search;
+  // The param is named `callbackUrl` because that is the name the shared
+  // package's Login/TwoFactorChallenge forms already read on success. Emitting
+  // `returnUrl` instead would preserve nothing — nothing consumes it.
+  if (returnUrl !== "/") loginUrl.searchParams.set("callbackUrl", returnUrl);
+  return loginUrl;
+}
+
+// A clean visitor carries neither cookie; skipping the delete keeps Set-Cookie off their response.
+function clearSessionCookies(request: NextRequest, response: NextResponse): void {
+  if (!request.cookies.has("token") && !request.cookies.has("refreshToken")) return;
+  response.cookies.delete("token");
+  response.cookies.delete("refreshToken");
+}
+
 export default async function proxy(request: NextRequest) {
-  const { pathname, searchParams } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
   const normalizedPathname = stripLocalePrefix(pathname);
-  const isExempt = isExemptPath(normalizedPathname);
+  const locale = normalizedPathname === pathname ? undefined : pathname.slice(1).split("/")[0];
+  const isPublic = isPublicPath(normalizedPathname);
 
   const refreshToken = request.cookies.get("refreshToken")?.value;
+  const token = request.cookies.get("token")?.value;
 
-  if (!isExempt && !refreshToken) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // Refresh first, so every decision below sees the real session state.
+  let newToken: string | null = null;
+  let refreshFailed = false;
+  if (refreshToken && (!token || isTokenCloseToExpiry(token))) {
+    newToken = await getNewToken(refreshToken);
+    refreshFailed = !newToken;
+  }
+  const hasSession = !!refreshToken && !refreshFailed;
+
+  if (!hasSession && !isPublic) {
+    const redirectResponse = NextResponse.redirect(buildLoginRedirect(request));
+    clearSessionCookies(request, redirectResponse);
+    return redirectResponse;
   }
 
   const intlResponse = intlMiddleware(request);
-  const response = intlResponse instanceof NextResponse ? intlResponse : NextResponse.next();
+  let response = intlResponse instanceof NextResponse ? intlResponse : NextResponse.next();
 
-  const token = request.cookies.get("token")?.value;
-  if (refreshToken && (!token || isTokenCloseToExpiry(token))) {
-    const newToken = await getNewToken(refreshToken);
-    if (newToken) {
-      response.cookies.set("token", newToken, {
-        httpOnly: false,
-        path: "/",
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-      });
-      response.cookies.set("reloadData", "true", {
-        httpOnly: false,
-        path: "/",
-      });
+  if (!hasSession) {
+    // Logged-out visitors on `/` get the static landing; the URL stays `/`.
+    // The rewrite sits on top of the intl response so its locale handling is kept.
+    const isIntlRedirect = response.headers.has("location");
+    if (normalizedPathname === "/" && !isIntlRedirect) {
+      const intlRewrite = response.headers.get("x-middleware-rewrite");
+      const base = intlRewrite
+        ? new URL(intlRewrite).pathname.replace(/\/$/, "")
+        : locale
+          ? `/${locale}`
+          : "";
+      const target = new URL(`${base}/home`, request.url);
+      target.search = request.nextUrl.search;
+      response = NextResponse.rewrite(target, { headers: response.headers });
     }
+    clearSessionCookies(request, response);
+  } else if (newToken) {
+    response.cookies.set("token", newToken, {
+      httpOnly: false,
+      path: "/",
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+    });
+    response.cookies.set("reloadData", "true", {
+      httpOnly: false,
+      path: "/",
+    });
   }
 
   const fullUrl = request.url.replace(/^http:/, "https:");

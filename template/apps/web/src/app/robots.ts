@@ -45,6 +45,6 @@ export default function robots(): MetadataRoute.Robots {
     },
     // Help articles are database-driven, so they are published through their own
     // generated sitemap rather than the static one.
-    sitemap: [`${BASE_URL}/sitemap.xml`, `${BASE_URL}/en/help/sitemap.xml`],
+    sitemap: [`${BASE_URL}/sitemap.xml`, `${BASE_URL}/help/sitemap.xml`],
   };
 }

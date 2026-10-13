@@ -1,4 +1,4 @@
-import { redirect } from "@/i18n/routing";
+import { redirect } from "@/i18n/navigation";
 
 /**
  * `/settings/<segment>` → `/settings?section=<segment>`, preserving the query

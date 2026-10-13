@@ -1,3 +1,4 @@
+import { requireAdministrator } from "@/features/common/components/session/requireAdministrator";
 import { generateSpecificMetadata } from "@/utils/metadata";
 import { AdministrationProvider } from "@carlonicora/nextjs-jsonapi/contexts";
 import { TokenUsageAdminContainer, TokenUsageAdminProvider } from "@carlonicora/nextjs-jsonapi/tokenusage";
@@ -15,8 +16,8 @@ import { getTranslations } from "next-intl/server";
  * them as Server Components and every createContext in the package's transitive
  * graph fails to compile.
  *
- * The (admin) layout already returns 403 for anyone without the Administrator
- * role, so this route carries no auth code of its own.
+ * requireAdministrator() below is the only gate: the (admin) layout no longer
+ * reads the session.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -24,7 +25,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return await generateSpecificMetadata({ title: t(`token_usage.admin.title`) });
 }
 
-export default async function AdministrationTokenUsagePage() {
+export default async function AdministrationTokenUsagePage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  await requireAdministrator(locale);
+
   return (
     <AdministrationProvider>
       <TokenUsageAdminProvider>

@@ -3,7 +3,7 @@ import { Modules } from "@carlonicora/nextjs-jsonapi/core";
 import type { HowToInterface } from "@carlonicora/nextjs-jsonapi/core";
 import { getLocale } from "next-intl/server";
 
-// `cache: "help"` is not a preset profile → serverRequest sets next.tags=["help"], revalidate=60.
+// `cache: "help"` is not a cacheLife profile name → cachedServerGet ("use cache", token-free) tags it "help" with cacheLife("max").
 const PUBLIC_HOWTO_KEY = { ...Modules.HowTo, cache: "help" };
 
 export async function fetchPublicHowTos(params: { howToType?: string } = {}): Promise<HowToInterface[]> {
