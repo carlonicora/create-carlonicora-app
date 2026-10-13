@@ -5,3 +5,5 @@
 > the right reference for the file you are editing.
 
 See [root CLAUDE.md](../../CLAUDE.md) for monorepo structure and the architecture skill pointer.
+Handbook: [the shared package](../../docs/handbook/02-framework/shared-package.md).
+The full set starts at [docs/handbook/README.md](../../docs/handbook/README.md).

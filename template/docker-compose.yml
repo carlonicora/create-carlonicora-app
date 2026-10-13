@@ -1,5 +1,5 @@
 # =============================================================================
-# ASSETTRACK MONOREPO - DOCKER COMPOSE CONFIGURATION
+# {{display}} — MONOREPO DOCKER COMPOSE CONFIGURATION
 # =============================================================================
 # This docker-compose.yml references environment variables from the root .env file
 # It can also work with Coolify where variables are injected via Coolify's UI
@@ -152,6 +152,15 @@ services:
       timeout: 5s
       retries: 3
       start_period: 40s
+    volumes:
+      # ML model cache (MODELS_CACHE_DIR in the Dockerfile). Models registered in
+      # apps/api/config/models.config.yaml are downloaded on first start; without
+      # a volume they live in the container layer and are re-downloaded on every
+      # release. Harmless while the registry is empty.
+      # API and worker get separate volumes on purpose: they load different
+      # model sets, and one shared volume would let both write the same file on
+      # a cold start.
+      - api-model-cache:/app/.cache/models
 
   # ---------------------------------------------------------------------------
   # Worker (Background Job Processing)
@@ -174,6 +183,9 @@ services:
       - node
       - dist/main
       - --mode=worker
+    volumes:
+      # ML model cache (MODELS_CACHE_DIR in the Dockerfile) - see api above.
+      - worker-model-cache:/app/.cache/models
 
   # ---------------------------------------------------------------------------
   # Web Application (Next.js Frontend)
@@ -237,3 +249,12 @@ services:
       timeout: 5s
       retries: 3
       start_period: 40s
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  # ML model caches - keep the models downloaded by the model manager across
+  # container rebuilds so a new release does not re-download them.
+  api-model-cache:
+  worker-model-cache:

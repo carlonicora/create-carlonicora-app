@@ -5,6 +5,10 @@
 > you to the right reference for the file you are editing.
 
 See [root CLAUDE.md](../../CLAUDE.md) for monorepo structure and the architecture skill pointer.
+Handbook: [anatomy of an API feature module](../../docs/handbook/03-backend/module-anatomy.md),
+[API bootstrap](../../docs/handbook/03-backend/bootstrap.md),
+[RBAC and permissions](../../docs/handbook/03-backend/rbac-and-permissions.md).
+The full set starts at [docs/handbook/README.md](../../docs/handbook/README.md).
 
 ## Core Rules
 

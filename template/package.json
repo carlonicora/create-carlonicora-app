@@ -37,6 +37,8 @@
     "generate-module": "node ./packages/nestjs-neo4jsonapi/dist/scripts/generate-module/index.js",
     "generate-web-module": "node ./packages/nextjs-jsonapi/dist/scripts/generate-web-module/index.js",
     "check:drift": "node scripts/check-dep-drift.js",
+    "check:handbook": "node scripts/check-handbook.mjs",
+    "check:handbook:test": "node --test scripts/check-handbook.test.mjs",
     "sync:versions": "node scripts/sync-production-versions.js"
   },
   "dependencies": {

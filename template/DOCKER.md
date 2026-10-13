@@ -10,6 +10,7 @@ Complete guide for running {{name}} with Docker Compose, including both developm
 - [Quick Start](#quick-start)
 - [Development Mode](#development-mode)
 - [Production Mode](#production-mode)
+- [Model Cache](#model-cache)
 - [Deployment Strategies](#deployment-strategies)
 - [Horizontal Scaling Guide](#horizontal-scaling-guide)
 - [Architecture](#architecture)
@@ -333,12 +334,75 @@ docker compose down
 
 ### Important Notes
 
-⚠️ **Volume Mounts**: No `node_modules` or `.next` volumes are mounted in production; everything ships inside the image to avoid dependency drift.
+⚠️ **Volume Mounts**: No `node_modules` or `.next` volumes are mounted in production; everything ships inside the image to avoid dependency drift. The one production volume is the ML model cache — see [Model Cache](#model-cache).
 
 ⚠️ **Environment Variables**: Next.js requires build-time environment variables. If you change `NEXT_PUBLIC_*` variables, you must rebuild:
 ```bash
 docker compose build --no-cache web
 ```
+
+## Model Cache
+
+The API and worker images run the model manager, which downloads every model
+registered in `apps/api/config/models.config.yaml` on first start and caches it
+under `MODELS_CACHE_DIR` (`/app/.cache/models` in the image).
+
+That path is inside the container's writable layer. A new release builds a new
+container, so without a volume the cache starts empty and **the entire registry
+is downloaded again on every deploy** — for an app with a full vision stack that
+is around 2 GB per release, per service. The registry ships empty, so this costs
+nothing until you register your first model.
+
+### The volume
+
+All three compose files mount it already:
+
+```yaml
+services:
+  api:
+    volumes:
+      - model-cache:/app/.cache/models
+
+volumes:
+  model-cache:
+```
+
+`docker-compose.yml` gives the API and the worker **separate** volumes
+(`api-model-cache`, `worker-model-cache`) because the two load different model
+sets — a model is fetched in API mode only when it is marked `loadInApi: true` —
+and one shared volume would let both containers write the same file during a
+cold start. The standalone files each declare a single `model-cache`, since each
+runs one service.
+
+### Coolify
+
+- **Resource type "Docker Compose"** (pointing at `docker-compose.api.yml` or
+  `docker-compose.worker.yml`): nothing to configure. Coolify creates the named
+  volume, lists it under *Persistent Storage*, and keeps it across deployments.
+- **Resource type "Dockerfile"**: the compose file is ignored. Add the mount by
+  hand under *Storages → Add → Volume Mount*, with destination
+  `/app/.cache/models`.
+- **Disk**: the volume must fit the whole registry (a full vision stack is ~2 GB)
+  under `/var/lib/docker/volumes`. Budget it per service.
+- **Cleanup**: Coolify's built-in Docker cleanup is safe — a volume attached to a
+  container is never dangling. Do not run `docker system prune --volumes` on the
+  host; it wipes the cache and the next boot re-downloads everything.
+- The first deploy after adding the volume still downloads once. From the second
+  one on, startup reads from the volume.
+
+### Related environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MODELS_CACHE_DIR` | `/app/.cache/models` (set by the image) | Where models are cached. Mount the volume here. |
+| `MODEL_CONFIG_PATH` | `/app/config/models.config.yaml` (set by the image) | The model registry. |
+| `MODEL_BASE_URL` | `https://huggingface.co` | Download host; each model's repo comes from its own `modelId`. |
+| `MODEL_VERIFY_HASH` | `true` | SHA256-checks every cached file on every boot. Accurate, but it reads the whole cache through a hash on each start — set to `false` once a volume is trusted if boot time matters. |
+| `MODEL_STRICT_HASH` | `true` | Fail the boot on a hash mismatch instead of warning. |
+| `MODEL_AUTO_UPDATE` | `true` | Re-download a cached model when its `version` in `models.config.yaml` no longer matches the version recorded beside the file. |
+
+Cache invalidation is per model: bump a model's `version` in
+`models.config.yaml` and only that model is fetched again on the next boot.
 
 ## Deployment Strategies
 
@@ -664,12 +728,16 @@ For each server in Coolify:
    - Point to `docker-compose.api.yml`
    - Set environment variables (shared + API-specific)
    - Configure domain/SSL for API endpoint
+   - The `model-cache` volume is declared in the compose file; check it appears
+     under *Persistent Storage* (see [Model Cache](#model-cache))
 
 2. **Worker Server:**
    - Create new resource → Docker Compose
    - Point to `docker-compose.worker.yml`
    - Set environment variables (shared only)
    - No domain needed (background processing)
+   - The `model-cache` volume matters most here: the worker loads the whole
+     model registry (see [Model Cache](#model-cache))
 
 3. **Web Server:**
    - Create new resource → Docker Compose

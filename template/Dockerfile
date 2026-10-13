@@ -193,6 +193,9 @@ WORKDIR /app/apps/api
 # ONNX / model-manager runtime config. Models (if any are configured) are
 # downloaded on first worker start into MODELS_CACHE_DIR; MODEL_CONFIG_PATH
 # points at the config copied above.
+# MODELS_CACHE_DIR is a container path, so it dies with the container: mount a
+# persistent volume there (the compose files do) or every release re-downloads
+# the whole registry. See DOCKER.md, "Model cache".
 ENV MODELS_CACHE_DIR=/app/.cache/models
 ENV MODEL_CONFIG_PATH=/app/config/models.config.yaml
 

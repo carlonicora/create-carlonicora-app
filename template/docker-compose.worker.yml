@@ -35,4 +35,13 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    volumes:
+      # ML model cache (MODELS_CACHE_DIR in the Dockerfile). Models registered in
+      # apps/api/config/models.config.yaml are downloaded on first start; without
+      # a volume they live in the container layer and are re-downloaded on every
+      # release. Harmless while the registry is empty.
+      - model-cache:/app/.cache/models
     restart: unless-stopped
+
+volumes:
+  model-cache:

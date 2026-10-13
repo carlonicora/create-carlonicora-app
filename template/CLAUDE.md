@@ -6,27 +6,32 @@
 
 ## Monorepo Structure
 
-This is a monorepo with component-specific instructions. Read the relevant CLAUDE.md for your task:
+This is a monorepo with component-specific instructions. Read the relevant handbook page for your task:
 
 | Component | Path | Description |
 |-----------|------|-------------|
-| **API** | [apps/api/CLAUDE.md](apps/api/CLAUDE.md) | NestJS backend with Neo4j |
-| **Web** | [apps/web/CLAUDE.md](apps/web/CLAUDE.md) | Next.js frontend |
-| **Shared** | [packages/shared/CLAUDE.md](packages/shared/CLAUDE.md) | Shared types & constants |
-| **NestJS Library** | [packages/nestjs-neo4jsonapi/CLAUDE.md](packages/nestjs-neo4jsonapi/CLAUDE.md) | NestJS JSON:API framework |
-| **Next.js Library** | [packages/nextjs-jsonapi/CLAUDE.md](packages/nextjs-jsonapi/CLAUDE.md) | Next.js JSON:API client |
+| **API** | [docs/handbook/03-backend/module-anatomy.md](docs/handbook/03-backend/module-anatomy.md) | NestJS backend with Neo4j |
+| **Web** | [docs/handbook/04-frontend/feature-anatomy.md](docs/handbook/04-frontend/feature-anatomy.md) | Next.js frontend |
+| **Shared** | [docs/handbook/02-framework/shared-package.md](docs/handbook/02-framework/shared-package.md) | Shared types & constants |
+| **NestJS Library** | [docs/handbook/02-framework/nestjs-neo4jsonapi/public-surface.md](docs/handbook/02-framework/nestjs-neo4jsonapi/public-surface.md) | NestJS JSON:API framework |
+| **Next.js Library** | [docs/handbook/02-framework/nextjs-jsonapi/public-surface.md](docs/handbook/02-framework/nextjs-jsonapi/public-surface.md) | Next.js JSON:API client |
+
+The developer handbook starts at [docs/handbook/README.md](docs/handbook/README.md).
+
+Each workspace also keeps a short rules file beside its code — [apps/api/CLAUDE.md](apps/api/CLAUDE.md), [apps/web/CLAUDE.md](apps/web/CLAUDE.md) and [packages/shared/CLAUDE.md](packages/shared/CLAUDE.md). They hold the per-workspace core rules and common-mistakes tables; the handbook holds the explanations.
 
 ## Architecture Reference
 
-Architecture rules and detailed patterns live in the
-**`nja-architecture` skill**, provided by the globally-installed
-`nja` plugin (invoke it as `nja:nja-architecture`). Invoke that skill
-BEFORE editing any TypeScript file under `apps/api/src/features`,
-`apps/web/src/features`, or `packages/*/src`.
+Architecture rules and detailed patterns live in the handbook's rulebook at
+[docs/handbook/02-framework/rulebook/README.md](docs/handbook/02-framework/rulebook/README.md).
+Read the reference for the layer you are about to touch BEFORE editing any
+TypeScript file under `apps/api/src/features`, `apps/web/src/features`, or
+`packages/*/src`.
 
-The skill's `SKILL.md` contains the full routing table (file pattern →
-references). Detailed reference docs ship inside the plugin under the
-skill's `references/` directory.
+The rulebook README carries the full routing table (file pattern → reference).
+Its pages are verbatim copies of the `nja` plugin's `nja-architecture` skill
+references; when that plugin is installed, invoking `nja:nja-architecture` gives
+the same routing.
 
 ## Architecture Guardrails
 

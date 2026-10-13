@@ -6,11 +6,11 @@
   // a race: nest-cli's `deleteOutDir` makes each watcher wipe the directory at
   // (re)start, and the other process then dies on a half-written tree —
   // "Cannot find module './load-env'" here, and a CircularDependencyException
-  // inside JsonApiModule in the sibling a360ai repo, where it was reproduced
-  // independently and proven not to be a NestJS 12 fault (the same worker boots
-  // fine alone). The window is narrow — five consecutive clean boots did not
-  // hit it — which is exactly why it must be designed out rather than
-  // measured away. Giving the worker its own outDir removes the shared state.
+  // inside JsonApiModule. It has been reproduced independently and proven not
+  // to be a NestJS 12 fault (the same worker boots fine alone). The window is
+  // narrow — five consecutive clean boots did not hit it — which is exactly
+  // why it must be designed out rather than measured away. Giving the worker
+  // its own outDir removes the shared state.
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
     "outDir": "./dist-worker"

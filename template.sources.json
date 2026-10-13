@@ -138,6 +138,9 @@
     "packages/nextjs-jsonapi/.gitkeep",
     "scripts/e2e-dashboard.mjs",
     "scripts/e2e-dashboard.html",
-    "scripts/e2e-dashboard.test.mjs"
+    "scripts/e2e-dashboard.test.mjs",
+    "docs/handbook",
+    "scripts/check-handbook.mjs",
+    "scripts/check-handbook.test.mjs"
   ]
 }

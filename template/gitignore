@@ -13,6 +13,8 @@ coverage/
 
 # Production builds
 dist/
+# The API worker compiles with tsconfig.worker.json (outDir ./dist-worker)
+dist-worker/
 build/
 out/
 .next/
