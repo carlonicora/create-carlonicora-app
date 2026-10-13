@@ -1,3 +1,9 @@
+## [1.17.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.16.0...v1.17.0) (2026-10-13)
+
+### 🚀 Features
+
+* **template:** cache components with a static session shell ([ef00421](https://github.com/carlonicora/create-carlonicora-app/commit/ef00421bbb5e41a5e18f2d13001b626fd412c3e5))
+
 ## [1.16.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.15.1...v1.16.0) (2026-09-04)
 
 ### 🚀 Features
