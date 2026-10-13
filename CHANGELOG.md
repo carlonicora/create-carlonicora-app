@@ -1,3 +1,9 @@
+## [1.19.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.18.0...v1.19.0) (2026-10-13)
+
+### 🚀 Features
+
+* **template:** sync the handbook rulebook with nja 1.21.0 and enforce it ([a60d207](https://github.com/carlonicora/create-carlonicora-app/commit/a60d207459c8784031f020d2c6d613bfe06fab35))
+
 ## [1.18.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.17.0...v1.18.0) (2026-10-13)
 
 ### 🚀 Features
