@@ -1,3 +1,9 @@
+## [1.18.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.17.0...v1.18.0) (2026-10-13)
+
+### 🚀 Features
+
+* **template:** add the engineering handbook ([5c144f1](https://github.com/carlonicora/create-carlonicora-app/commit/5c144f11b5b1255550c074be9ea6e03ef9b35784))
+
 ## [1.17.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.16.0...v1.17.0) (2026-10-13)
 
 ### 🚀 Features
