@@ -18,6 +18,7 @@ For a route through the handbook rather than a single answer, use
 | Add a new entity end to end | [Module anatomy](../03-backend/module-anatomy.md), then [Feature anatomy](../04-frontend/feature-anatomy.md) | `apps/api/src/features/essentials/search` and `apps/web/src/features/essentials/search` |
 | Add a relationship between two entities | [Entity descriptors](../01-architecture/entity-descriptors.md) | The relationships block of any foundation descriptor |
 | Make an entity global instead of company-scoped | [Multi-tenancy and security](../01-architecture/multi-tenancy-and-security.md) | — |
+| Add a second descriptor for an existing label (a portal view, a count, a lookup) | [Multi-tenancy and security](../01-architecture/multi-tenancy-and-security.md#one-rule-per-label-and-isprojection) | `isProjection: true` and a comment naming the owner |
 | Change what the graph looks like | [Graph model](../01-architecture/graph-model.md) | — |
 | Write a migration | [Migrations](../03-backend/migrations.md) | `apps/api/src/neo4j.migrations/20250901_003.ts` |
 | Extend the user entity | [Identity and tenancy](../05-foundations/identity-and-tenancy.md), then `EXTEND-USER.md` | — |

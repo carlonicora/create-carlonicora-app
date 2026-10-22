@@ -3,7 +3,7 @@ title: Routes, layouts and the proxy under Cache Components
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.24.0, on 2026-10-22. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: frontend-07-routes-and-cache-components

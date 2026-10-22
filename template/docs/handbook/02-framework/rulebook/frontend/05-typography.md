@@ -3,7 +3,7 @@ title: Typography Roles (text styling)
 section: 02-framework
 ---
 
-<!-- Copied from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14, with one redaction: the reference-values line cited another product's stylesheet and a docs/UI.md that does not exist here, so the citation was reduced to this repository's own stylesheet. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied from the nja plugin, skill nja-architecture, version 1.24.0, on 2026-10-22, with one redaction: the reference-values line cited another product's stylesheet and a docs/UI.md that does not exist here, so the citation was reduced to this repository's own stylesheet. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: frontend-05-typography

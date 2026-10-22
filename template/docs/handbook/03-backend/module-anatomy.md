@@ -267,6 +267,15 @@ things Role does not: `isCompanyScoped: false`, which tells
 entity, and a `computed` block that derives `relevance` from a `score` column
 the Cypher projects.
 
+Tenancy also decides what a relationship write may point at. Since
+nestjs-neo4jsonapi 6.6.0 the generic writers refuse a target id that belongs to
+another company, and three descriptor flags shape that check: `crossCompany: true`
+on a relationship that legitimately crosses tenants, `linkScope: "own-or-platform"`
+on an entity that mixes platform rows with company-owned ones, and
+`isProjection: true` on a second descriptor of a label another descriptor owns.
+[The relationship write check](../01-architecture/multi-tenancy-and-security.md#the-relationship-write-check)
+covers all three, and the boot error a missing `isProjection` raises.
+
 ### Repository and service extend the abstracts
 
 `packages/nestjs-neo4jsonapi/src/foundations/user/repositories/user.repository.ts`

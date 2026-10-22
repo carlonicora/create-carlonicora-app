@@ -3,7 +3,7 @@ title: Backend: Services
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.24.0, on 2026-10-22. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: backend-04-services
@@ -19,7 +19,7 @@ related_docs:
   - backend-05-controllers
   - backend-template
 enforcement: critical
-last_updated: "2026-03-01"
+last_updated: "2026-10-18"
 ---
 
 # Backend: Services
@@ -52,6 +52,7 @@ Read this file when:
 2. **Add custom methods when repository has custom queries** - Service exposes repository methods to controller.
 3. **ALWAYS extend `AbstractService`** - Get JSON:API response building for free.
 4. **Return JSON:API responses** - Use `jsonApiService.buildSingle()` or `buildList()`.
+5. **Declare the document type** - A method returning `buildSingle()` (or an inherited single method such as `createFromDTO()`) declares `Promise<JsonApiSingleDocument>`; one returning `buildList()` declares `Promise<JsonApiListDocument>`. Both come from `@carlonicora/nestjs-neo4jsonapi` (6.0.0 and later). Never `Promise<any>`, never `Promise<JsonApiDataInterface>`: that is the serialiser builder type. `buildSingle()` / `buildList()` themselves still return `any`, so `tsc` does not catch a list declared as single. Match the declaration to the call.
 
 ---
 
@@ -85,6 +86,7 @@ Read this file when:
 - Writing custom methods for standard CRUD operations
 - Forgetting to use `JsonApiPaginator` for list responses
 - Not using `jsonApiService.buildSingle/buildList` for responses
+- Declaring a document-returning method `Promise<any>` or `Promise<JsonApiDataInterface>`
 - Bypassing repository and calling Neo4j directly
 
 ---
@@ -103,7 +105,12 @@ Read this file when:
 
 ```typescript
 // gallery.service.ts
-import { AbstractService, JsonApiPaginator, JsonApiService } from "@carlonicora/nestjs-neo4jsonapi";
+import {
+  AbstractService,
+  JsonApiListDocument,
+  JsonApiPaginator,
+  JsonApiService,
+} from "@carlonicora/nestjs-neo4jsonapi";
 import { Injectable } from "@nestjs/common";
 import { ClsService } from "nestjs-cls";
 import { Gallery, GalleryDescriptor } from "../entities/gallery";
@@ -134,7 +141,7 @@ export class GalleryService extends AbstractService<Gallery, typeof GalleryDescr
    * Custom business logic: Find galleries pending review
    * Exposes the repository's findPendingReviews method
    */
-  async findPendingReviews(params: { query: any }): Promise<any> {
+  async findPendingReviews(params: { query: any }): Promise<JsonApiListDocument> {
     const paginator = new JsonApiPaginator(params.query);
     const data = await this.galleryRepository.findPendingReviews({
       cursor: paginator.generateCursor(),
@@ -151,10 +158,12 @@ export class GalleryService extends AbstractService<Gallery, typeof GalleryDescr
 ### Exposing a Repository Custom Query
 
 ```typescript
+import { JsonApiListDocument, JsonApiPaginator } from "@carlonicora/nestjs-neo4jsonapi";
+
 /**
  * When repository has a custom query, create matching service method
  */
-async findPendingReviews(params: { query: any }): Promise<any> {
+async findPendingReviews(params: { query: any }): Promise<JsonApiListDocument> {
   // 1. Create paginator from query params
   const paginator = new JsonApiPaginator(params.query);
 
@@ -171,10 +180,12 @@ async findPendingReviews(params: { query: any }): Promise<any> {
 ### Business Logic Before Repository Call
 
 ```typescript
+import { JsonApiDTOData, JsonApiSingleDocument } from "@carlonicora/nestjs-neo4jsonapi";
+
 /**
  * Validate or transform before persisting
  */
-async createGalleryWithDefaults(params: { data: JsonApiDTOData }): Promise<any> {
+async createGalleryWithDefaults(params: { data: JsonApiDTOData }): Promise<JsonApiSingleDocument> {
   // Business logic: set defaults, validate, etc.
   if (!params.data.attributes.description) {
     params.data.attributes.description = "Default description";
@@ -213,7 +224,7 @@ Services should:
 - Use framework exception classes from `@nestjs/common`
 
 ```typescript
-async findPendingReviews(params: { query: any }): Promise<any> {
+async findPendingReviews(params: { query: any }): Promise<JsonApiListDocument> {
   const data = await this.galleryRepository.findPendingReviews({
     cursor: paginator.generateCursor(),
   });

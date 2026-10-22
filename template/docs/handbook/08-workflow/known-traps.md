@@ -127,6 +127,25 @@ back to `get(nodeName)`. Give every entity a distinct `nodeName`.
 the comment above the lookup in
 `packages/nestjs-neo4jsonapi/src/core/jsonapi/serialisers/descriptor.based.serialiser.ts`.
 
+## A second descriptor of a label must declare `isProjection`
+
+The relationship write check reads one tenancy rule per Neo4j label, filled by
+`defineEntity()` at import time. A second descriptor over a label another
+descriptor owns — a portal view, a count, a lookup — that declares different
+tenancy stops the API at boot, and fails any spec that imports it, with
+`entityTenancyRegistry: label "Order" is registered by "orders" and "portal-orders" with different tenancy.`
+Before nestjs-neo4jsonapi 6.6.1 the same mistake raised nothing: the last
+descriptor loaded won and the label's writes were checked for existence only.
+
+Mark the descriptor that is not the owner `isProjection: true`, with a comment
+naming the owner. Do not change the owner's tenancy to match the projection's;
+that silences the error by loosening the check.
+[The relationship write check](../01-architecture/multi-tenancy-and-security.md#the-relationship-write-check)
+has the full rule.
+
+*Proof:* the conflict check in `register()` and its header comment in
+`packages/nestjs-neo4jsonapi/src/common/registries/entity-tenancy.registry.ts`.
+
 ## `{CURSOR}` runs a second COUNT query
 
 When a query contains the `{CURSOR}` placeholder and `fetchAll` is not set,
@@ -426,6 +445,7 @@ belongs on the known-drift page instead.
 | `docker-compose.web.yml` | The build-time `NEXT_PUBLIC_*` bake |
 | `packages/nextjs-jsonapi/CLAUDE.md` | The two consumer requirements the app must satisfy |
 | `packages/nestjs-neo4jsonapi/src/common/tokens.ts` | Both fail-open AI seams |
+| `packages/nestjs-neo4jsonapi/src/common/registries/entity-tenancy.registry.ts` | The boot error for a second descriptor without `isProjection` |
 | `packages/nextjs-jsonapi/src/core/utils/translateResponse.ts` | The swallowed rehydration error |
 
 ## Gaps and drift

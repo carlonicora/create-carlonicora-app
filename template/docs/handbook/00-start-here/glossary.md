@@ -100,6 +100,26 @@ the company held in the CLS context. It is enforced centrally, by
 which injects the company filter into the query. A repository that builds its own
 `MATCH` without it is not a style problem; it is a tenancy leak.
 
+### Link scope
+
+The `linkScope` setting on a descriptor, declared in
+`packages/nestjs-neo4jsonapi/src/common/interfaces/entity.schema.interface.ts`.
+Its one value, `"own-or-platform"`, is for an entity that mixes platform rows,
+which have no company edge, with rows a company owns: a relationship write may
+point at a platform row or at one of the caller's own, never at another
+company's. It is valid only on a company-scoped or `tenancy: { via }` entity, and
+the package's example is `Role`. Without it, a company-scoped target must belong
+to the caller's company.
+
+### Projection descriptor
+
+A second descriptor over a label another descriptor owns — a portal view, a count
+or a lookup — declared with `isProjection: true` in
+`packages/nestjs-neo4jsonapi/src/common/interfaces/entity.schema.interface.ts`.
+A projection does not register the label's tenancy, so only the owner decides
+what a relationship write to that label is checked against. Without the flag, a
+projection whose tenancy differs from the owner's stops the API at boot.
+
 ### Automated job
 
 Code running outside any request — a queue processor or a cron. It has no user

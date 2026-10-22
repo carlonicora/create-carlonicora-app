@@ -260,6 +260,137 @@ emits the bare match. The foundations that declare it:
 The `role`, `module`, `rbac` and `stripe-*` foundations keep the default
 (`true`).
 
+## The relationship write check
+
+The read predicate keeps another company's rows out of a query. It does not, on
+its own, stop a write from pointing at one. Before nestjs-neo4jsonapi 6.6.0 a
+relationship id the client sent was linked after an existence check only, so a
+record could be linked to another company's node and that node read back through
+the link. Since 6.6.0 the generic writers check the company of every target
+before they write the edge.
+
+`create`, `put`, `patch` and `addToRelationship` in
+`packages/nestjs-neo4jsonapi/src/core/neo4j/abstracts/abstract.repository.ts`
+call `assertRelatedInCompany()` first. It passes every target id to
+`Neo4jService.validateRelatedNodes()`, which checks them all in one read query
+against the rule of the target's label:
+
+| The target's descriptor declares | A target id passes when |
+|---|---|
+| `isCompanyScoped: true`, the default | `(t)-[:BELONGS_TO]->(:Company {id: $companyId})` holds. A node with several `BELONGS_TO` edges — a user who is a member of several companies — passes when any one of them matches |
+| `tenancy: "self"` | the target is the caller's company: `t.id = $companyId` |
+| `tenancy: { via }` | the target's parent, one hop away through `via`, belongs to the caller's company |
+| `tenancy: "global"` or `"internal"`, unscoped with no `tenancy`, or a label never passed to `defineEntity()` | the target exists |
+
+A refused id gets the same 400 as an id that does not exist, so the answer says
+nothing about which ids another company holds.
+
+Two side changes shipped with the check. `addToRelationship` no longer filters
+its targets by the parent's company, so a global target can be linked, and a
+missing id there now answers 400. The company-scoped links that
+`updateRelationshipQuery` writes run inside a `CALL` subquery.
+
+### What is checked for existence only
+
+- A relationship flagged `crossCompany: true`.
+- A relationship with a `contextKey`, whose value the server fills from CLS —
+  the author is the caller — rather than taking it from the client.
+- The caller's own user id, which is always linkable.
+- Any write with no company in CLS — a system job or a cron. The whole check is
+  existence only there.
+
+### `crossCompany` and `linkScope`
+
+Two descriptor flags, both declared in
+`packages/nestjs-neo4jsonapi/src/common/interfaces/entity.schema.interface.ts`,
+loosen the rule where the domain needs it.
+
+`crossCompany: true` goes on a relationship definition (`RelationshipDef`). It
+marks an edge that legitimately crosses tenants: a player's character, which
+lives in the player's company, joining a campaign owned by the game master's
+company. The package's own example is the `company` relationship of
+`AiConnection`, in
+`packages/nestjs-neo4jsonapi/src/foundations/ai-connection/entities/ai-connection.ts`:
+an administrator configures the chain of any company, not only the one in CLS.
+
+`linkScope: "own-or-platform"` goes on the **target** entity's descriptor. It is
+for an entity that mixes platform rows, which have no company edge at all, with
+rows a company owns. A platform row or one of the caller's own rows may be
+linked; another company's row never. It is valid only on a company-scoped entity
+or a `tenancy: { via }` entity, and `defineEntity()` throws anywhere else. The
+package's example is `Role`, in
+`packages/nestjs-neo4jsonapi/src/foundations/role/entities/role.ts`.
+
+### Hand-written relationship Cypher
+
+The check lives in the generic writers. A custom repository method that writes
+an edge in its own Cypher bypasses it, and must call
+`Neo4jService.validateRelatedNodes()` itself before writing; the method is
+public for exactly that. `validateExistingNodes()` is unchanged and checks
+existence only, so it is not a substitute.
+
+### One rule per label, and `isProjection`
+
+`defineEntity()` fills a label → tenancy registry, `entityTenancyRegistry` in
+`packages/nestjs-neo4jsonapi/src/common/registries/entity-tenancy.registry.ts`,
+at import time. The same file exports `relatedNodeRuleForLabel(label)`, the rule
+for a label, and `relatedNodeRule(rel)`, the rule for one relationship. A rule is
+`{ kind: "exists" | "self" | "company" | "via", allowPlatform? }`.
+
+The registry is keyed by Neo4j label, not by {json:api} type, and a label often
+has more than one descriptor: the one that owns it, and others that are another
+view of the same nodes — a portal projection, a count descriptor, a lookup
+descriptor. Those views are usually `isCompanyScoped: false`. Before 6.6.1 the
+last descriptor registered for a label won, so a looser view loaded after the
+owner silently downgraded the label to existence only, and the check did nothing
+for it.
+
+Since 6.6.1 a descriptor that is another view of a label owned elsewhere
+declares `isProjection: true` (default `false`). `defineEntity()` then does not
+register the label, so the projection never decides what a relationship write to
+it is checked against. The convention is one comment line naming the owner. A
+portal projection of the `Order` label:
+
+```ts
+isCompanyScoped: false,
+tenancy: "internal",
+// Another view of the label: the Order descriptor sets what a relationship write to it is checked against.
+isProjection: true,
+```
+
+### The boot error
+
+`entityTenancyRegistry.register` throws when a label already registered is
+registered again with a different `isCompanyScoped`, `tenancy`, `linkScope` or
+`via`. It throws at import time, which means at boot and in any spec that
+imports the descriptor:
+
+```
+entityTenancyRegistry: label "Order" is registered by "orders" and "portal-orders" with different tenancy. Mark the descriptor that is another view of the label with isProjection: true.
+```
+
+Registering a label again with identical tenancy is allowed. The fix is to mark
+the descriptor that is not the owner `isProjection: true`. Never fix it by
+changing the owner's tenancy to match the projection's.
+
+Before the error existed, the clash hid in tests: the `fast` vitest project
+shares one module registry per worker, so which descriptor registered last
+depended on file order, and file order is shuffled. The error makes the outcome
+the same on every run.
+
+### Guarding the rule in the application
+
+Pin the rule of every label that has a projection with one spec. It imports the
+application's root feature modules, the way `apps/api/src/main.ts` does, so
+every descriptor registers as it does at boot, and then asserts
+`relatedNodeRuleForLabel(<label>)` for each projected label — for the example
+above, that `relatedNodeRuleForLabel("Order")` is the owner's `company` rule.
+
+A spec that calls `defineEntity()` several times with one fixture label and
+different tenancy must call `entityTenancyRegistry.unregister(label)` between the
+definitions — in `afterEach`, and inside any loop — or the second definition
+throws the boot error.
+
 ## `userHasAccess` and `isAutomatedJob`
 
 Repositories that need a per-user access predicate on top of tenancy do not
@@ -367,7 +498,8 @@ persists until the index is dropped by hand.
 | `packages/nestjs-neo4jsonapi/src/common/tokens.ts` | `SYSTEM_ROLES`, `AUTH_CONTEXT_HOOK`, `CREDIT_VALIDATOR`, `TOKEN_USAGE_RECORDER` |
 | `packages/nestjs-neo4jsonapi/src/core/security/services/security.service.ts` | token minting, `userHasAccess`, password hashing |
 | `packages/nestjs-neo4jsonapi/src/core/neo4j/services/neo4j.service.ts` | `initQuery()` and the exact tenancy prefix |
-| `packages/nestjs-neo4jsonapi/src/core/neo4j/abstracts/abstract.repository.ts` | `buildDefaultMatch()`, `buildReturnStatement()`, schema reconciliation |
+| `packages/nestjs-neo4jsonapi/src/core/neo4j/abstracts/abstract.repository.ts` | `buildDefaultMatch()`, `buildReturnStatement()`, schema reconciliation, `assertRelatedInCompany()` |
+| `packages/nestjs-neo4jsonapi/src/common/registries/entity-tenancy.registry.ts` | the label → tenancy registry, the relationship rules and the boot error |
 | `packages/nestjs-neo4jsonapi/src/foundations/membership/queries/membership.query.ts` | the membership shape and its deletion invariant |
 | `packages/nestjs-neo4jsonapi/src/core/cors/services/cors.service.ts` | origin validation and the empty-configuration fallback |
 | `packages/nestjs-neo4jsonapi/src/bootstrap/app.module.factory.ts` | throttler configuration and the global guard registration |

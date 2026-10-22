@@ -3,7 +3,7 @@ title: Backend: New Entity Template
 section: 02-framework
 ---
 
-<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.21.0, on 2026-10-14. Do not edit here; re-copy when the plugin updates. -->
+<!-- Copied verbatim from the nja plugin, skill nja-architecture, version 1.24.0, on 2026-10-22. Do not edit here; re-copy when the plugin updates. -->
 
 ---
 id: backend-template
@@ -501,11 +501,13 @@ export class ExampleRepository extends AbstractRepository<Example, typeof Exampl
 ## Service (Complex) - Add custom method
 
 ```typescript
+import { JsonApiListDocument, JsonApiPaginator } from "@carlonicora/nestjs-neo4jsonapi";
+
 @Injectable()
 export class ExampleService extends AbstractService<Example, typeof ExampleDescriptor.relationships> {
   // ... Medium tier code ...
 
-  async findPending(params: { query: any }): Promise<any> {
+  async findPending(params: { query: any }): Promise<JsonApiListDocument> {
     const paginator = new JsonApiPaginator(params.query);
     const data = await this.exampleRepository.findPending({ cursor: paginator.generateCursor() });
     return this.jsonApiService.buildList(ExampleDescriptor.model, data, paginator);

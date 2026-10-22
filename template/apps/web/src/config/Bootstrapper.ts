@@ -60,6 +60,10 @@ import {
   UserModule,
   WaitlistModule,
   WaitlistStatsModule,
+  EmailAutomationModule,
+  EmailAutomationStepModule,
+  EmailAutomationEnrollmentModule,
+  EmailAutomationTriggerModule,
 } from "@carlonicora/nextjs-jsonapi/core";
 import { LucideIcon } from "lucide-react";
 
@@ -132,6 +136,12 @@ const allModules = {
   // Waitlist modules
   Waitlist: WaitlistModule(moduleFactory),
   WaitlistStats: WaitlistStatsModule(moduleFactory),
+  // Email automation modules — the components live in
+  // @carlonicora/nextjs-jsonapi/email-automations.
+  EmailAutomation: EmailAutomationModule(moduleFactory),
+  EmailAutomationStep: EmailAutomationStepModule(moduleFactory),
+  EmailAutomationEnrollment: EmailAutomationEnrollmentModule(moduleFactory),
+  EmailAutomationTrigger: EmailAutomationTriggerModule(moduleFactory),
   // Two-factor authentication modules
   TotpAuthenticator: TotpAuthenticatorModule(moduleFactory),
   TotpSetup: TotpSetupModule(moduleFactory),
