@@ -1,3 +1,9 @@
+## [1.20.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.19.0...v1.20.0) (2026-10-22)
+
+### 🚀 Features
+
+* **template:** nestjs-neo4jsonapi 6.6.1, nextjs-jsonapi 5.3.0 and the relationship company check ([47f9d80](https://github.com/carlonicora/create-carlonicora-app/commit/47f9d805ab45def03480139292cf48d99f322a8f))
+
 ## [1.19.0](https://github.com/carlonicora/create-carlonicora-app/compare/v1.18.0...v1.19.0) (2026-10-13)
 
 ### 🚀 Features
